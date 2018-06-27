@@ -1,0 +1,49 @@
+{
+  "name": "wt-write-api",
+  "version": "0.0.1",
+  "description": "API to write data to the Winding Tree platform",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "eslint src test",
+    "test": "./node_modules/.bin/nyc --reporter=text ./node_modules/mocha/bin/mocha test/**/*.spec.js --timeout 20000",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/windingtree/wt-write-api.git"
+  },
+  "keywords": [
+    "winding-tree",
+    "api",
+    "nodejs",
+    "javascript"
+  ],
+  "author": "WT Dev Team <support@winidngtree.com>",
+  "license": "APACHE 2.0",
+  "bugs": {
+    "url": "https://github.com/windingtree/wt-write-api/issues"
+  },
+  "homepage": "https://github.com/windingtree/wt-write-api#readme",
+  "dependencies": {
+    "@windingtree/wt-js-libs": "^0.2.2",
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
+    "@windingtree/wt-contracts": "^0.2.2",
+    "chai": "^4.1.2",
+    "coveralls": "^3.0.0",
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "mocha": "^5.1.0",
+    "nyc": "^11.6.0",
+    "sinon": "^4.5.0",
+    "supertest": "^3.0.0"
+  },
+  "engines": {
+    "node": "10.3.0"
+  }
+}
