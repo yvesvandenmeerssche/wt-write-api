@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const { logger } = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error } = require('./errors');
 
@@ -24,6 +25,7 @@ app.use('*', (req, res, next) => {
 // Error handler
 app.use((err, req, res, next) => {
   if (!(err instanceof HttpError)) {
+    logger.error(err.stack);
     err = new HttpInternalError();
   }
 

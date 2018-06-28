@@ -1,8 +1,8 @@
 const { app } = require('./app');
-const config = require('./config');
+const { logger, port } = require('./config');
 
-const server = app.listen(config.port, () => {
-  console.log(`WT Write API at ${config.port}...`);
+const server = app.listen(port, () => {
+  logger.info(`WT Write API at ${port}...`);
 });
 
 module.exports = server;

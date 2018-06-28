@@ -15,6 +15,8 @@ describe('API', function () {
   it('GET /', async () => {
     await request(server)
       .get('/')
+      .expect(200)
+      .expect('content-type', /json/i)
       .expect((res) => {
         expect(res.body).to.have.property('docs');
         expect(res.body).to.have.property('info');
@@ -26,6 +28,7 @@ describe('API', function () {
   it('GET /random-endpoint', async () => {
     await request(server)
       .get('/random-endpoint')
+      .expect(404)
       .expect('content-type', /json/i)
       .expect((res) => {
         expect(res.body).to.have.property('code', '#notFound');

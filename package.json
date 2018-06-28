@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint src test",
-    "test": "./node_modules/.bin/nyc --reporter=text ./node_modules/mocha/bin/mocha test/**/*.spec.js --timeout 20000",
+    "dev": "NODE_ENV=dev node src/index.js",
+    "test": "NODE_ENV=test ./node_modules/.bin/nyc --reporter=text ./node_modules/mocha/bin/mocha test/**/*.spec.js --timeout 20000",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
@@ -26,7 +27,8 @@
   "homepage": "https://github.com/windingtree/wt-write-api#readme",
   "dependencies": {
     "@windingtree/wt-js-libs": "^0.2.2",
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "winston": "^3.0.0"
   },
   "devDependencies": {
     "@windingtree/wt-contracts": "^0.2.2",
