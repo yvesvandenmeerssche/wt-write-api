@@ -6,8 +6,8 @@ module.exports = {
     level: 'warn',
     transports: [
       new winston.transports.Console({
-        format: winston.format.simple()
-      })
+        format: winston.format.simple(),
+      }),
     ],
   }),
 };
