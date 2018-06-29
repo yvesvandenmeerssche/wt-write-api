@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const { logger } = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error } = require('./errors');
+const { attachUploaderConfig } = require('./middleware');
+const { createHotel } = require('./controllers');
 
 const app = express();
 
@@ -16,6 +18,9 @@ app.get('/', (req, res) => {
     version,
   });
 });
+
+// Hotels
+app.post('/hotel', attachUploaderConfig, createHotel);
 
 // 404 handler
 app.use('*', (req, res, next) => {

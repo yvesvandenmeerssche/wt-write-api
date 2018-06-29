@@ -21,8 +21,7 @@ describe('API', function () {
         expect(res.body).to.have.property('docs');
         expect(res.body).to.have.property('info');
         expect(res.body).to.have.property('version');
-      })
-      .expect(200);
+      });
   });
 
   it('GET /random-endpoint', async () => {
@@ -34,7 +33,6 @@ describe('API', function () {
         expect(res.body).to.have.property('code', '#notFound');
         expect(res.body).to.have.property('short');
         expect(res.body).to.have.property('long');
-      })
-      .expect(404);
+      });
   });
 });
