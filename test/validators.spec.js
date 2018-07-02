@@ -6,7 +6,6 @@ const { getDescription, getRatePlans,
 const { validateDescription, validateRatePlans,
   validateAvailability } = require('../src/validators');
 
-
 describe('validators', function () {
   describe('validateDescription', () => {
     it('should pass when the data is correct', () => {

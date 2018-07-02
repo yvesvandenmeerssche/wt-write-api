@@ -13,18 +13,18 @@ module.exports.createHotel = async (req, res, next) => {
     // 1. Validate request.
     for (let field of DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
-      if (field.required && ! data) {
+      if (field.required && !data) {
         throw new HttpValidationError('validationFailed', `Missing field: ${field.name}`);
       }
       if (data) {
-        field.validator(data)
+        field.validator(data);
       }
     }
     // 2. Upload the actual data parts.
     let dataIndex = {};
     for (let field of DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
-      if (! data) {
+      if (!data) {
         continue;
       }
       let uploader = req.uploaders.getUploader(field.name);

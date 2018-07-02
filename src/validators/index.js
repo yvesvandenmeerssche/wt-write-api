@@ -13,8 +13,8 @@ const { HttpValidationError } = require('../errors');
  * (version 0.0.4) using the "openapi2schema" CLI tool.
  */
 
-function _validate(data, schema) {
-  if (! tv4.validate(data, schema, false, true)) {
+function _validate (data, schema) {
+  if (!tv4.validate(data, schema, false, true)) {
     var msg = tv4.error.message + ': ' + tv4.error.dataPath;
     throw new HttpValidationError('validationFailed', msg);
   }
@@ -29,7 +29,7 @@ function _validate(data, schema) {
  */
 module.exports.validateDescription = function (data) {
   return _validate(data, descriptionSchema);
-}
+};
 
 /**
  * Validate data against rate plans json schema definition.
@@ -40,7 +40,7 @@ module.exports.validateDescription = function (data) {
  */
 module.exports.validateRatePlans = function (data) {
   return _validate(data, ratePlansSchema);
-}
+};
 
 /**
  * Validate data against availability json schema definition.
@@ -51,4 +51,4 @@ module.exports.validateRatePlans = function (data) {
  */
 module.exports.validateAvailability = function (data) {
   return _validate(data, availabilitySchema);
-}
+};
