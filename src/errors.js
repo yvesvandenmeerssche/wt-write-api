@@ -1,10 +1,12 @@
 class HttpError extends Error {
-  constructor (code, msgShort, msgLong) {
+  constructor (code, msgLong, msgShort) {
     super();
     this.code = code || this.constructor.defaultCode;
     this.msgShort = msgShort || this.constructor.defaultMsgShort;
-    this.msgLong = msgLong || this.constructor.defaultMsgShort;
+    this.msgLong = msgLong || this.constructor.defaultMsgLong || '';
     this.status = this.constructor.status;
+    // For compatibility with the Error class:
+    this.message = this.msgLong || this.msgShort || this.code;
   }
 
   toPlainObject () {
@@ -29,8 +31,14 @@ Http404Error.defaultCode = 'notFound';
 Http404Error.defaultMsgShort = 'Page not found.';
 Http404Error.defaultMsgLong = 'This endpoint does not exist.';
 
+class HttpValidationError extends HttpError {};
+HttpValidationError.status = 422;
+HttpValidationError.defaultCode = 'validationFailed';
+HttpValidationError.defaultMsgShort = 'Validation did not pass.';
+
 module.exports = {
   HttpError: HttpError,
   HttpInternalError: HttpInternalError,
   Http404Error: Http404Error,
+  HttpValidationError: HttpValidationError,
 };

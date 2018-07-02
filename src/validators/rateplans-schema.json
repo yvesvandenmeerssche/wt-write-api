@@ -1,0 +1,192 @@
+{
+  "type": "object",
+  "description": "Property names are ID of rate plan and the values is the rate plan description",
+  "additionalProperties": {
+    "description": "Rate plan for specified room types.\n\nAlgorithm to calculate price\n- pick the right ratePlan(s) based on availableForTravel field and provided booking dates\n- check restrictions and drop rate plans that the booking doesn't meet\n- for every rate plan as rp_i\n  - for every person as p_j\n      j < under baseOccupancyLimit, use base rates, use additional rates otherwise\n      pick a most fitting rate based on declared guest's age and declared length of stay\n        it is possible that nothing is matched\n      multiply the rate by length of stay\n  - store the final price for rp_i\n- compare all final prices and pick the cheapest\n",
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "description"
+    ],
+    "properties": {
+      "id": {
+        "description": "Vendor rate plan ID (unique for hotel)",
+        "title": "ID",
+        "type": "string",
+        "maxLength": 100
+      },
+      "name": {
+        "description": "Name of the rate plan to show to users",
+        "title": "Entity name",
+        "type": "string",
+        "maxLength": 150
+      },
+      "description": {
+        "description": "Rate plan description in plain text",
+        "title": "Markdown description",
+        "type": "string",
+        "maxLength": 3000
+      },
+      "currency": {
+        "description": "Currency in which are all the prices of this rate plan. If not set, the hotel currency setting will be used.",
+        "title": "Currency code",
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 3
+      },
+      "roomTypeIds": {
+        "type": "array",
+        "description": "List of all room types that this rate plan applies to",
+        "minItems": 0,
+        "maxItems": 30,
+        "uniqueItems": true,
+        "items": {
+          "description": "RoomType id",
+          "title": "ID",
+          "type": "string",
+          "maxLength": 100
+        }
+      },
+      "availableForReservation": {
+        "type": "object",
+        "description": "A time period during which this rate plan can be used to compute prices for a booking, i. e. a hotel can have different rate plans that are used for reservations for the same date that are placed in different months. If this restriction is not set, the rate plan can be used for booking with no time restriction.",
+        "required": [
+          "start",
+          "end"
+        ],
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "availableForTravel": {
+        "type": "object",
+        "description": "A time period of stay during which this rate plan should be used to compute prices, i. e. prices in this rate plan are applicable in August. If this restriction is not set, the rate plan can be used for booking for any time.",
+        "required": [
+          "start",
+          "end"
+        ],
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "pricing": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "object",
+            "properties": {
+              "maxOccupancyLimit": {
+                "type": "integer"
+              },
+              "rates": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "description": "Single price of rate plan. Amount is the price and the rest of attributes are restrictions.",
+                  "required": [
+                    "amount"
+                  ],
+                  "properties": {
+                    "amount": {
+                      "description": "The price per one day without currency",
+                      "type": "number",
+                      "format": "float"
+                    },
+                    "minLengthOfStay": {
+                      "description": "Minimal length of stay the price is applicable to. If there are multiple prices with lengthOfStay restriction matching the minimal length of stay, the price for the longest length of stay is used. The declared price is always per one day.",
+                      "type": "integer"
+                    },
+                    "maxAge": {
+                      "description": "The price is applicable to occupants of this age or younger at the time of arrival to the stay. If multiple prices are specified with different maxAge, the price with the highes limit is applied. If no price with maxAge restriction can be applied and there is a price without this restriction, it is applied. The declared price is always per one day.",
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "additional": {
+            "type": "object",
+            "properties": {
+              "maxOccupancyLimit": {
+                "type": "integer"
+              },
+              "rates": {
+                "type": "object",
+                "items": {
+                  "type": "object",
+                  "description": "Single price of rate plan. Amount is the price and the rest of attributes are restrictions.",
+                  "required": [
+                    "amount"
+                  ],
+                  "properties": {
+                    "amount": {
+                      "description": "The price per one day without currency",
+                      "type": "number",
+                      "format": "float"
+                    },
+                    "minLengthOfStay": {
+                      "description": "Minimal length of stay the price is applicable to. If there are multiple prices with lengthOfStay restriction matching the minimal length of stay, the price for the longest length of stay is used. The declared price is always per one day.",
+                      "type": "integer"
+                    },
+                    "maxAge": {
+                      "description": "The price is applicable to occupants of this age or younger at the time of arrival to the stay. If multiple prices are specified with different maxAge, the price with the highes limit is applied. If no price with maxAge restriction can be applied and there is a price without this restriction, it is applied. The declared price is always per one day.",
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "restrictions": {
+        "type": "object",
+        "description": "Restrictions for this rate plan. If a booking fits all restrictions, this rate plan can be used. If no restrictions are set, rate plan can be applied at any valid time.",
+        "properties": {
+          "bookingCutOff": {
+            "description": "How many days in advance booking starts / ends. If not specified there is no restriction.",
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "integer"
+              },
+              "max": {
+                "type": "integer"
+              }
+            }
+          },
+          "lengthOfStay": {
+            "description": "How long does the stay have to be to apply this rate plan. If not specified, there is no restriction.",
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "integer",
+                "default": 1
+              },
+              "max": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

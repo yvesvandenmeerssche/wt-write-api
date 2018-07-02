@@ -1,0 +1,99 @@
+{
+  "description": "Availability data. Some of the nested objects might be represented as standalone documents in the future (i. e. we would store only an URI pointer here, in the same manner as descriptionUri in HotelDataIndex).",
+  "type": "object",
+  "properties": {
+    "latestSnapshot": {
+      "description": "Full snapshot of availability in time of `updatedAt`",
+      "type": "object",
+      "required": [
+        "availability"
+      ],
+      "properties": {
+        "availability": {
+          "description": "Object where property names are roomTypeId",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "day"
+              ],
+              "properties": {
+                "day": {
+                  "description": "The day the availability is for",
+                  "type": "string",
+                  "format": "date"
+                },
+                "quantity": {
+                  "description": "Number of free resources to book for the day",
+                  "type": "integer"
+                },
+                "restrictions": {
+                  "description": "Possible restriction (this is sample how to add restrictions to availability)",
+                  "type": "object",
+                  "properties": {
+                    "noArrival": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "updates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Update to availability. Either `total` or `change` can be present, not both.",
+        "required": [
+          "from",
+          "to"
+        ],
+        "properties": {
+          "serialNo": {
+            "description": "Zero based ordinal number of the record from the last full snapshot. The first record should have number 0",
+            "type": "integer"
+          },
+          "from": {
+            "description": "First day the changed availability is applied to (including)",
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "description": "Last day the changed availability is applied to (including)",
+            "type": "string",
+            "format": "date"
+          },
+          "total": {
+            "description": "Absolute quantity during the period `from` ... `to`.",
+            "type": "integer"
+          },
+          "change": {
+            "description": "Relative change of quantity during the period",
+            "type": "integer"
+          },
+          "roomTypeId": {
+            "description": "ID of roomtype the update applies to",
+            "title": "ID",
+            "type": "string",
+            "maxLength": 100
+          },
+          "restrictions": {
+            "description": "Possible restriction (this is sample how to add restrictions to availability)",
+            "type": "object",
+            "properties": {
+              "noArrival": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}

@@ -1,0 +1,280 @@
+{
+  "title": "Hotel description",
+  "description": "Basic properties of hotel",
+  "type": "object",
+  "required": [
+    "name",
+    "description",
+    "contacts",
+    "address",
+    "timezone",
+    "currency"
+  ],
+  "properties": {
+    "location": {
+      "description": "Geo-location in GPS format",
+      "title": "GPS location",
+      "type": "object",
+      "required": [
+        "latitude",
+        "longitude"
+      ],
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "format": "float"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "float"
+        }
+      }
+    },
+    "name": {
+      "description": "Name of the hotel to display to users",
+      "title": "Entity name",
+      "type": "string",
+      "maxLength": 150
+    },
+    "description": {
+      "description": "Short text description of the hotel to show to users.",
+      "title": "Markdown description",
+      "type": "string",
+      "maxLength": 3000
+    },
+    "roomTypes": {
+      "description": "Room types in the hotel",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "occupancy",
+          "totalQuantity"
+        ],
+        "properties": {
+          "id": {
+            "description": "Vendor room type ID (should be unique for hotel)",
+            "title": "ID",
+            "type": "string",
+            "maxLength": 100
+          },
+          "name": {
+            "description": "Name of the room type to show to users",
+            "title": "Entity name",
+            "type": "string",
+            "maxLength": 150
+          },
+          "description": {
+            "description": "Room type description in plain text",
+            "title": "Markdown description",
+            "type": "string",
+            "maxLength": 3000
+          },
+          "totalQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "occupancy": {
+            "type": "object",
+            "required": [
+              "max"
+            ],
+            "properties": {
+              "min": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Minimal number of occupants to rent the room.",
+                "default": 1
+              },
+              "max": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Maximal number of occupants to rent the room."
+              }
+            }
+          },
+          "amenities": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "title": "Room amenity",
+              "description": "Room amenity - the possible values are example only. TODO - define real list of important amenity types.",
+              "type": "string",
+              "enum": [
+                "TV",
+                "minibar"
+              ]
+            }
+          },
+          "images": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 30,
+            "uniqueItems": true,
+            "items": {
+              "description": "image uri",
+              "title": "URI",
+              "type": "string",
+              "format": "uri",
+              "maxLength": 1500
+            }
+          },
+          "properties": {
+            "type": "object",
+            "description": "Other properties used for filtering and/or categorization of the room types",
+            "properties": {
+              "nonSmoking": {
+                "description": "Whether there are any non smoking rooms of the type",
+                "type": "string",
+                "enum": [
+                  "some",
+                  "all",
+                  "none"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "contacts": {
+      "type": "object",
+      "description": "List of contacts",
+      "required": [
+        "general"
+      ],
+      "properties": {
+        "general": {
+          "description": "Primary contact",
+          "title": "Contact",
+          "type": "object",
+          "properties": {
+            "email": {
+              "description": "E-mail contact",
+              "type": "string",
+              "format": "email",
+              "maxLength": 150
+            },
+            "phone": {
+              "description": "Phone number (with country prefix)",
+              "type": "string",
+              "maxLength": 18
+            },
+            "url": {
+              "description": "Url to the contact web page",
+              "type": "string",
+              "format": "uri"
+            },
+            "ethereum": {
+              "description": "Address of wallet on Ethereum",
+              "title": "Ethereum address",
+              "type": "string",
+              "maxLength": 300
+            },
+            "additionalContacts": {
+              "description": "More contact options, such as Whatsapp, WeChat, Telegram, twitter handle, facebook address. Once we see high demand for a particular type of contact, we can promote them to regular contact types.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "value"
+                ],
+                "properties": {
+                  "title": {
+                    "description": "Name of this contact options",
+                    "type": "string"
+                  },
+                  "value": {
+                    "description": "The actual contact",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "address": {
+      "title": "Postal address",
+      "type": "object",
+      "required": [
+        "line1",
+        "city",
+        "country"
+      ],
+      "properties": {
+        "line1": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "line2": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "postalCode": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "city": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "state": {
+          "type": "string",
+          "maxLength": 150
+        },
+        "country": {
+          "type": "string",
+          "maxLength": 2,
+          "minLength": 2,
+          "description": "ISO 3166-1 alpha-2 codes"
+        }
+      }
+    },
+    "timezone": {
+      "title": "Timezone code",
+      "description": "Timezone name according to https://www.iana.org/time-zones (refer to zone.tab)",
+      "type": "string",
+      "maxLength": 40
+    },
+    "currency": {
+      "title": "Currency code",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3,
+      "description": "Three letter ISO 4217 currency code."
+    },
+    "images": {
+      "description": "Images (web browser compatible)",
+      "type": "array",
+      "items": {
+        "title": "URI",
+        "description": "URI for linking resources. The maximal length is 1500 to save space.",
+        "type": "string",
+        "format": "uri",
+        "maxLength": 1500
+      }
+    },
+    "amenities": {
+      "description": "Hotel products / services provided for free to guests",
+      "type": "array",
+      "items": {
+        "title": "Hotel amenity",
+        "description": "Products and services offered to guests for free. The list is an example, TODO - define real values",
+        "type": "string",
+        "enum": [
+          "WiFi",
+          "Swimming pool",
+          "Parking",
+          "Fitness centre"
+        ]
+      }
+    }
+  },
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}
