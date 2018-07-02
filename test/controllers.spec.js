@@ -4,6 +4,8 @@ const { assert, expect } = require('chai');
 const request = require('supertest');
 const sinon = require('sinon');
 
+const { getDescription, getRatePlans,
+  getAvailability } = require('./utils/fixtures');
 const DummyOnChainUploader = require('../src/services/uploaders/on-chain').DummyUploader;
 const { uploaders } = require('../src/config');
 
@@ -23,12 +25,16 @@ describe('controllers', function () {
 
   describe('POST /hotel', () => {
     it('should upload the given data', (done) => {
+      const desc = getDescription(),
+        ratePlans = getRatePlans(),
+        availability = getAvailability();
+        
       request(server)
         .post('/hotel')
         .send({
-          description: { key: 'value_desc' },
-          ratePlans: { key: 'value_rate' },
-          availability: { key: 'value_avail' },
+          description: desc,
+          ratePlans: ratePlans,
+          availability: availability,
         })
         .expect(204)
         .end((err, res) => {
@@ -42,20 +48,40 @@ describe('controllers', function () {
               ratePlansUri: 'dummy://dummy',
               availabilityUri: 'dummy://dummy',
             }));
-            assert.ok(uploaders.offChain.root.upload.calledWith({
-              key: 'value_desc',
-            }));
-            assert.ok(uploaders.offChain.root.upload.calledWith({
-              key: 'value_rate',
-            }));
-            assert.ok(uploaders.offChain.root.upload.calledWith({
-              key: 'value_avail',
-            }));
+            assert.ok(uploaders.offChain.root.upload.calledWith(desc));
+            assert.ok(uploaders.offChain.root.upload.calledWith(ratePlans));
+            assert.ok(uploaders.offChain.root.upload.calledWith(availability));
             done();
           } catch (e) {
             done(e);
           }
         });
+    });
+
+    it('should return 204 the non-required fields are missing', (done) => {
+      request(server)
+        .post('/hotel')
+        .send({ description: getDescription() })
+        .expect(204)
+        .end(done);
+    });
+
+    it('should return 422 when description is missing', (done) => {
+      request(server)
+        .post('/hotel')
+        .send({ ratePlans: getRatePlans(), availability: getAvailability() })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 when the data format is wrong', (done) => {
+      let desc = getDescription();
+      delete desc.name;
+      request(server)
+        .post('/hotel')
+        .send({ description: desc })
+        .expect(422)
+        .end(done);
     });
   });
 });
