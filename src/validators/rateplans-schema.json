@@ -37,7 +37,8 @@
         "title": "Currency code",
         "type": "string",
         "minLength": 3,
-        "maxLength": 3
+        "maxLength": 3,
+        "format": "currency-code"
       },
       "roomTypeIds": {
         "type": "array",

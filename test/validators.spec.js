@@ -41,6 +41,12 @@ describe('validators', function () {
       desc.timezone = 'Europe/Friesland';
       assert.throws(() => validateDescription(desc), /timezone/);
     });
+
+    it('should fail when the currency code is invalid', () => {
+      let desc = getDescription();
+      desc.currency = 'OMG';
+      assert.throws(() => validateDescription(desc), /ISO 4217/);
+    });
   });
 
   describe('validateRatePlans', () => {
@@ -58,6 +64,12 @@ describe('validators', function () {
       let plans = getRatePlans();
       plans.basic.colour = 'green';
       assert.throws(() => validateRatePlans(plans), /Unknown property/);
+    });
+
+    it('should fail when the currency code is invalid', () => {
+      let plans = getRatePlans();
+      plans.basic.currency = 'OMG';
+      assert.throws(() => validateRatePlans(plans), /ISO 4217/);
     });
   });
 

@@ -257,7 +257,8 @@
       "type": "string",
       "minLength": 3,
       "maxLength": 3,
-      "description": "Three letter ISO 4217 currency code."
+      "description": "Three letter ISO 4217 currency code.",
+      "format": "currency-code"
     },
     "images": {
       "description": "Images (web browser compatible)",

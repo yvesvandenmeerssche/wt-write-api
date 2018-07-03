@@ -2,6 +2,7 @@ const _ = require('lodash');
 const tv4 = require('tv4');
 const tv4Formats = require('tv4-formats');
 const countryCodes = require('iso-3166-1-alpha-2');
+const currencyCodes = require('currency-codes');
 const timezones = require('timezones.json');
 
 const descriptionSchema = require('./description-schema.json');
@@ -16,13 +17,19 @@ tv4.addFormat('country-code', (data) => {
   if (countryCodes.getCountry(data)) {
     return null;
   }
-  return "Not a valid ISO 3166-1 alpha-2 code.";
+  return 'Not a valid ISO 3166-1 alpha-2 country code.';
 });
 tv4.addFormat('timezone', (data) => {
   if (TIMEZONES.has(data)) {
     return null;
   }
-  return "Not a valid timezone.";
+  return 'Not a valid timezone.';
+});
+tv4.addFormat('currency-code', (data) => {
+  if (currencyCodes.code(data)) {
+    return null;
+  }
+  return 'Not a valid ISO 4217 currency code.';
 });
 
 /* Note: the json schemas were generated from the swagger
