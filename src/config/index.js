@@ -9,5 +9,12 @@ module.exports = Object.assign({
   // credentials present in the header.
   uploaders: new UploaderConfig(new DummyOnChainUploader(), {
     'root': new DummyOffChainUploader(),
+    /* Alternatively:
+    'root': new S3Uploader({
+      'accessKeyId': '...',
+      'secretAccessKey': '...',
+      'region': 'eu-central-1',
+      'bucket': 'bucket',
+    }); */
   }),
 }, require(`./${env}`));
