@@ -249,7 +249,8 @@
       "title": "Timezone code",
       "description": "Timezone name according to https://www.iana.org/time-zones (refer to zone.tab)",
       "type": "string",
-      "maxLength": 40
+      "maxLength": 40,
+      "format": "timezone"
     },
     "currency": {
       "title": "Currency code",

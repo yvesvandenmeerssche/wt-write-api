@@ -1,18 +1,28 @@
+const _ = require('lodash');
 const tv4 = require('tv4');
 const tv4Formats = require('tv4-formats');
-const countryCodes = require('iso-3166-1-alpha-2')
+const countryCodes = require('iso-3166-1-alpha-2');
+const timezones = require('timezones.json');
 
 const descriptionSchema = require('./description-schema.json');
 const ratePlansSchema = require('./rateplans-schema.json');
 const availabilitySchema = require('./availability-schema.json');
 const { HttpValidationError } = require('../errors');
 
-tv4.addFormat(tv4Formats);
+const TIMEZONES = new Set(_(timezones).map('utc').flatten().value());
+
+tv4.addFormat(tv4Formats); // We use the "date-time" format from this module.
 tv4.addFormat('country-code', (data) => {
-  if (typeof data === 'string' && countryCodes.getCountry(data)) {
+  if (countryCodes.getCountry(data)) {
     return null;
   }
   return "Not a valid ISO 3166-1 alpha-2 code.";
+});
+tv4.addFormat('timezone', (data) => {
+  if (TIMEZONES.has(data)) {
+    return null;
+  }
+  return "Not a valid timezone.";
 });
 
 /* Note: the json schemas were generated from the swagger

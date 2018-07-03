@@ -30,10 +30,16 @@ describe('validators', function () {
       assert.throws(() => validateDescription(desc), /ISO 8601/);
     });
 
-    it('should fail when the country code is wrong', () => {
+    it('should fail when the country code is invalid', () => {
       let desc = getDescription();
       desc.address.country = 'XX';
       assert.throws(() => validateDescription(desc), /ISO 3166-1/);
+    });
+
+    it('should fail when the timezone is invalid', () => {
+      let desc = getDescription();
+      desc.timezone = 'Europe/Friesland';
+      assert.throws(() => validateDescription(desc), /timezone/);
     });
   });
 
