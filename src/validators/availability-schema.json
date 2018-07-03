@@ -9,6 +9,10 @@
         "availability"
       ],
       "properties": {
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "availability": {
           "description": "Object where property names are roomTypeId",
           "type": "object",
@@ -55,6 +59,10 @@
           "to"
         ],
         "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "serialNo": {
             "description": "Zero based ordinal number of the record from the last full snapshot. The first record should have number 0",
             "type": "integer"

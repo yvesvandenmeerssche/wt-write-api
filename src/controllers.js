@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const { HttpValidationError } = require('./errors');
 const { validateDescription, validateRatePlans,
   validateAvailability } = require('./validators');
@@ -7,6 +9,35 @@ const DATA_INDEX_FIELDS = [
   { name: 'ratePlans', required: false, validator: validateRatePlans },
   { name: 'availability', required: false, validator: validateAvailability },
 ];
+
+/**
+ * Add the `updatedAt` timestamp to the following components (if
+ * present):
+ *
+ * - description
+ * - description.roomTypes.*
+ * - ratePlans.*
+ * - availability.latestSnapshot
+ * - availability.updates.*
+ */
+function _addTimestamps (data) {
+  const timestampedObjects = _([
+    [_.get(data, 'description')],
+    _.values(_.get(data, ['description', 'roomTypes'])),
+    _.values(_.get(data, ['ratePlans'])),
+    [_.get(data, 'availability.latestSnapshot')],
+    _.values(_.get(data, 'availability.updates')),
+  ])
+    .flatten()
+    .filter()
+    .value();
+  const updatedAt = (new Date()).toISOString();
+  for (let obj of timestampedObjects) {
+    if (!obj.updatedAt) {
+      obj.updatedAt = updatedAt;
+    }
+  }
+}
 
 module.exports.createHotel = async (req, res, next) => {
   try {
@@ -20,7 +51,9 @@ module.exports.createHotel = async (req, res, next) => {
         field.validator(data);
       }
     }
-    // 2. Upload the actual data parts.
+    // 2. Add `updatedAt` timestamps.
+    _addTimestamps(req.body);
+    // 3. Upload the actual data parts.
     let dataIndex = {};
     for (let field of DATA_INDEX_FIELDS) {
       let data = req.body[field.name];

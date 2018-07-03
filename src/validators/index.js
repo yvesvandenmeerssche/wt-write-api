@@ -1,9 +1,12 @@
 const tv4 = require('tv4');
+const tv4Formats = require('tv4-formats');
 
 const descriptionSchema = require('./description-schema.json');
 const ratePlansSchema = require('./rateplans-schema.json');
 const availabilitySchema = require('./availability-schema.json');
 const { HttpValidationError } = require('../errors');
+
+tv4.addFormat(tv4Formats);
 
 /* Note: the json schemas were generated from the swagger
  * definition at

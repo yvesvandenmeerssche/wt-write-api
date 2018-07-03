@@ -28,6 +28,7 @@ describe('controllers', function () {
       const desc = getDescription(),
         ratePlans = getRatePlans(),
         availability = getAvailability();
+      uploaders.offChain.root.upload.resetHistory();
         
       request(server)
         .post('/hotel')
@@ -74,7 +75,7 @@ describe('controllers', function () {
         .end(done);
     });
 
-    it('should return 422 when the data format is wrong', (done) => {
+    it('should return 422 when data format is wrong', (done) => {
       let desc = getDescription();
       delete desc.name;
       request(server)
@@ -82,6 +83,34 @@ describe('controllers', function () {
         .send({ description: desc })
         .expect(422)
         .end(done);
+    });
+
+    it('should add updatedAt timestamps when omitted', (done) => {
+      let description = getDescription(),
+        ratePlans = getRatePlans(),
+        availability = getAvailability();
+      uploaders.offChain.root.upload.resetHistory();
+      delete description.updatedAt;
+      delete ratePlans.basic.updatedAt;
+      delete availability.latestSnapshot.updatedAt;
+      request(server)
+        .post('/hotel')
+        .send({ description, ratePlans, availability })
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            let uploadedDesc = uploaders.offChain.root.upload.args[0][0];
+            let uploadedRatePlans = uploaders.offChain.root.upload.args[1][0];
+            let uploadedAvailability = uploaders.offChain.root.upload.args[2][0];
+            assert.ok('updatedAt' in uploadedDesc);
+            assert.ok('updatedAt' in uploadedRatePlans.basic);
+            assert.ok('updatedAt' in uploadedAvailability.latestSnapshot);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
     });
   });
 });

@@ -15,6 +15,7 @@ module.exports.getDescription = function () {
     },
     timezone: 'Europe/London',
     currency: 'GBP',
+    updatedAt: (new Date()).toISOString(),
   };
 };
 
@@ -25,6 +26,7 @@ module.exports.getRatePlans = function () {
       id: 'id-basic',
       name: 'Basic',
       description: 'One bed, one pillow, no breakfast.',
+      updatedAt: (new Date()).toISOString(),
     },
   };
 };
@@ -41,6 +43,7 @@ module.exports.getAvailability = function () {
           },
         ],
       },
+      updatedAt: (new Date()).toISOString(),
     },
     updates: [],
   };

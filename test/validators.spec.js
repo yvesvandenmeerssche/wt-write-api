@@ -23,6 +23,12 @@ describe('validators', function () {
       desc.period = 'Middle Ages';
       assert.throws(() => validateDescription(desc), /Unknown property/);
     });
+
+    it('should fail when the time format is wrong', () => {
+      let desc = getDescription();
+      desc.updatedAt = 'hola';
+      assert.throws(() => validateDescription(desc), /ISO 8601/);
+    });
   });
 
   describe('validateRatePlans', () => {

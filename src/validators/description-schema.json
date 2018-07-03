@@ -11,6 +11,10 @@
     "currency"
   ],
   "properties": {
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
     "location": {
       "description": "Geo-location in GPS format",
       "title": "GPS location",
@@ -55,6 +59,10 @@
           "totalQuantity"
         ],
         "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "id": {
             "description": "Vendor room type ID (should be unique for hotel)",
             "title": "ID",
