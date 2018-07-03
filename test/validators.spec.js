@@ -29,6 +29,12 @@ describe('validators', function () {
       desc.updatedAt = 'hola';
       assert.throws(() => validateDescription(desc), /ISO 8601/);
     });
+
+    it('should fail when the country code is wrong', () => {
+      let desc = getDescription();
+      desc.address.country = 'XX';
+      assert.throws(() => validateDescription(desc), /ISO 3166-1/);
+    });
   });
 
   describe('validateRatePlans', () => {

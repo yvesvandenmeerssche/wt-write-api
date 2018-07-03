@@ -1,5 +1,6 @@
 const tv4 = require('tv4');
 const tv4Formats = require('tv4-formats');
+const countryCodes = require('iso-3166-1-alpha-2')
 
 const descriptionSchema = require('./description-schema.json');
 const ratePlansSchema = require('./rateplans-schema.json');
@@ -7,6 +8,12 @@ const availabilitySchema = require('./availability-schema.json');
 const { HttpValidationError } = require('../errors');
 
 tv4.addFormat(tv4Formats);
+tv4.addFormat('country-code', (data) => {
+  if (typeof data === 'string' && countryCodes.getCountry(data)) {
+    return null;
+  }
+  return "Not a valid ISO 3166-1 alpha-2 code.";
+});
 
 /* Note: the json schemas were generated from the swagger
  * definition at

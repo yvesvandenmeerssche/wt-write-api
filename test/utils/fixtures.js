@@ -11,7 +11,7 @@ module.exports.getDescription = function () {
     address: {
       line1: 'Silent Alley 17',
       city: 'Backwoods',
-      country: 'UK',
+      country: 'GB',
     },
     timezone: 'Europe/London',
     currency: 'GBP',

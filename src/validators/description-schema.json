@@ -240,7 +240,8 @@
           "type": "string",
           "maxLength": 2,
           "minLength": 2,
-          "description": "ISO 3166-1 alpha-2 codes"
+          "description": "ISO 3166-1 alpha-2 codes",
+          "format": "country-code"
         }
       }
     },
