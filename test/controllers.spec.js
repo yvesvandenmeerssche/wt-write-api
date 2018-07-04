@@ -42,12 +42,12 @@ describe('controllers', function () {
           if (err) return done(err);
           try {
             assert.ok(uploaders.onChain.upload.calledOnce);
-            assert.equal(uploaders.onChain.upload.getCall(0).args[0], 'dummy://dummy');
+            assert.equal(uploaders.onChain.upload.getCall(0).args[0], 'dummy://dataIndex.json');
             assert.equal(uploaders.offChain.root.upload.callCount, 4);
             assert.ok(uploaders.offChain.root.upload.calledWith({
-              descriptionUri: 'dummy://dummy',
-              ratePlansUri: 'dummy://dummy',
-              availabilityUri: 'dummy://dummy',
+              descriptionUri: 'dummy://description.json',
+              ratePlansUri: 'dummy://ratePlans.json',
+              availabilityUri: 'dummy://availability.json',
             }));
             assert.ok(uploaders.offChain.root.upload.calledWith(desc));
             assert.ok(uploaders.offChain.root.upload.calledWith(ratePlans));

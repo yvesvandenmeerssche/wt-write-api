@@ -51,26 +51,13 @@ describe('uploaders', () => {
         region: 'eu-central-1',
       });
       uploader._s3.putObject.resetHistory();
-      return uploader.upload({ key: 'value' }).then((url) => {
-        assert.equal(url.indexOf('https://bucket.s3.amazonaws.com/'), 0);
+      return uploader.upload({ key: 'value' }, 'description').then((url) => {
+        assert.equal(url, 'https://bucket.s3.amazonaws.com/description.json');
         assert.ok(uploader._s3.putObject.calledOnce);
         assert.equal(uploader._s3.putObject.args[0][0].Bucket, 'bucket');
         assert.equal(uploader._s3.putObject.args[0][0].Body, '{"key":"value"}');
-        assert.ok(uploader._s3.putObject.args[0][0].Key);
+        assert.equal(uploader._s3.putObject.args[0][0].Key, 'description.json');
       });
-    });
-
-    it('should always upload to a new place', async () => {
-      const uploader = new S3Uploader({
-        accessKeyId: 'dummy',
-        secretAccessKey: 'dummy',
-        bucket: 'bucket',
-        region: 'eu-central-1',
-      });
-      const url1 = await uploader.upload({ key: 'value' });
-      const url2 = await uploader.upload({ key: 'value' });
-
-      assert.notEqual(url1, url2);
     });
   });
 });

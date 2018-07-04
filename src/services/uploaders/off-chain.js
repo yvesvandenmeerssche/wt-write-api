@@ -1,5 +1,4 @@
 const AWS = require('aws-sdk');
-const shortid = require('shortid');
 
 /**
  * Base class for all off-chain uploaders.
@@ -7,10 +6,19 @@ const shortid = require('shortid');
 class OffChainUploader {
   /**
    * @param {Object} data Hotel data to be uploaded.
+   * @param {string} label To be used to create the final URL,
+   *   if possible. (Serves for re-using URLs to avoid the need
+   *   of updating on-chain data.)
    * @return {Promise<string>} URL of the uploaded data.
    */
-  upload (data) {
-    return Promise.reject(new Error('Not implemented'));
+  upload (data, label) {
+    if (!data) {
+      throw new Error('Please provide the data to be uploaded.');
+    }
+    if (!label) {
+      throw new Error('Please provide a label for the data.');
+    }
+    // NOTE: implement the rest in the subclasses.
   }
 };
 
@@ -19,8 +27,9 @@ class OffChainUploader {
  * actually do anything - useful for testing.
  */
 class DummyUploader extends OffChainUploader {
-  upload (data) {
-    return Promise.resolve('dummy://dummy');
+  upload (data, label) {
+    super.upload(data, label);
+    return Promise.resolve(`dummy://${label}.json`);
   }
 };
 
@@ -46,8 +55,9 @@ class S3Uploader extends OffChainUploader {
     this._bucket = options.bucket;
   }
 
-  upload (data) {
-    const key = `${shortid.generate()}.json`,
+  upload (data, label) {
+    super.upload(data, label);
+    const key = `${label}.json`,
       params = {
         Bucket: this._bucket,
         Key: key,
