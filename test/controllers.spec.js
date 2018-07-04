@@ -11,6 +11,7 @@ const { uploaders } = require('../src/config');
 
 sinon.spy(uploaders.onChain, 'upload');
 sinon.spy(uploaders.offChain.root, 'upload');
+sinon.spy(uploaders.onChain, 'remove');
 
 describe('controllers', function () {
   let server;
@@ -59,7 +60,7 @@ describe('controllers', function () {
         });
     });
 
-    it('should return 204 the non-required fields are missing', (done) => {
+    it('should return 204 when only non-required fields are missing', (done) => {
       request(server)
         .post('/hotel')
         .send({ description: getDescription() })
@@ -106,6 +107,24 @@ describe('controllers', function () {
             assert.ok('updatedAt' in uploadedDesc);
             assert.ok('updatedAt' in uploadedRatePlans.basic);
             assert.ok('updatedAt' in uploadedAvailability.latestSnapshot);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+  });
+
+  describe('DELETE /hotel', () => {
+    it('should delete the hotel from the on-chain storage', (done) => {
+      uploaders.onChain.remove.resetHistory();
+      request(server)
+        .delete('/hotel')
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.ok(uploaders.onChain.remove.calledOnce);
             done();
           } catch (e) {
             done(e);
