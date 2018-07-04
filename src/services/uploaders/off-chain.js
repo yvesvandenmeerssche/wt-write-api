@@ -5,6 +5,8 @@ const AWS = require('aws-sdk');
  */
 class OffChainUploader {
   /**
+   * Upload data to an off-chain storage.
+   *
    * @param {Object} data Hotel data to be uploaded.
    * @param {string} label To be used to create the final URL,
    *   if possible. (Serves for re-using URLs to avoid the need
@@ -19,6 +21,18 @@ class OffChainUploader {
       throw new Error('Please provide a label for the data.');
     }
     // NOTE: implement the rest in the subclasses.
+  }
+
+  /**
+   * Remove data from an off-chain storage, if possible.
+   *
+   * @param {string} label Used to identify the data to be
+   *   removed.
+   * @return {Promise<Boolean>} A Promise of the deletion result
+   *    - true if deletion was possible, false otherwise.
+   */
+  remove (label) {
+    return Promise.resolve(false);
   }
 };
 
@@ -66,6 +80,14 @@ class S3Uploader extends OffChainUploader {
     return this._s3.putObject(params)
       .promise()
       .then(() => `https://${this._bucket}.s3.amazonaws.com/${key}`);
+  }
+
+  remove (label) {
+    const key = `${label}.json`,
+      params = { Bucket: this._bucket, Key: key };
+    return this._s3.deleteObject(params)
+      .promise()
+      .then(() => true);
   }
 };
 

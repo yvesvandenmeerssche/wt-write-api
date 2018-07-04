@@ -15,6 +15,11 @@ describe('uploaders', () => {
               promise: () => Promise.resolve(),
             };
           }),
+          deleteObject: sinon.stub().callsFake(() => {
+            return {
+              promise: () => Promise.resolve(),
+            };
+          }),
         };
       });
     });
@@ -22,41 +27,62 @@ describe('uploaders', () => {
     after(() => {
       AWS.S3.restore();
     });
-
-    it('should create a new instance with the correct options', () => {
-      new S3Uploader({
-        accessKeyId: 'dummy',
-        secretAccessKey: 'dummy',
-        bucket: 'bucket',
-        region: 'eu-central-1',
-      });
-    });
-
-    it('should fail when a required option is missing', () => {
-      assert.throws(() => {
+    describe('constructor()', () => {
+      it('should create a new instance with the correct options', () => {
         new S3Uploader({
-          // accessKeyId: 'dummy',
+          accessKeyId: 'dummy',
           secretAccessKey: 'dummy',
           bucket: 'bucket',
           region: 'eu-central-1',
         });
-      }, /Missing required option: accessKeyId/);
+      });
+
+      it('should fail when a required option is missing', () => {
+        assert.throws(() => {
+          new S3Uploader({
+            // accessKeyId: 'dummy',
+            secretAccessKey: 'dummy',
+            bucket: 'bucket',
+            region: 'eu-central-1',
+          });
+        }, /Missing required option: accessKeyId/);
+      });
     });
 
-    it('should upload data to S3 and return the resulting URL', async () => {
-      const uploader = new S3Uploader({
-        accessKeyId: 'dummy',
-        secretAccessKey: 'dummy',
-        bucket: 'bucket',
-        region: 'eu-central-1',
+    describe('upload()', () => {
+      it('should upload data to S3 and return the resulting URL', async () => {
+        const uploader = new S3Uploader({
+          accessKeyId: 'dummy',
+          secretAccessKey: 'dummy',
+          bucket: 'bucket',
+          region: 'eu-central-1',
+        });
+        uploader._s3.putObject.resetHistory();
+        return uploader.upload({ key: 'value' }, 'description').then((url) => {
+          assert.equal(url, 'https://bucket.s3.amazonaws.com/description.json');
+          assert.ok(uploader._s3.putObject.calledOnce);
+          assert.equal(uploader._s3.putObject.args[0][0].Bucket, 'bucket');
+          assert.equal(uploader._s3.putObject.args[0][0].Body, '{"key":"value"}');
+          assert.equal(uploader._s3.putObject.args[0][0].Key, 'description.json');
+        });
       });
-      uploader._s3.putObject.resetHistory();
-      return uploader.upload({ key: 'value' }, 'description').then((url) => {
-        assert.equal(url, 'https://bucket.s3.amazonaws.com/description.json');
-        assert.ok(uploader._s3.putObject.calledOnce);
-        assert.equal(uploader._s3.putObject.args[0][0].Bucket, 'bucket');
-        assert.equal(uploader._s3.putObject.args[0][0].Body, '{"key":"value"}');
-        assert.equal(uploader._s3.putObject.args[0][0].Key, 'description.json');
+    });
+
+    describe('remove()', () => {
+      it('should remove data from S3', async () => {
+        const uploader = new S3Uploader({
+          accessKeyId: 'dummy',
+          secretAccessKey: 'dummy',
+          bucket: 'bucket',
+          region: 'eu-central-1',
+        });
+        uploader._s3.deleteObject.resetHistory();
+        return uploader.remove('ratePlans').then((result) => {
+          assert.equal(result, true);
+          assert.ok(uploader._s3.deleteObject.calledOnce);
+          assert.equal(uploader._s3.deleteObject.args[0][0].Bucket, 'bucket');
+          assert.equal(uploader._s3.deleteObject.args[0][0].Key, 'ratePlans.json');
+        });
       });
     });
   });
