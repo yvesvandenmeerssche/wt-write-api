@@ -10,8 +10,9 @@ const DummyOnChainUploader = require('../src/services/uploaders/on-chain').Dummy
 const { uploaders } = require('../src/config');
 
 sinon.spy(uploaders.onChain, 'upload');
-sinon.spy(uploaders.offChain.root, 'upload');
 sinon.spy(uploaders.onChain, 'remove');
+sinon.spy(uploaders.offChain.root, 'upload');
+sinon.spy(uploaders.offChain.root, 'remove');
 
 describe('controllers', function () {
   let server;
@@ -125,6 +126,26 @@ describe('controllers', function () {
           if (err) return done(err);
           try {
             assert.ok(uploaders.onChain.remove.calledOnce);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
+    it('should delete the hotel from the off-chain storage', (done) => {
+      uploaders.offChain.root.remove.resetHistory();
+      request(server)
+        .delete('/hotel')
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(uploaders.offChain.root.remove.callCount, 4);
+            assert.ok(uploaders.offChain.root.remove.calledWith('dataIndex'));
+            assert.ok(uploaders.offChain.root.remove.calledWith('description'));
+            assert.ok(uploaders.offChain.root.remove.calledWith('ratePlans'));
+            assert.ok(uploaders.offChain.root.remove.calledWith('availability'));
             done();
           } catch (e) {
             done(e);

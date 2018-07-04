@@ -77,7 +77,11 @@ module.exports.createHotel = async (req, res, next) => {
 module.exports.deleteHotel = async (req, res, next) => {
   try {
     await req.uploaders.onChain.remove();
-    // TODO: Remove also the orphaned off-chain data.
+    await req.uploaders.getUploader('root').remove('dataIndex');
+    for (let field of DATA_INDEX_FIELDS) {
+      let uploader = req.uploaders.getUploader(field.name);
+      await uploader.remove(field.name);
+    }
     res.sendStatus(204);
   } catch (err) {
     next(err);
