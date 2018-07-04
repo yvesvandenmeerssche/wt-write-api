@@ -40,6 +40,7 @@ function _addTimestamps (data) {
 }
 
 module.exports.createHotel = async (req, res, next) => {
+  // TODO: Find out if the hotel already exists?
   try {
     // 1. Validate request.
     for (let field of DATA_INDEX_FIELDS) {
@@ -67,7 +68,7 @@ module.exports.createHotel = async (req, res, next) => {
     const dataIndexUri = await req.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
     // 4. Upload the resulting data to ethereum.
     await req.uploaders.onChain.upload(dataIndexUri);
-    res.sendStatus(204);
+    res.sendStatus(201);
   } catch (err) {
     next(err);
   }

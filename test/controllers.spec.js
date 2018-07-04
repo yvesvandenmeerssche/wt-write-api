@@ -38,7 +38,7 @@ describe('controllers', function () {
           ratePlans: ratePlans,
           availability: availability,
         })
-        .expect(204)
+        .expect(201)
         .end((err, res) => {
           if (err) return done(err);
           try {
@@ -64,7 +64,7 @@ describe('controllers', function () {
       request(server)
         .post('/hotel')
         .send({ description: getDescription() })
-        .expect(204)
+        .expect(201)
         .end(done);
     });
 
@@ -97,7 +97,7 @@ describe('controllers', function () {
       request(server)
         .post('/hotel')
         .send({ description, ratePlans, availability })
-        .expect(204)
+        .expect(201)
         .end((err, res) => {
           if (err) return done(err);
           try {
