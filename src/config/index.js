@@ -15,6 +15,7 @@ module.exports = Object.assign({
       'secretAccessKey': '...',
       'region': 'eu-central-1',
       'bucket': 'bucket',
+      'keyPrefix': 'my-hotel',
     }); */
   }),
 }, require(`./${env}`));

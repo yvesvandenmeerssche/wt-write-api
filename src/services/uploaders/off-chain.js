@@ -51,11 +51,25 @@ class DummyUploader extends OffChainUploader {
  * Uploader for Amazon AWS S3.
  */
 class S3Uploader extends OffChainUploader {
+  /**
+   * The following configuration must be provided:
+   * - accessKeyId, secretAccessKey: AWS credentials
+   * - region: AWS region
+   * - bucket: S3 bucket to upload to
+   * - keyPrefix: a prefix ("directory") to upload hotel data
+   *     to. Serves to differentiate between different hotels
+   *     stored in the same s3 bucket.
+   */
   constructor (options) {
-    for (let attr of ['accessKeyId', 'secretAccessKey', 'region', 'bucket']) {
+    const requiredOptions = ['accessKeyId', 'secretAccessKey', 'region',
+      'bucket', 'keyPrefix'];
+    for (let attr of requiredOptions) {
       if (!options || !options[attr]) {
         throw new Error(`Missing required option: ${attr}.`);
       }
+    }
+    if (options.keyPrefix.endsWith('/')) {
+      throw new Error(`Invalid keyPrefix - cannot end with '/': ${options.keyPrefix}`);
     }
     super();
     this._s3 = new AWS.S3({
@@ -67,11 +81,12 @@ class S3Uploader extends OffChainUploader {
       region: options.region,
     });
     this._bucket = options.bucket;
+    this._keyPrefix = options.keyPrefix;
   }
 
   upload (data, label) {
     super.upload(data, label);
-    const key = `${label}.json`,
+    const key = `${this._keyPrefix}/${label}.json`,
       params = {
         Bucket: this._bucket,
         Key: key,
@@ -83,7 +98,7 @@ class S3Uploader extends OffChainUploader {
   }
 
   remove (label) {
-    const key = `${label}.json`,
+    const key = `${this._keyPrefix}/${label}.json`,
       params = { Bucket: this._bucket, Key: key };
     return this._s3.deleteObject(params)
       .promise()

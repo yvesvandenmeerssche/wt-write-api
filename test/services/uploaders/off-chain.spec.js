@@ -34,6 +34,7 @@ describe('uploaders', () => {
           secretAccessKey: 'dummy',
           bucket: 'bucket',
           region: 'eu-central-1',
+          keyPrefix: 'my-hotel',
         });
       });
 
@@ -44,6 +45,7 @@ describe('uploaders', () => {
             secretAccessKey: 'dummy',
             bucket: 'bucket',
             region: 'eu-central-1',
+            keyPrefix: 'my-hotel',
           });
         }, /Missing required option: accessKeyId/);
       });
@@ -56,14 +58,15 @@ describe('uploaders', () => {
           secretAccessKey: 'dummy',
           bucket: 'bucket',
           region: 'eu-central-1',
+          keyPrefix: 'my-hotel',
         });
         uploader._s3.putObject.resetHistory();
         return uploader.upload({ key: 'value' }, 'description').then((url) => {
-          assert.equal(url, 'https://bucket.s3.amazonaws.com/description.json');
+          assert.equal(url, 'https://bucket.s3.amazonaws.com/my-hotel/description.json');
           assert.ok(uploader._s3.putObject.calledOnce);
           assert.equal(uploader._s3.putObject.args[0][0].Bucket, 'bucket');
           assert.equal(uploader._s3.putObject.args[0][0].Body, '{"key":"value"}');
-          assert.equal(uploader._s3.putObject.args[0][0].Key, 'description.json');
+          assert.equal(uploader._s3.putObject.args[0][0].Key, 'my-hotel/description.json');
         });
       });
     });
@@ -75,13 +78,14 @@ describe('uploaders', () => {
           secretAccessKey: 'dummy',
           bucket: 'bucket',
           region: 'eu-central-1',
+          keyPrefix: 'my-hotel',
         });
         uploader._s3.deleteObject.resetHistory();
         return uploader.remove('ratePlans').then((result) => {
           assert.equal(result, true);
           assert.ok(uploader._s3.deleteObject.calledOnce);
           assert.equal(uploader._s3.deleteObject.args[0][0].Bucket, 'bucket');
-          assert.equal(uploader._s3.deleteObject.args[0][0].Key, 'ratePlans.json');
+          assert.equal(uploader._s3.deleteObject.args[0][0].Key, 'my-hotel/ratePlans.json');
         });
       });
     });
