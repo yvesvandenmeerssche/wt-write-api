@@ -119,21 +119,6 @@ describe('controllers', function () {
   describe('DELETE /hotel', () => {
     it('should delete the hotel from the on-chain storage', (done) => {
       uploaders.onChain.remove.resetHistory();
-      request(server)
-        .delete('/hotel')
-        .expect(204)
-        .end((err, res) => {
-          if (err) return done(err);
-          try {
-            assert.ok(uploaders.onChain.remove.calledOnce);
-            done();
-          } catch (e) {
-            done(e);
-          }
-        });
-    });
-
-    it('should delete the hotel from the off-chain storage', (done) => {
       uploaders.offChain.root.remove.resetHistory();
       request(server)
         .delete('/hotel')
@@ -141,6 +126,25 @@ describe('controllers', function () {
         .end((err, res) => {
           if (err) return done(err);
           try {
+            assert.ok(uploaders.onChain.remove.calledOnce);
+            assert.equal(uploaders.offChain.root.remove.callCount, 0);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
+    it('should delete the hotel also from the off-chain storage if requested', (done) => {
+      uploaders.onChain.remove.resetHistory();
+      uploaders.offChain.root.remove.resetHistory();
+      request(server)
+        .delete('/hotel?offChain=1')
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.ok(uploaders.onChain.remove.calledOnce);
             assert.equal(uploaders.offChain.root.remove.callCount, 4);
             assert.ok(uploaders.offChain.root.remove.calledWith('dataIndex'));
             assert.ok(uploaders.offChain.root.remove.calledWith('description'));
@@ -151,6 +155,13 @@ describe('controllers', function () {
             done(e);
           }
         });
+    });
+
+    it('should return HTTP 400 if the offChain parameter is ambiguous', (done) => {
+      request(server)
+        .delete('/hotel?offChain=maybe')
+        .expect(400)
+        .end(done);
     });
   });
 });

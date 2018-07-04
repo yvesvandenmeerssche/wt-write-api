@@ -19,11 +19,10 @@ class HttpError extends Error {
   }
 }
 
-class HttpInternalError extends HttpError {};
-HttpInternalError.status = 500;
-HttpInternalError.defaultCode = 'genericError';
-HttpInternalError.defaultMsgShort = 'Something went wrong.';
-HttpInternalError.defaultMsgLong = 'Something went wrong. Please contact the administrator.';
+class HttpBadRequestError extends HttpError {};
+HttpBadRequestError.status = 400;
+HttpBadRequestError.defaultCode = 'badRequest';
+HttpBadRequestError.defaultMsgShort = 'Bad request.';
 
 class Http404Error extends HttpError {};
 Http404Error.status = 404;
@@ -36,9 +35,16 @@ HttpValidationError.status = 422;
 HttpValidationError.defaultCode = 'validationFailed';
 HttpValidationError.defaultMsgShort = 'Validation did not pass.';
 
+class HttpInternalError extends HttpError {};
+HttpInternalError.status = 500;
+HttpInternalError.defaultCode = 'genericError';
+HttpInternalError.defaultMsgShort = 'Something went wrong.';
+HttpInternalError.defaultMsgLong = 'Something went wrong. Please contact the administrator.';
+
 module.exports = {
   HttpError: HttpError,
-  HttpInternalError: HttpInternalError,
+  HttpBadRequestError: HttpBadRequestError,
   Http404Error: Http404Error,
   HttpValidationError: HttpValidationError,
+  HttpInternalError: HttpInternalError,
 };

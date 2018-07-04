@@ -1,8 +1,9 @@
 const _ = require('lodash');
 
-const { HttpValidationError } = require('./errors');
+const { HttpValidationError, HttpBadRequestError } = require('./errors');
 const { validateDescription, validateRatePlans,
   validateAvailability } = require('./validators');
+const { parseBoolean, QueryParserError } = require('./services/query-parsers');
 
 const DATA_INDEX_FIELDS = [
   { name: 'description', required: true, validator: validateDescription },
@@ -39,6 +40,11 @@ function _addTimestamps (data) {
   }
 }
 
+/**
+ * Add a new hotel to the WT index and store its data in an
+ * off-chain storage.
+ *
+ */
 module.exports.createHotel = async (req, res, next) => {
   // TODO: Find out if the hotel already exists?
   try {
@@ -74,16 +80,33 @@ module.exports.createHotel = async (req, res, next) => {
   }
 };
 
+/**
+ * Delete the hotel from WT index.
+ *
+ * If req.query.offChain is true, it also tries to delete the
+ * off-chain data.
+ *
+ * NOTE: "Standard" off-chain storage is assumed. In case the
+ * hotel was not created via this API (or with a different
+ * uploader configuration), the off-chain resources will not be
+ * deleted.
+ *
+ */
 module.exports.deleteHotel = async (req, res, next) => {
   try {
     await req.uploaders.onChain.remove();
-    await req.uploaders.getUploader('root').remove('dataIndex');
-    for (let field of DATA_INDEX_FIELDS) {
-      let uploader = req.uploaders.getUploader(field.name);
-      await uploader.remove(field.name);
+    if (req.query.offChain && parseBoolean(req.query.offChain)) {
+      await req.uploaders.getUploader('root').remove('dataIndex');
+      for (let field of DATA_INDEX_FIELDS) {
+        let uploader = req.uploaders.getUploader(field.name);
+        await uploader.remove(field.name);
+      }
     }
     res.sendStatus(204);
   } catch (err) {
+    if (err instanceof QueryParserError) {
+      return next(new HttpBadRequestError('badRequest', err.message));
+    }
     next(err);
   }
 };
