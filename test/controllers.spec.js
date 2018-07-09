@@ -55,7 +55,7 @@ describe('controllers', function () {
             assert.ok(uploaders.offChain.root.upload.calledWith(desc));
             assert.ok(uploaders.offChain.root.upload.calledWith(ratePlans));
             assert.ok(uploaders.offChain.root.upload.calledWith(availability));
-            assert.deepEqual(res.body, {address: 'dummyAddress'});
+            assert.deepEqual(res.body, { address: 'dummyAddress' });
             done();
           } catch (e) {
             done(e);

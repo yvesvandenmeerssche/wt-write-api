@@ -8,7 +8,8 @@ const timezones = require('timezones.json');
 const descriptionSchema = require('./description-schema.json');
 const ratePlansSchema = require('./rateplans-schema.json');
 const availabilitySchema = require('./availability-schema.json');
-const { HttpValidationError } = require('../errors');
+
+class ValidationError extends Error {};
 
 const TIMEZONES = new Set(_(timezones).map('utc').flatten().value());
 
@@ -43,7 +44,7 @@ tv4.addFormat('currency-code', (data) => {
 function _validate (data, schema) {
   if (!tv4.validate(data, schema, false, true)) {
     var msg = tv4.error.message + ': ' + tv4.error.dataPath;
-    throw new HttpValidationError('validationFailed', msg);
+    throw new ValidationError(msg);
   }
 }
 
@@ -52,7 +53,7 @@ function _validate (data, schema) {
  *
  * @param {Object} data
  * @return {undefined}
- * @throws {errors.HttpValidationError} When data validation fails.
+ * @throws {ValidationError} When data validation fails.
  */
 module.exports.validateDescription = function (data) {
   return _validate(data, descriptionSchema);
@@ -63,7 +64,7 @@ module.exports.validateDescription = function (data) {
  *
  * @param {Object} data
  * @return {undefined}
- * @throws {errors.HttpValidationError} When data validation fails.
+ * @throws {ValidationError} When data validation fails.
  */
 module.exports.validateRatePlans = function (data) {
   return _validate(data, ratePlansSchema);
@@ -74,8 +75,10 @@ module.exports.validateRatePlans = function (data) {
  *
  * @param {Object} data
  * @return {undefined}
- * @throws {errors.HttpValidationError} When data validation fails.
+ * @throws {ValidationError} When data validation fails.
  */
 module.exports.validateAvailability = function (data) {
   return _validate(data, availabilitySchema);
 };
+
+module.exports.ValidationError = ValidationError;

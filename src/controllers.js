@@ -2,7 +2,7 @@ const _ = require('lodash');
 
 const { HttpValidationError, HttpBadRequestError } = require('./errors');
 const { validateDescription, validateRatePlans,
-  validateAvailability } = require('./validators');
+  validateAvailability, ValidationError } = require('./validators');
 const { parseBoolean, QueryParserError } = require('./services/query-parsers');
 
 const DATA_INDEX_FIELDS = [
@@ -78,6 +78,9 @@ module.exports.createHotel = async (req, res, next) => {
       address: address,
     });
   } catch (err) {
+    if (err instanceof ValidationError) {
+      return next(new HttpValidationError('validationFailed', err.message));
+    }
     next(err);
   }
 };
@@ -109,6 +112,9 @@ module.exports.updateHotel = async (req, res, next) => {
     // TODO: Find out if the data index and/or on-chain record need to be changed as well.
     res.sendStatus(204);
   } catch (err) {
+    if (err instanceof ValidationError) {
+      return next(new HttpValidationError('validationFailed', err.message));
+    }
     next(err);
   }
 };
