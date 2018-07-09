@@ -26,7 +26,7 @@ describe('controllers', function () {
   });
 
   describe('POST /hotel', () => {
-    it('should upload the given data', (done) => {
+    it('should upload the given data and return the on-chain address', (done) => {
       const desc = getDescription(),
         ratePlans = getRatePlans(),
         availability = getAvailability();
@@ -40,6 +40,7 @@ describe('controllers', function () {
           availability: availability,
         })
         .expect(201)
+        .expect('content-type', /application\/json/)
         .end((err, res) => {
           if (err) return done(err);
           try {
@@ -54,6 +55,7 @@ describe('controllers', function () {
             assert.ok(uploaders.offChain.root.upload.calledWith(desc));
             assert.ok(uploaders.offChain.root.upload.calledWith(ratePlans));
             assert.ok(uploaders.offChain.root.upload.calledWith(availability));
+            assert.deepEqual(res.body, {address: 'dummyAddress'});
             done();
           } catch (e) {
             done(e);
@@ -61,7 +63,7 @@ describe('controllers', function () {
         });
     });
 
-    it('should return 204 when only non-required fields are missing', (done) => {
+    it('should return 201 when only non-required fields are missing', (done) => {
       request(server)
         .post('/hotel')
         .send({ description: getDescription() })

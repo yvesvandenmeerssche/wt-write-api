@@ -73,8 +73,10 @@ module.exports.createHotel = async (req, res, next) => {
     // 3. Upload the data index.
     const dataIndexUri = await req.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
     // 4. Upload the resulting data to ethereum.
-    await req.uploaders.onChain.upload(dataIndexUri);
-    res.sendStatus(201);
+    const address = await req.uploaders.onChain.upload(dataIndexUri);
+    res.status(201).json({
+      address: address,
+    });
   } catch (err) {
     next(err);
   }

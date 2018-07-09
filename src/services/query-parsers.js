@@ -19,5 +19,5 @@ function parseBoolean (token) {
 
 module.exports = {
   QueryParserError: QueryParserError,
-  parseBoolean: parseBoolean
+  parseBoolean: parseBoolean,
 };
