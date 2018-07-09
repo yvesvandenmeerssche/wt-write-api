@@ -1,10 +1,10 @@
 const { assert } = require('chai');
 
 const { getDescription, getRatePlans,
-  getAvailability } = require('./utils/fixtures');
+  getAvailability } = require('../utils/fixtures');
 
 const { validateDescription, validateRatePlans,
-  validateAvailability, ValidationError } = require('../src/validators');
+  validateAvailability, ValidationError } = require('../../src/validators');
 
 describe('validators', function () {
   describe('validateDescription', () => {
