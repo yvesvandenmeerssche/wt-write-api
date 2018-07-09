@@ -94,7 +94,7 @@ module.exports.createHotel = async (req, res, next) => {
  */
 module.exports.deleteHotel = async (req, res, next) => {
   try {
-    await req.uploaders.onChain.remove();
+    await req.uploaders.onChain.remove(req.params.address);
     if (req.query.offChain && parseBoolean(req.query.offChain)) {
       await req.uploaders.getUploader('root').remove('dataIndex');
       for (let field of DATA_INDEX_FIELDS) {

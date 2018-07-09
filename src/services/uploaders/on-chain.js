@@ -24,7 +24,7 @@ class OnChainUploader {
    * @return {Promise<void>} Etherum address of the uploaded
    * data.
    */
-  remove () {
+  remove (address) {
     return Promise.reject(new Error('Not implemented'));
   }
 };
@@ -38,7 +38,7 @@ class DummyUploader extends OnChainUploader {
     return Promise.resolve('dummyAddress');
   }
 
-  remove () {
+  remove (address) {
     return Promise.resolve();
   }
 };

@@ -121,12 +121,13 @@ describe('controllers', function () {
       uploaders.onChain.remove.resetHistory();
       uploaders.offChain.root.remove.resetHistory();
       request(server)
-        .delete('/hotel')
+        .delete('/hotel/0xdummy')
         .expect(204)
         .end((err, res) => {
           if (err) return done(err);
           try {
             assert.ok(uploaders.onChain.remove.calledOnce);
+            assert.equal(uploaders.onChain.remove.args[0][0], '0xdummy');
             assert.equal(uploaders.offChain.root.remove.callCount, 0);
             done();
           } catch (e) {
@@ -139,12 +140,13 @@ describe('controllers', function () {
       uploaders.onChain.remove.resetHistory();
       uploaders.offChain.root.remove.resetHistory();
       request(server)
-        .delete('/hotel?offChain=1')
+        .delete('/hotel/0xdummy?offChain=1')
         .expect(204)
         .end((err, res) => {
           if (err) return done(err);
           try {
             assert.ok(uploaders.onChain.remove.calledOnce);
+            assert.equal(uploaders.onChain.remove.args[0][0], '0xdummy');
             assert.equal(uploaders.offChain.root.remove.callCount, 4);
             assert.ok(uploaders.offChain.root.remove.calledWith('dataIndex'));
             assert.ok(uploaders.offChain.root.remove.calledWith('description'));
@@ -159,7 +161,7 @@ describe('controllers', function () {
 
     it('should return HTTP 400 if the offChain parameter is ambiguous', (done) => {
       request(server)
-        .delete('/hotel?offChain=maybe')
+        .delete('/hotel/0xdummy?offChain=maybe')
         .expect(400)
         .end(done);
     });

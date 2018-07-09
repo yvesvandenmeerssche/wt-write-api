@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 
 // Hotels
 app.post('/hotel', attachUploaderConfig, createHotel);
-app.delete('/hotel', attachUploaderConfig, deleteHotel);
+app.delete('/hotel/:address', attachUploaderConfig, deleteHotel);
 
 // 404 handler
 app.use('*', (req, res, next) => {
