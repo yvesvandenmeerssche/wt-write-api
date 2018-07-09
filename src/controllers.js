@@ -21,13 +21,13 @@ const DATA_INDEX_FIELDS = [
  * - availability.latestSnapshot
  * - availability.updates.*
  */
-function _addTimestamps (data) {
+function _addTimestamps (body) {
   const timestampedObjects = _([
-    [_.get(data, 'description')],
-    _.values(_.get(data, ['description', 'roomTypes'])),
-    _.values(_.get(data, ['ratePlans'])),
-    [_.get(data, 'availability.latestSnapshot')],
-    _.values(_.get(data, 'availability.updates')),
+    [_.get(body, 'description')],
+    _.values(_.get(body, ['description', 'roomTypes'])),
+    _.values(_.get(body, ['ratePlans'])),
+    [_.get(body, 'availability.latestSnapshot')],
+    _.values(_.get(body, 'availability.updates')),
   ])
     .flatten()
     .filter()
@@ -42,12 +42,25 @@ function _addTimestamps (data) {
 
 const _DATA_INDEX_FIELD_NAMES = _.map(DATA_INDEX_FIELDS, 'name');
 /**
- * Raise an error if an unexpected property is in request body.
+ * Validate create/update request.
+ *
+ * @param {Object} body Request body
+ * @param {Boolean} enforceRequired
+ * @throw {HttpValidationError} when validation fails
  */
-function _checkUnknownFields (body) {
+function _validateRequest (body, enforceRequired) {
   for (let field in body) {
     if (_DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
       throw new HttpValidationError('validationFailed', `Unknown property: ${field}`);
+    }
+  }
+  for (let field of DATA_INDEX_FIELDS) {
+    let data = body[field.name];
+    if (enforceRequired && field.required && !data) {
+      throw new HttpValidationError('validationFailed', `Missing property: ${field.name}`);
+    }
+    if (data) {
+      field.validator(data);
     }
   }
 }
@@ -60,17 +73,8 @@ function _checkUnknownFields (body) {
 module.exports.createHotel = async (req, res, next) => {
   // TODO: Find out if the hotel already exists?
   try {
-    // 1. Validate request.
-    _checkUnknownFields(req.body);
-    for (let field of DATA_INDEX_FIELDS) {
-      let data = req.body[field.name];
-      if (field.required && !data) {
-        throw new HttpValidationError('validationFailed', `Missing field: ${field.name}`);
-      }
-      if (data) {
-        field.validator(data);
-      }
-    }
+    // 1. Validate request payload.
+    _validateRequest(req.body, true);
     // 2. Add `updatedAt` timestamps.
     _addTimestamps(req.body);
     // 3. Upload the actual data parts.
@@ -83,9 +87,9 @@ module.exports.createHotel = async (req, res, next) => {
       let uploader = req.uploaders.getUploader(field.name);
       dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
     }
-    // 3. Upload the data index.
+    // 4. Upload the data index.
     const dataIndexUri = await req.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
-    // 4. Upload the resulting data to ethereum.
+    // 5. Upload the resulting data to ethereum.
     const address = await req.uploaders.onChain.upload(dataIndexUri);
     res.status(201).json({
       address: address,
@@ -104,13 +108,7 @@ module.exports.createHotel = async (req, res, next) => {
 module.exports.updateHotel = async (req, res, next) => {
   try {
     // 1. Validate request.
-    _checkUnknownFields(req.body);
-    for (let field of DATA_INDEX_FIELDS) {
-      let data = req.body[field.name];
-      if (data) {
-        field.validator(data);
-      }
-    }
+    _validateRequest(req.body, false);
     // 2. Add `updatedAt` timestamps.
     _addTimestamps(req.body);
     // 3. Upload the changed data parts.
