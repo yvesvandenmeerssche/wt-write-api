@@ -83,6 +83,37 @@ module.exports.createHotel = async (req, res, next) => {
 };
 
 /**
+ * Update hotel information.
+ */
+module.exports.updateHotel = async (req, res, next) => {
+  try {
+    // 1. Validate request.
+    for (let field of DATA_INDEX_FIELDS) {
+      let data = req.body[field.name];
+      if (data) {
+        field.validator(data);
+      }
+    }
+    // 2. Add `updatedAt` timestamps.
+    _addTimestamps(req.body);
+    // 3. Upload the changed data parts.
+    let dataIndex = {};
+    for (let field of DATA_INDEX_FIELDS) {
+      let data = req.body[field.name];
+      if (!data) {
+        continue;
+      }
+      let uploader = req.uploaders.getUploader(field.name);
+      dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
+    }
+    // TODO: Find out if the data index and/or on-chain record need to be changed as well.
+    res.sendStatus(204);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * Delete the hotel from WT index.
  *
  * If req.query.offChain is true, it also tries to delete the

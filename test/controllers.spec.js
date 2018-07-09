@@ -118,6 +118,49 @@ describe('controllers', function () {
     });
   });
 
+  describe('PATCH /hotel/:address', () => {
+    it('should reupload the given subtrees', (done) => {
+      const desc = getDescription(),
+        ratePlans = getRatePlans();
+      uploaders.offChain.root.upload.resetHistory();
+      uploaders.onChain.upload.resetHistory();
+
+      request(server)
+        .patch('/hotel/dummy')
+        .send({
+          description: desc,
+          ratePlans: ratePlans,
+        })
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(uploaders.onChain.upload.callCount, 0);
+            assert.equal(uploaders.offChain.root.upload.callCount, 2);
+            assert.ok(uploaders.offChain.root.upload.calledWith(desc));
+            assert.ok(uploaders.offChain.root.upload.calledWith(ratePlans));
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
+    it('should return 422 when data format is wrong', (done) => {
+      const desc = getDescription(),
+        ratePlans = getRatePlans();
+      delete desc.name;
+      request(server)
+        .patch('/hotel/dummy')
+        .send({
+          description: desc,
+          ratePlans: ratePlans,
+        })
+        .expect(422)
+        .end(done);
+    });
+  });
+
   describe('DELETE /hotel', () => {
     it('should delete the hotel from the on-chain storage', (done) => {
       uploaders.onChain.remove.resetHistory();
