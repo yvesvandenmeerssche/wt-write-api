@@ -40,6 +40,18 @@ function _addTimestamps (data) {
   }
 }
 
+const _DATA_INDEX_FIELD_NAMES = _.map(DATA_INDEX_FIELDS, 'name');
+/**
+ * Raise an error if an unexpected property is in request body.
+ */
+function _checkUnknownFields (body) {
+  for (let field in body) {
+    if (_DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
+      throw new HttpValidationError('validationFailed', `Unknown property: ${field}`);
+    }
+  }
+}
+
 /**
  * Add a new hotel to the WT index and store its data in an
  * off-chain storage.
@@ -49,6 +61,7 @@ module.exports.createHotel = async (req, res, next) => {
   // TODO: Find out if the hotel already exists?
   try {
     // 1. Validate request.
+    _checkUnknownFields(req.body);
     for (let field of DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
       if (field.required && !data) {
@@ -91,6 +104,7 @@ module.exports.createHotel = async (req, res, next) => {
 module.exports.updateHotel = async (req, res, next) => {
   try {
     // 1. Validate request.
+    _checkUnknownFields(req.body);
     for (let field of DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
       if (data) {

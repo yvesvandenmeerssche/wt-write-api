@@ -89,6 +89,14 @@ describe('controllers', function () {
         .end(done);
     });
 
+    it('should return 422 when unexpected top-level properties are present', (done) => {
+      request(server)
+        .post('/hotel')
+        .send({ description: getDescription(), religion: 'pagan' })
+        .expect(422)
+        .end(done);
+    });
+
     it('should add updatedAt timestamps when omitted', (done) => {
       let description = getDescription(),
         ratePlans = getRatePlans(),
@@ -155,6 +163,18 @@ describe('controllers', function () {
         .send({
           description: desc,
           ratePlans: ratePlans,
+        })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 when unexpected top-level properties are present', (done) => {
+      request(server)
+        .patch('/hotel/dummy')
+        .send({
+          description: getDescription(),
+          ratePlans: getRatePlans(),
+          religion: 'pagan',
         })
         .expect(422)
         .end(done);
