@@ -6,6 +6,7 @@ const sinon = require('sinon');
 
 const { getDescription, getRatePlans,
   getAvailability } = require('./utils/fixtures');
+const { wtLibs } = require('../src/config');
 const DummyOnChainUploader = require('../src/services/uploaders/on-chain').DummyUploader;
 const { uploaders } = require('../src/config');
 
@@ -228,6 +229,95 @@ describe('controllers', function () {
       request(server)
         .delete('/hotel/0xdummy?offChain=maybe')
         .expect(400)
+        .end(done);
+    });
+  });
+
+  describe('GET /hotel', (done) => {
+    const description = getDescription();
+    const ratePlans = getRatePlans();
+    const availability = getAvailability();
+    before(() => {
+      sinon.stub(wtLibs, 'getWTIndex').callsFake(() => {
+        return Promise.resolve({
+          getHotel: (hotelAddress) => Promise.resolve({
+            get dataIndex () {
+              return {
+                get descriptionUri () {
+                  let desc = description;
+                  if (hotelAddress === '0xinvalid') {
+                    desc = Object.assign({}, desc);
+                    delete desc.name;
+                  }
+                  return desc;
+                },
+                get ratePlansUri () {
+                  return ratePlans;
+                },
+                get availabilityUri () {
+                  return availability;
+                },
+              };
+            },
+          }),
+        });
+      });
+    });
+
+    after(() => {
+      wtLibs.getWTIndex.restore();
+    });
+
+    it('should return hotel data', (done) => {
+      request(server)
+        .get('/hotel/0xdummy')
+        .expect(200)
+        .expect('content-type', /application\/json/)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.deepEqual(res.body, {
+              description: description,
+              ratePlans: ratePlans,
+              availability: availability,
+            });
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+    });
+
+    it('should respect the `fields` query parameter', (done) => {
+      request(server)
+        .get('/hotel/0xdummy?fields=description,ratePlans')
+        .expect(200)
+        .expect('content-type', /application\/json/)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.deepEqual(res.body, {
+              description: description,
+              ratePlans: ratePlans,
+            });
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+    });
+
+    it('should return 422 if the fields param is unknown', (done) => {
+      request(server)
+        .get('/hotel/0xdummy?fields=affiliation')
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 502 if the upstream data are not valid', (done) => {
+      request(server)
+        .get('/hotel/0xinvalid')
+        .expect(502)
         .end(done);
     });
   });

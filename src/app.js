@@ -4,7 +4,7 @@ const { logger } = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error } = require('./errors');
 const { attachUploaderConfig } = require('./middleware');
-const { createHotel, updateHotel, deleteHotel } = require('./controllers');
+const { createHotel, updateHotel, deleteHotel, getHotel } = require('./controllers');
 
 const app = express();
 
@@ -21,6 +21,7 @@ app.get('/', (req, res) => {
 
 // Hotels
 app.post('/hotel', attachUploaderConfig, createHotel);
+app.get('/hotel/:address', attachUploaderConfig, getHotel);
 app.delete('/hotel/:address', attachUploaderConfig, deleteHotel);
 app.patch('/hotel/:address', attachUploaderConfig, updateHotel);
 

@@ -41,10 +41,17 @@ HttpInternalError.defaultCode = 'genericError';
 HttpInternalError.defaultMsgShort = 'Something went wrong.';
 HttpInternalError.defaultMsgLong = 'Something went wrong. Please contact the administrator.';
 
+class HttpBadGatewayError extends HttpError {};
+HttpBadGatewayError.status = 502;
+HttpBadGatewayError.defaultCode = 'badGatewayError';
+HttpBadGatewayError.defaultMsgShort = 'Bad gateway.';
+HttpBadGatewayError.defaultMsgLong = 'Invalid response from an upstream server.';
+
 module.exports = {
   HttpError: HttpError,
   HttpBadRequestError: HttpBadRequestError,
   Http404Error: Http404Error,
   HttpValidationError: HttpValidationError,
   HttpInternalError: HttpInternalError,
+  HttpBadGatewayError: HttpBadGatewayError,
 };

@@ -1,15 +1,18 @@
 const _ = require('lodash');
 
-const { HttpValidationError, HttpBadRequestError } = require('./errors');
+const { HttpValidationError, HttpBadRequestError,
+  HttpBadGatewayError } = require('./errors');
 const { validateDescription, validateRatePlans,
   validateAvailability, ValidationError } = require('./validators');
 const { parseBoolean, QueryParserError } = require('./services/query-parsers');
+const { wtLibs, wtIndexAddress } = require('./config');
 
 const DATA_INDEX_FIELDS = [
   { name: 'description', required: true, validator: validateDescription },
   { name: 'ratePlans', required: false, validator: validateRatePlans },
   { name: 'availability', required: false, validator: validateAvailability },
 ];
+const DATA_INDEX_FIELD_NAMES = _.map(DATA_INDEX_FIELDS, 'name');
 
 /**
  * Add the `updatedAt` timestamp to the following components (if
@@ -40,7 +43,6 @@ function _addTimestamps (body) {
   }
 }
 
-const _DATA_INDEX_FIELD_NAMES = _.map(DATA_INDEX_FIELDS, 'name');
 /**
  * Validate create/update request.
  *
@@ -50,7 +52,7 @@ const _DATA_INDEX_FIELD_NAMES = _.map(DATA_INDEX_FIELDS, 'name');
  */
 function _validateRequest (body, enforceRequired) {
   for (let field in body) {
-    if (_DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
+    if (DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
       throw new HttpValidationError('validationFailed', `Unknown property: ${field}`);
     }
   }
@@ -157,6 +159,42 @@ module.exports.deleteHotel = async (req, res, next) => {
   } catch (err) {
     if (err instanceof QueryParserError) {
       return next(new HttpBadRequestError('badRequest', err.message));
+    }
+    next(err);
+  }
+};
+
+/**
+ * Get a hotel from the WT index.
+ *
+ * Accepts the "fields" parameter which can specify one or more
+ * comma-separated fields from DATA_INDEX_FIELDS.
+ *
+ * Performs validation to avoid returning broken data.
+ */
+module.exports.getHotel = async (req, res, next) => {
+  try {
+    const fields = _.filter((req.query.fields || '').split(','));
+    for (let field of fields) {
+      if (DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
+        throw new HttpValidationError('validationFailed', `Unknown field: ${field}`);
+      }
+    }
+    const index = await wtLibs.getWTIndex(wtIndexAddress);
+    const hotel = await index.getHotel(req.params.address);
+    const dataIndex = await hotel.dataIndex;
+    let data = {};
+    for (let field of DATA_INDEX_FIELDS) {
+      if (fields.length === 0 || fields.indexOf(field.name) !== -1) {
+        data[`${field.name}`] = await dataIndex[`${field.name}Uri`];
+      }
+    }
+    _validateRequest(data, fields.length > 0);
+    res.status(200).json(data);
+  } catch (err) {
+    if (err instanceof ValidationError) {
+      let msg = 'Invalid upstream response - hotel data is not valid.';
+      return next(new HttpBadGatewayError('badGateway', msg));
     }
     next(err);
   }

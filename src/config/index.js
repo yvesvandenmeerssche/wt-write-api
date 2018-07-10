@@ -1,7 +1,8 @@
-const env = process.env.NODE_ENV || 'dev';
 const DummyOnChainUploader = require('../services/uploaders/on-chain').DummyUploader;
 const DummyOffChainUploader = require('../services/uploaders/off-chain').DummyUploader;
 const { UploaderConfig } = require('../services/uploaders/config');
+
+const env = process.env.NODE_ENV || 'dev';
 
 module.exports = Object.assign({
   // For now, uploader config is hardcoded here. In the future,
