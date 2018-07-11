@@ -68,6 +68,19 @@ function _validateRequest (body, enforceRequired) {
 }
 
 /**
+ * Resolve and return hotel's data index.
+ *
+ * @param {Object} body Request body
+ * @param {Boolean} enforceRequired
+ * @throw {HttpValidationError} when validation fails
+ */
+async function _getDataIndex (hotelAddress) {
+  const index = await wtLibs.getWTIndex(wtIndexAddress);
+  const hotel = await index.getHotel(hotelAddress);
+  return hotel.dataIndex;
+};
+
+/**
  * Add a new hotel to the WT index and store its data in an
  * off-chain storage.
  *
@@ -123,7 +136,27 @@ module.exports.updateHotel = async (req, res, next) => {
       let uploader = req.uploaders.getUploader(field.name);
       dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
     }
-    // TODO: Find out if the data index and/or on-chain record need to be changed as well.
+    // 4. Find out if the data index and wt index need to be reuploaded.
+    //
+    // NOTE: This is applied only optionally as it is expensive
+    // and shouldn't be necessary when all operations are done through
+    // this API.
+    if (req.query.forceSync && parseBoolean(req.query.forceSync)) {
+      const origDataIndex = await _getDataIndex(req.params.address);
+      let origContents = {};
+      for (let field of DATA_INDEX_FIELDS) {
+        let uri = await origDataIndex.contents[`${field.name}Uri`];
+        origContents[`${field.name}Uri`] = uri && uri.ref;
+      }
+      const newContents = Object.assign({}, origContents, dataIndex);
+      if (!_.isEqual(origContents, newContents)) {
+        let uploader = req.uploaders.getUploader('root');
+        const dataIndexUri = await uploader.upload(newContents, 'dataIndex');
+        if (dataIndexUri !== origDataIndex.ref) {
+          await req.uploaders.onChain.upload(dataIndexUri, req.params.address);
+        }
+      }
+    }
     res.sendStatus(204);
   } catch (err) {
     if (err instanceof ValidationError) {
@@ -184,13 +217,12 @@ module.exports.getHotel = async (req, res, next) => {
         throw new HttpValidationError('validationFailed', `Unknown field: ${field}`);
       }
     }
-    const index = await wtLibs.getWTIndex(wtIndexAddress);
-    const hotel = await index.getHotel(req.params.address);
-    const dataIndex = await hotel.dataIndex;
+    const dataIndex = await _getDataIndex(req.params.address);
     let data = {};
     for (let field of DATA_INDEX_FIELDS) {
       if (fields.length === 0 || fields.indexOf(field.name) !== -1) {
-        data[`${field.name}`] = await dataIndex[`${field.name}Uri`];
+        let doc = await dataIndex.contents[`${field.name}Uri`];
+        data[`${field.name}`] = (await doc.toPlainObject()).contents;
       }
     }
     _validateRequest(data, fields.length > 0);

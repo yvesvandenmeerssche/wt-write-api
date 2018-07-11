@@ -8,6 +8,11 @@ module.exports = Object.assign({
   // For now, uploader config is hardcoded here. In the future,
   // we assume it will be retrieved dynamically based on user
   // credentials present in the header.
+  //
+  // Due to the logic in controllers and relation between
+  // on-chain and off-chain data, a single uploader
+  // configuration will probably have to be confined to a single
+  // hotel.
   uploaders: new UploaderConfig(new DummyOnChainUploader(), {
     'root': new DummyOffChainUploader(),
     /* Alternatively:

@@ -7,22 +7,21 @@ class OnChainUploader {
   }
 
   /**
-   * Create a hotel with the given dataIndexUri.
+   * Create or update hotel with the given dataIndexUri.
    *
-   * @param {Object} data Hotel data to be uploaded.
+   * @param {string} dataIndexUri
+   * @param {string} hotelAddress (optional)
    * @return {Promise<string>} Etherum address of the uploaded
    * data.
    */
-  upload (dataIndexUri) {
+  upload (dataIndexUri, hotelAddress) {
     return Promise.reject(new Error('Not implemented'));
   }
 
   /**
    * Remove the hotel from WT index.
    *
-   * @param {Object} data Hotel data to be uploaded.
-   * @return {Promise<void>} Etherum address of the uploaded
-   * data.
+   * @return {Promise<void>}
    */
   remove (address) {
     return Promise.reject(new Error('Not implemented'));
@@ -34,8 +33,8 @@ class OnChainUploader {
  * actually do anything - useful for testing.
  */
 class DummyUploader extends OnChainUploader {
-  upload (dataIndexUri) {
-    return Promise.resolve('dummyAddress');
+  upload (dataIndexUri, hotelAddress) {
+    return Promise.resolve(hotelAddress || 'dummyAddress');
   }
 
   remove (address) {

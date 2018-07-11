@@ -17,13 +17,63 @@ sinon.spy(uploaders.offChain.root, 'remove');
 
 describe('controllers', function () {
   let server;
+  const description = getDescription();
+  const ratePlans = getRatePlans();
+  const availability = getAvailability();
 
   before(() => {
     server = require('../src/index');
+    // Mock wt index calls.
+    sinon.stub(wtLibs, 'getWTIndex').callsFake(() => {
+      return Promise.resolve({
+        getHotel: (hotelAddress) => Promise.resolve({
+          get dataIndex () {
+            return {
+              ref: (hotelAddress === '0xchanged') ? 'dummy://obsolete.json' : 'dummy://dataIndex.json',
+              contents: {
+                get descriptionUri () {
+                  let desc = description;
+                  if (hotelAddress === '0xinvalid') {
+                    desc = Object.assign({}, desc);
+                    delete desc.name;
+                  }
+                  return Promise.resolve({
+                    ref: (hotelAddress === '0xchanged') ? 'dummy://changed-description.json' : 'dummy://description.json',
+                    toPlainObject: () => Promise.resolve({
+                      ref: (hotelAddress === '0xchanged') ? 'dummy://changed-description.json' : 'dummy://description.json',
+                      contents: desc,
+                    }),
+                  });
+                },
+                get ratePlansUri () {
+                  return Promise.resolve({
+                    ref: 'dummy://ratePlans.json',
+                    toPlainObject: () => Promise.resolve({
+                      ref: 'dummy://ratePlans.json',
+                      contents: ratePlans,
+                    }),
+                  });
+                },
+                get availabilityUri () {
+                  return Promise.resolve({
+                    ref: 'dummy://availability.json',
+                    toPlainObject: () => Promise.resolve({
+                      ref: 'dummy://availability.json',
+                      contents: availability,
+                    }),
+                  });
+                },
+              },
+            };
+          },
+        }),
+      });
+    });
   });
 
   after(() => {
     server.close();
+    wtLibs.getWTIndex.restore();
   });
 
   describe('POST /hotel', () => {
@@ -155,6 +205,50 @@ describe('controllers', function () {
         });
     });
 
+    it('should update data index and on-chain record if requested and necessary', (done) => {
+      uploaders.offChain.root.upload.resetHistory();
+      uploaders.onChain.upload.resetHistory();
+
+      request(server)
+        .patch('/hotel/0xchanged?forceSync=1')
+        .send({ description })
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(uploaders.onChain.upload.callCount, 1);
+            assert.ok(uploaders.onChain.upload.calledWith('dummy://dataIndex.json', '0xchanged'));
+            assert.equal(uploaders.offChain.root.upload.callCount, 2);
+            assert.equal(uploaders.offChain.root.upload.args[0][1], 'description');
+            assert.equal(uploaders.offChain.root.upload.args[1][1], 'dataIndex');
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
+    it('should not update data index and on-chain record if not necessary even if requested', (done) => {
+      uploaders.offChain.root.upload.resetHistory();
+      uploaders.onChain.upload.resetHistory();
+
+      request(server)
+        .patch('/hotel/0xnotchanged?forceSync=1')
+        .send({ description })
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(uploaders.onChain.upload.callCount, 0);
+            assert.equal(uploaders.offChain.root.upload.callCount, 1);
+            assert.equal(uploaders.offChain.root.upload.args[0][1], 'description');
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
     it('should return 422 when data format is wrong', (done) => {
       const desc = getDescription(),
         ratePlans = getRatePlans();
@@ -234,40 +328,6 @@ describe('controllers', function () {
   });
 
   describe('GET /hotel', (done) => {
-    const description = getDescription();
-    const ratePlans = getRatePlans();
-    const availability = getAvailability();
-    before(() => {
-      sinon.stub(wtLibs, 'getWTIndex').callsFake(() => {
-        return Promise.resolve({
-          getHotel: (hotelAddress) => Promise.resolve({
-            get dataIndex () {
-              return {
-                get descriptionUri () {
-                  let desc = description;
-                  if (hotelAddress === '0xinvalid') {
-                    desc = Object.assign({}, desc);
-                    delete desc.name;
-                  }
-                  return desc;
-                },
-                get ratePlansUri () {
-                  return ratePlans;
-                },
-                get availabilityUri () {
-                  return availability;
-                },
-              };
-            },
-          }),
-        });
-      });
-    });
-
-    after(() => {
-      wtLibs.getWTIndex.restore();
-    });
-
     it('should return hotel data', (done) => {
       request(server)
         .get('/hotel/0xdummy')
