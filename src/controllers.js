@@ -171,6 +171,10 @@ module.exports.deleteHotel = async (req, res, next) => {
  * comma-separated fields from DATA_INDEX_FIELDS.
  *
  * Performs validation to avoid returning broken data.
+ *
+ * The main purpose of this endpoint is to offer a possibility
+ * to easily retrieve the current state in the correct format to
+ * prepare update requests.
  */
 module.exports.getHotel = async (req, res, next) => {
   try {
