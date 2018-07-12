@@ -8,7 +8,10 @@ const { getDescription, getRatePlans,
   getAvailability } = require('./utils/fixtures');
 const { wtLibs } = require('../src/config');
 const DummyOnChainUploader = require('../src/services/uploaders/on-chain').DummyUploader;
-const { uploaders } = require('../src/config');
+const config = require('../src/config');
+const downloaders = require('../src/services/downloaders');
+
+const uploaders = config.uploaders;
 
 sinon.spy(uploaders.onChain, 'upload');
 sinon.spy(uploaders.onChain, 'remove');
@@ -20,60 +23,54 @@ describe('controllers', function () {
   const description = getDescription();
   const ratePlans = getRatePlans();
   const availability = getAvailability();
+  let originalDownloader;
 
   before(() => {
-    server = require('../src/index');
-    // Mock wt index calls.
-    sinon.stub(wtLibs, 'getWTIndex').callsFake(() => {
-      return Promise.resolve({
-        getHotel: (hotelAddress) => Promise.resolve({
-          get dataIndex () {
-            return {
-              ref: (hotelAddress === '0xchanged') ? 'dummy://obsolete.json' : 'dummy://dataIndex.json',
-              contents: {
-                get descriptionUri () {
-                  let desc = description;
-                  if (hotelAddress === '0xinvalid') {
-                    desc = Object.assign({}, desc);
-                    delete desc.name;
-                  }
-                  return Promise.resolve({
-                    ref: (hotelAddress === '0xchanged') ? 'dummy://changed-description.json' : 'dummy://description.json',
-                    toPlainObject: () => Promise.resolve({
-                      ref: (hotelAddress === '0xchanged') ? 'dummy://changed-description.json' : 'dummy://description.json',
-                      contents: desc,
-                    }),
-                  });
-                },
-                get ratePlansUri () {
-                  return Promise.resolve({
-                    ref: 'dummy://ratePlans.json',
-                    toPlainObject: () => Promise.resolve({
-                      ref: 'dummy://ratePlans.json',
-                      contents: ratePlans,
-                    }),
-                  });
-                },
-                get availabilityUri () {
-                  return Promise.resolve({
-                    ref: 'dummy://availability.json',
-                    toPlainObject: () => Promise.resolve({
-                      ref: 'dummy://availability.json',
-                      contents: availability,
-                    }),
-                  });
-                },
-              },
-            };
+    originalDownloader = downloaders.get();
+
+    // Mock downloader.
+    downloaders.set({
+      getDataIndex: (hotelAddress) => {
+        return {
+          ref: (hotelAddress === '0xchanged') ? 'dummy://obsolete.json' : 'dummy://dataIndex.json',
+          contents: {
+            descriptionUri: (hotelAddress === '0xchanged') ? 'dummy://changed-description.json' : 'dummy://description.json',
+            ratePlansUri: 'dummy://ratePlans.json',
+            availabilityUri: 'dummy://availability.json',
           },
-        }),
-      });
+        };
+      },
+      getDocuments: (hotelAddress, fieldNames) => {
+        let desc = description;
+        if (hotelAddress === '0xinvalid') {
+          desc = Object.assign({}, desc);
+          delete desc.name;
+        }
+        const ret = {
+          description: desc,
+          ratePlans: ratePlans,
+          availability: availability,
+        };
+        for (let key in ret) {
+          if (fieldNames.indexOf(key) === -1) {
+            delete ret[key];
+          }
+        }
+        return ret;
+      },
     });
   });
 
   after(() => {
+    downloaders.set(originalDownloader);
+  });
+
+  before(() => {
+    server = require('../src/index');
+  });
+
+  after(() => {
     server.close();
-    wtLibs.getWTIndex.restore();
   });
 
   describe('POST /hotel', () => {

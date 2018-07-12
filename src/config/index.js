@@ -3,6 +3,7 @@ const DummyOffChainUploader = require('../services/uploaders/off-chain').DummyUp
 const { UploaderConfig } = require('../services/uploaders/config');
 
 const env = process.env.NODE_ENV || 'dev';
+const envConfig = require(`./${env}`);
 
 module.exports = Object.assign({
   // For now, uploader config is hardcoded here. In the future,
@@ -28,4 +29,4 @@ module.exports = Object.assign({
   }),
   */
   walletPassword: 'dummy',
-}, require(`./${env}`));
+}, envConfig);

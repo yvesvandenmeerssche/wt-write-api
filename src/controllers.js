@@ -1,18 +1,11 @@
 const _ = require('lodash');
 
+const { DATA_INDEX_FIELDS, DATA_INDEX_FIELD_NAMES } = require('./data-interface');
 const { HttpValidationError, HttpBadRequestError,
   HttpBadGatewayError } = require('./errors');
-const { validateDescription, validateRatePlans,
-  validateAvailability, ValidationError } = require('./validators');
+const { ValidationError } = require('./validators');
 const { parseBoolean, QueryParserError } = require('./services/query-parsers');
-const { wtLibs, wtIndexAddress } = require('./config');
-
-const DATA_INDEX_FIELDS = [
-  { name: 'description', required: true, validator: validateDescription },
-  { name: 'ratePlans', required: false, validator: validateRatePlans },
-  { name: 'availability', required: false, validator: validateAvailability },
-];
-const DATA_INDEX_FIELD_NAMES = _.map(DATA_INDEX_FIELDS, 'name');
+const downloaders = require('./services/downloaders');
 
 /**
  * Add the `updatedAt` timestamp to the following components (if
@@ -68,19 +61,6 @@ function _validateRequest (body, enforceRequired) {
 }
 
 /**
- * Resolve and return hotel's data index.
- *
- * @param {Object} body Request body
- * @param {Boolean} enforceRequired
- * @throw {HttpValidationError} when validation fails
- */
-async function _getDataIndex (hotelAddress) {
-  const index = await wtLibs.getWTIndex(wtIndexAddress);
-  const hotel = await index.getHotel(hotelAddress);
-  return hotel.dataIndex;
-};
-
-/**
  * Add a new hotel to the WT index and store its data in an
  * off-chain storage.
  *
@@ -123,7 +103,8 @@ module.exports.createHotel = async (req, res, next) => {
  */
 module.exports.updateHotel = async (req, res, next) => {
   try {
-    const profile = req.profile;
+    const profile = req.profile,
+      downloader = downloaders.get();
     // 1. Validate request.
     _validateRequest(req.body, false);
     // 2. Add `updatedAt` timestamps.
@@ -144,14 +125,9 @@ module.exports.updateHotel = async (req, res, next) => {
     // and shouldn't be necessary when all operations are done through
     // this API.
     if (req.query.forceSync && parseBoolean(req.query.forceSync)) {
-      const origDataIndex = await _getDataIndex(req.params.address);
-      let origContents = {};
-      for (let field of DATA_INDEX_FIELDS) {
-        let uri = await origDataIndex.contents[`${field.name}Uri`];
-        origContents[`${field.name}Uri`] = uri && uri.ref;
-      }
-      const newContents = Object.assign({}, origContents, dataIndex);
-      if (!_.isEqual(origContents, newContents)) {
+      const origDataIndex = await downloader.getDataIndex(req.params.address);
+      const newContents = Object.assign({}, origDataIndex.contents, dataIndex);
+      if (!_.isEqual(origDataIndex.contents, newContents)) {
         let uploader = profile.uploaders.getUploader('root');
         const dataIndexUri = await uploader.upload(newContents, 'dataIndex');
         if (dataIndexUri !== origDataIndex.ref) {
@@ -214,20 +190,18 @@ module.exports.deleteHotel = async (req, res, next) => {
  */
 module.exports.getHotel = async (req, res, next) => {
   try {
-    const fields = _.filter((req.query.fields || '').split(','));
+    const fields = _.filter((req.query.fields || '').split(',')),
+      downloader = downloaders.get();
     for (let field of fields) {
       if (DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
         throw new HttpValidationError('validationFailed', `Unknown field: ${field}`);
       }
     }
-    const dataIndex = await _getDataIndex(req.params.address);
-    let data = {};
-    for (let field of DATA_INDEX_FIELDS) {
-      if (fields.length === 0 || fields.indexOf(field.name) !== -1) {
-        let doc = await dataIndex.contents[`${field.name}Uri`];
-        data[`${field.name}`] = (await doc.toPlainObject()).contents;
-      }
-    }
+    const fieldNames = _(DATA_INDEX_FIELDS)
+      .map('name')
+      .filter((name) => (fields.length === 0 || fields.indexOf(name) !== -1))
+      .value();
+    const data = await downloader.getDocuments(req.params.address, fieldNames);
     _validateRequest(data, fields.length > 0);
     res.status(200).json(data);
   } catch (err) {
