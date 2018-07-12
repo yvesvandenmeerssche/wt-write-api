@@ -1,9 +1,9 @@
 const { app } = require('./app');
 const { logger, port, wtLibs, wtIndexAddress } = require('./config');
-const downloaders = require('./services/downloaders');
+const WT = require('./services/wt');
 
-const downloader = new downloaders.WTDownloader(wtLibs, wtIndexAddress);
-downloaders.set(downloader);
+const wt = new WT.WT(wtLibs, wtIndexAddress);
+WT.set(wt);
 
 const server = app.listen(port, () => {
   logger.info(`WT Write API at ${port}...`);

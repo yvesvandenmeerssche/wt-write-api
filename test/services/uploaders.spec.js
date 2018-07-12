@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 const { assert } = require('chai');
 const sinon = require('sinon');
 
-const S3Uploader = require('../../../src/services/uploaders/off-chain').S3Uploader;
+const S3Uploader = require('../../src/services/uploaders').S3Uploader;
 
 describe('uploaders', () => {
   describe('S3Uploader', () => {

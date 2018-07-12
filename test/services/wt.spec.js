@@ -2,13 +2,17 @@ const { assert } = require('chai');
 
 const { getDescription, getRatePlans,
   getAvailability } = require('../utils/fixtures');
-const { WTDownloader } = require('../../src/services/downloaders');
+const { WT } = require('../../src/services/wt');
 
 const description = getDescription();
 const ratePlans = getRatePlans();
 const availability = getAvailability();
 
 const wtLibsMock = {
+  createWallet: () => Promise.resolve({
+    lock: () => undefined,
+    unlock: () => undefined,
+  }),
   getWTIndex: () => Promise.resolve({
     getHotel: () => Promise.resolve({
       get dataIndex () {
@@ -49,39 +53,37 @@ const wtLibsMock = {
   }),
 };
 
-describe('downloaders', () => {
-  describe('WTDownloader', () => {
-    const wtDownloader = new WTDownloader(wtLibsMock, '0xdummyindex');
+describe('WT', () => {
+  const wt = new WT(wtLibsMock, '0xdummyindex');
 
-    describe('getDataIndex()', () => {
-      it('should retrieve the data index via wtLibs', async () => {
-        const dataIndex = await wtDownloader.getDataIndex('0xdummyhotel');
-        assert.deepEqual(dataIndex, {
-          ref: 'dummy://dataIndex.json',
-          contents: {
-            descriptionUri: 'dummy://description.json',
-            ratePlansUri: 'dummy://ratePlans.json',
-            availabilityUri: 'dummy://availability.json',
-          },
-        });
+  describe('getDataIndex()', () => {
+    it('should retrieve the data index via wtLibs', async () => {
+      const dataIndex = await wt.getDataIndex('0xdummyhotel');
+      assert.deepEqual(dataIndex, {
+        ref: 'dummy://dataIndex.json',
+        contents: {
+          descriptionUri: 'dummy://description.json',
+          ratePlansUri: 'dummy://ratePlans.json',
+          availabilityUri: 'dummy://availability.json',
+        },
+      });
+    });
+  });
+
+  describe('getDocuments()', () => {
+    it('should retrieve data subtrees via wtLibs', async () => {
+      const data = await wt.getDocuments('0xdummyhotel', ['description', 'ratePlans', 'availability']);
+      assert.deepEqual(data, {
+        description,
+        ratePlans,
+        availability,
       });
     });
 
-    describe('getDocuments()', () => {
-      it('should retrieve data subtrees via wtLibs', async () => {
-        const data = await wtDownloader.getDocuments('0xdummyhotel', ['description', 'ratePlans', 'availability']);
-        assert.deepEqual(data, {
-          description,
-          ratePlans,
-          availability,
-        });
-      });
-
-      it('should limit the retrieved data based on the given fieldNames', async () => {
-        const data = await wtDownloader.getDocuments('0xdummyhotel', ['ratePlans']);
-        assert.deepEqual(data, {
-          ratePlans,
-        });
+    it('should limit the retrieved data based on the given fieldNames', async () => {
+      const data = await wt.getDocuments('0xdummyhotel', ['ratePlans']);
+      assert.deepEqual(data, {
+        ratePlans,
       });
     });
   });

@@ -7,29 +7,34 @@ const sinon = require('sinon');
 const { getDescription, getRatePlans,
   getAvailability } = require('./utils/fixtures');
 const { wtLibs } = require('../src/config');
-const DummyOnChainUploader = require('../src/services/uploaders/on-chain').DummyUploader;
 const config = require('../src/config');
-const downloaders = require('../src/services/downloaders');
+const WT = require('../src/services/wt');
 
-const uploaders = config.uploaders;
+const offChainUploader = config.uploaders.getUploader('root');
 
-sinon.spy(uploaders.onChain, 'upload');
-sinon.spy(uploaders.onChain, 'remove');
-sinon.spy(uploaders.offChain.root, 'upload');
-sinon.spy(uploaders.offChain.root, 'remove');
+sinon.spy(offChainUploader, 'upload');
+sinon.spy(offChainUploader, 'remove');
 
 describe('controllers', function () {
   let server;
   const description = getDescription();
   const ratePlans = getRatePlans();
   const availability = getAvailability();
-  let originalDownloader;
+  let wtMock;
+  let originalWT;
 
   before(() => {
-    originalDownloader = downloaders.get();
+    server = require('../src/index');
+    originalWT = WT.get();
 
-    // Mock downloader.
-    downloaders.set({
+    // Mock WT.
+    wtMock = {
+      createWallet: () => {
+        return Promise.resolve({
+          lock: () => undefined,
+          unlock: () => undefined,
+        });
+      },
       getDataIndex: (hotelAddress) => {
         return {
           ref: (hotelAddress === '0xchanged') ? 'dummy://obsolete.json' : 'dummy://dataIndex.json',
@@ -58,18 +63,14 @@ describe('controllers', function () {
         }
         return ret;
       },
-    });
+      upload: sinon.stub().callsFake(() => Promise.resolve('dummyAddress')),
+      remove: sinon.stub().callsFake(() => Promise.resolve()),
+    };
+    WT.set(wtMock);
   });
 
   after(() => {
-    downloaders.set(originalDownloader);
-  });
-
-  before(() => {
-    server = require('../src/index');
-  });
-
-  after(() => {
+    WT.set(originalWT);
     server.close();
   });
 
@@ -78,7 +79,7 @@ describe('controllers', function () {
       const desc = getDescription(),
         ratePlans = getRatePlans(),
         availability = getAvailability();
-      uploaders.offChain.root.upload.resetHistory();
+      offChainUploader.upload.resetHistory();
         
       request(server)
         .post('/hotel')
@@ -92,17 +93,17 @@ describe('controllers', function () {
         .end((err, res) => {
           if (err) return done(err);
           try {
-            assert.ok(uploaders.onChain.upload.calledOnce);
-            assert.equal(uploaders.onChain.upload.getCall(0).args[1], 'dummy://dataIndex.json');
-            assert.equal(uploaders.offChain.root.upload.callCount, 4);
-            assert.ok(uploaders.offChain.root.upload.calledWith({
+            assert.ok(wtMock.upload.calledOnce);
+            assert.equal(wtMock.upload.getCall(0).args[1], 'dummy://dataIndex.json');
+            assert.equal(offChainUploader.upload.callCount, 4);
+            assert.ok(offChainUploader.upload.calledWith({
               descriptionUri: 'dummy://description.json',
               ratePlansUri: 'dummy://ratePlans.json',
               availabilityUri: 'dummy://availability.json',
             }));
-            assert.ok(uploaders.offChain.root.upload.calledWith(desc));
-            assert.ok(uploaders.offChain.root.upload.calledWith(ratePlans));
-            assert.ok(uploaders.offChain.root.upload.calledWith(availability));
+            assert.ok(offChainUploader.upload.calledWith(desc));
+            assert.ok(offChainUploader.upload.calledWith(ratePlans));
+            assert.ok(offChainUploader.upload.calledWith(availability));
             assert.deepEqual(res.body, { address: 'dummyAddress' });
             done();
           } catch (e) {
@@ -149,7 +150,7 @@ describe('controllers', function () {
       let description = getDescription(),
         ratePlans = getRatePlans(),
         availability = getAvailability();
-      uploaders.offChain.root.upload.resetHistory();
+      offChainUploader.upload.resetHistory();
       delete description.updatedAt;
       delete ratePlans.basic.updatedAt;
       delete availability.latestSnapshot.updatedAt;
@@ -160,9 +161,9 @@ describe('controllers', function () {
         .end((err, res) => {
           if (err) return done(err);
           try {
-            let uploadedDesc = uploaders.offChain.root.upload.args[0][0];
-            let uploadedRatePlans = uploaders.offChain.root.upload.args[1][0];
-            let uploadedAvailability = uploaders.offChain.root.upload.args[2][0];
+            let uploadedDesc = offChainUploader.upload.args[0][0];
+            let uploadedRatePlans = offChainUploader.upload.args[1][0];
+            let uploadedAvailability = offChainUploader.upload.args[2][0];
             assert.ok('updatedAt' in uploadedDesc);
             assert.ok('updatedAt' in uploadedRatePlans.basic);
             assert.ok('updatedAt' in uploadedAvailability.latestSnapshot);
@@ -178,8 +179,8 @@ describe('controllers', function () {
     it('should reupload the given subtrees', (done) => {
       const desc = getDescription(),
         ratePlans = getRatePlans();
-      uploaders.offChain.root.upload.resetHistory();
-      uploaders.onChain.upload.resetHistory();
+      offChainUploader.upload.resetHistory();
+      wtMock.upload.resetHistory();
 
       request(server)
         .patch('/hotel/dummy')
@@ -191,10 +192,10 @@ describe('controllers', function () {
         .end((err, res) => {
           if (err) return done(err);
           try {
-            assert.equal(uploaders.onChain.upload.callCount, 0);
-            assert.equal(uploaders.offChain.root.upload.callCount, 2);
-            assert.ok(uploaders.offChain.root.upload.calledWith(desc));
-            assert.ok(uploaders.offChain.root.upload.calledWith(ratePlans));
+            assert.equal(wtMock.upload.callCount, 0);
+            assert.equal(offChainUploader.upload.callCount, 2);
+            assert.ok(offChainUploader.upload.calledWith(desc));
+            assert.ok(offChainUploader.upload.calledWith(ratePlans));
             done();
           } catch (e) {
             done(e);
@@ -203,8 +204,8 @@ describe('controllers', function () {
     });
 
     it('should update data index and on-chain record if requested and necessary', (done) => {
-      uploaders.offChain.root.upload.resetHistory();
-      uploaders.onChain.upload.resetHistory();
+      offChainUploader.upload.resetHistory();
+      wtMock.upload.resetHistory();
 
       request(server)
         .patch('/hotel/0xchanged?forceSync=1')
@@ -213,12 +214,12 @@ describe('controllers', function () {
         .end((err, res) => {
           if (err) return done(err);
           try {
-            assert.equal(uploaders.onChain.upload.callCount, 1);
-            assert.equal(uploaders.onChain.upload.getCall(0).args[1], 'dummy://dataIndex.json');
-            assert.equal(uploaders.onChain.upload.getCall(0).args[2], '0xchanged');
-            assert.equal(uploaders.offChain.root.upload.callCount, 2);
-            assert.equal(uploaders.offChain.root.upload.args[0][1], 'description');
-            assert.equal(uploaders.offChain.root.upload.args[1][1], 'dataIndex');
+            assert.equal(wtMock.upload.callCount, 1);
+            assert.equal(wtMock.upload.getCall(0).args[1], 'dummy://dataIndex.json');
+            assert.equal(wtMock.upload.getCall(0).args[2], '0xchanged');
+            assert.equal(offChainUploader.upload.callCount, 2);
+            assert.equal(offChainUploader.upload.args[0][1], 'description');
+            assert.equal(offChainUploader.upload.args[1][1], 'dataIndex');
             done();
           } catch (e) {
             done(e);
@@ -227,8 +228,8 @@ describe('controllers', function () {
     });
 
     it('should not update data index and on-chain record if not necessary even if requested', (done) => {
-      uploaders.offChain.root.upload.resetHistory();
-      uploaders.onChain.upload.resetHistory();
+      offChainUploader.upload.resetHistory();
+      wtMock.upload.resetHistory();
 
       request(server)
         .patch('/hotel/0xnotchanged?forceSync=1')
@@ -237,9 +238,9 @@ describe('controllers', function () {
         .end((err, res) => {
           if (err) return done(err);
           try {
-            assert.equal(uploaders.onChain.upload.callCount, 0);
-            assert.equal(uploaders.offChain.root.upload.callCount, 1);
-            assert.equal(uploaders.offChain.root.upload.args[0][1], 'description');
+            assert.equal(wtMock.upload.callCount, 0);
+            assert.equal(offChainUploader.upload.callCount, 1);
+            assert.equal(offChainUploader.upload.args[0][1], 'description');
             done();
           } catch (e) {
             done(e);
@@ -276,17 +277,17 @@ describe('controllers', function () {
 
   describe('DELETE /hotel', () => {
     it('should delete the hotel from the on-chain storage', (done) => {
-      uploaders.onChain.remove.resetHistory();
-      uploaders.offChain.root.remove.resetHistory();
+      wtMock.remove.resetHistory();
+      offChainUploader.remove.resetHistory();
       request(server)
         .delete('/hotel/0xdummy')
         .expect(204)
         .end((err, res) => {
           if (err) return done(err);
           try {
-            assert.ok(uploaders.onChain.remove.calledOnce);
-            assert.equal(uploaders.onChain.remove.args[0][1], '0xdummy');
-            assert.equal(uploaders.offChain.root.remove.callCount, 0);
+            assert.ok(wtMock.remove.calledOnce);
+            assert.equal(wtMock.remove.args[0][1], '0xdummy');
+            assert.equal(offChainUploader.remove.callCount, 0);
             done();
           } catch (e) {
             done(e);
@@ -295,21 +296,21 @@ describe('controllers', function () {
     });
 
     it('should delete the hotel also from the off-chain storage if requested', (done) => {
-      uploaders.onChain.remove.resetHistory();
-      uploaders.offChain.root.remove.resetHistory();
+      wtMock.remove.resetHistory();
+      offChainUploader.remove.resetHistory();
       request(server)
         .delete('/hotel/0xdummy?offChain=1')
         .expect(204)
         .end((err, res) => {
           if (err) return done(err);
           try {
-            assert.ok(uploaders.onChain.remove.calledOnce);
-            assert.equal(uploaders.onChain.remove.args[0][1], '0xdummy');
-            assert.equal(uploaders.offChain.root.remove.callCount, 4);
-            assert.ok(uploaders.offChain.root.remove.calledWith('dataIndex'));
-            assert.ok(uploaders.offChain.root.remove.calledWith('description'));
-            assert.ok(uploaders.offChain.root.remove.calledWith('ratePlans'));
-            assert.ok(uploaders.offChain.root.remove.calledWith('availability'));
+            assert.ok(wtMock.remove.calledOnce);
+            assert.equal(wtMock.remove.args[0][1], '0xdummy');
+            assert.equal(offChainUploader.remove.callCount, 4);
+            assert.ok(offChainUploader.remove.calledWith('dataIndex'));
+            assert.ok(offChainUploader.remove.calledWith('description'));
+            assert.ok(offChainUploader.remove.calledWith('ratePlans'));
+            assert.ok(offChainUploader.remove.calledWith('availability'));
             done();
           } catch (e) {
             done(e);

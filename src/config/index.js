@@ -1,9 +1,6 @@
-const DummyOnChainUploader = require('../services/uploaders/on-chain').DummyUploader;
-const DummyOffChainUploader = require('../services/uploaders/off-chain').DummyUploader;
-const { UploaderConfig } = require('../services/uploaders/config');
+const { DummyUploader, UploaderConfig } = require('../services/uploaders');
 
 const env = process.env.NODE_ENV || 'dev';
-const envConfig = require(`./${env}`);
 
 module.exports = Object.assign({
   // For now, uploader config is hardcoded here. In the future,
@@ -14,11 +11,11 @@ module.exports = Object.assign({
   // on-chain and off-chain data, a single uploader
   // configuration will probably have to be confined to a single
   // hotel.
-  uploaders: new UploaderConfig(new DummyOnChainUploader(), {
-    'root': new DummyOffChainUploader(),
+  uploaders: new UploaderConfig({
+    'root': new DummyUploader(),
   }),
   /* Alternatively:
-  uploaders: new UploaderConfig(new WTUploader(wtLibs, wtIndexAddress, walletData), {
+  uploaders: new UploaderConfig({
     'root': new S3Uploader({
       'accessKeyId': '...',
       'secretAccessKey': '...',
@@ -29,4 +26,4 @@ module.exports = Object.assign({
   }),
   */
   walletPassword: 'dummy',
-}, envConfig);
+}, require(`./${env}`));

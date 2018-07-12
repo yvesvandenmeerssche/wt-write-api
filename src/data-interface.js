@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const { validateDescription, validateRatePlans, validateAvailability } = require('./validators');
+const { validateDescription, validateRatePlans, validateAvailability } = require('./services/validators');
 
 /* A declarative description of hotel data. */
 

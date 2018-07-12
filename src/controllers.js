@@ -3,9 +3,9 @@ const _ = require('lodash');
 const { DATA_INDEX_FIELDS, DATA_INDEX_FIELD_NAMES } = require('./data-interface');
 const { HttpValidationError, HttpBadRequestError,
   HttpBadGatewayError } = require('./errors');
-const { ValidationError } = require('./validators');
+const { ValidationError } = require('./services/validators');
 const { parseBoolean, QueryParserError } = require('./services/query-parsers');
-const downloaders = require('./services/downloaders');
+const WT = require('./services/wt');
 
 /**
  * Add the `updatedAt` timestamp to the following components (if
@@ -66,8 +66,8 @@ function _validateRequest (body, enforceRequired) {
  *
  */
 module.exports.createHotel = async (req, res, next) => {
-  // TODO: Find out if the hotel already exists?
   try {
+    const wt = WT.get();
     const profile = req.profile;
     // 1. Validate request payload.
     _validateRequest(req.body, true);
@@ -86,7 +86,7 @@ module.exports.createHotel = async (req, res, next) => {
     // 4. Upload the data index.
     const dataIndexUri = await profile.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
     // 5. Upload the resulting data to ethereum.
-    const address = await profile.uploaders.onChain.upload(profile.walletPassword, dataIndexUri);
+    const address = await wt.upload(profile.withWallet, dataIndexUri);
     res.status(201).json({
       address: address,
     });
@@ -104,7 +104,7 @@ module.exports.createHotel = async (req, res, next) => {
 module.exports.updateHotel = async (req, res, next) => {
   try {
     const profile = req.profile,
-      downloader = downloaders.get();
+      wt = WT.get();
     // 1. Validate request.
     _validateRequest(req.body, false);
     // 2. Add `updatedAt` timestamps.
@@ -125,13 +125,13 @@ module.exports.updateHotel = async (req, res, next) => {
     // and shouldn't be necessary when all operations are done through
     // this API.
     if (req.query.forceSync && parseBoolean(req.query.forceSync)) {
-      const origDataIndex = await downloader.getDataIndex(req.params.address);
+      const origDataIndex = await wt.getDataIndex(req.params.address);
       const newContents = Object.assign({}, origDataIndex.contents, dataIndex);
       if (!_.isEqual(origDataIndex.contents, newContents)) {
         let uploader = profile.uploaders.getUploader('root');
         const dataIndexUri = await uploader.upload(newContents, 'dataIndex');
         if (dataIndexUri !== origDataIndex.ref) {
-          await profile.uploaders.onChain.upload(profile.walletPassword, dataIndexUri, req.params.address);
+          await wt.upload(profile.withWallet, dataIndexUri, req.params.address);
         }
       }
     }
@@ -158,8 +158,9 @@ module.exports.updateHotel = async (req, res, next) => {
  */
 module.exports.deleteHotel = async (req, res, next) => {
   try {
-    const profile = req.profile;
-    await profile.uploaders.onChain.remove(profile.walletPassword, req.params.address);
+    const profile = req.profile,
+      wt = WT.get();
+    await wt.remove(profile.withWallet, req.params.address);
     if (req.query.offChain && parseBoolean(req.query.offChain)) {
       await profile.uploaders.getUploader('root').remove('dataIndex');
       for (let field of DATA_INDEX_FIELDS) {
@@ -191,7 +192,7 @@ module.exports.deleteHotel = async (req, res, next) => {
 module.exports.getHotel = async (req, res, next) => {
   try {
     const fields = _.filter((req.query.fields || '').split(',')),
-      downloader = downloaders.get();
+      wt = WT.get();
     for (let field of fields) {
       if (DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
         throw new HttpValidationError('validationFailed', `Unknown field: ${field}`);
@@ -201,7 +202,7 @@ module.exports.getHotel = async (req, res, next) => {
       .map('name')
       .filter((name) => (fields.length === 0 || fields.indexOf(name) !== -1))
       .value();
-    const data = await downloader.getDocuments(req.params.address, fieldNames);
+    const data = await wt.getDocuments(req.params.address, fieldNames);
     _validateRequest(data, fields.length > 0);
     res.status(200).json(data);
   } catch (err) {

@@ -106,8 +106,32 @@ class S3Uploader extends OffChainUploader {
   }
 };
 
+/**
+ * Specific combination of off-chain uploaders to be used.
+ */
+class UploaderConfig {
+  /**
+   * @param {Object} uploaders Mapping of dot-separated
+   *                 field paths to OffChainUploader instances.
+   */
+  constructor (uploaders) {
+    if (!uploaders || !uploaders.root) {
+      throw new Error('No default (`root`) offchain uploader specified!');
+    }
+    this.uploaders = uploaders;
+  }
+
+  /**
+   * Get off-chain uploader for the specified data subtree.
+   */
+  getUploader (subtree) {
+    return this.uploaders[subtree] || this.uploaders.root;
+  }
+};
+
 module.exports = {
-  OffChainUploader: OffChainUploader,
-  DummyUploader: DummyUploader,
-  S3Uploader: S3Uploader,
+  OffChainUploader,
+  DummyUploader,
+  S3Uploader,
+  UploaderConfig,
 };
