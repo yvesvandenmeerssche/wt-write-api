@@ -105,7 +105,7 @@ module.exports.createHotel = async (req, res, next) => {
     // 4. Upload the data index.
     const dataIndexUri = await req.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
     // 5. Upload the resulting data to ethereum.
-    const address = await req.uploaders.onChain.upload(dataIndexUri);
+    const address = await req.uploaders.onChain.upload(req.walletPassword, dataIndexUri);
     res.status(201).json({
       address: address,
     });
@@ -153,7 +153,7 @@ module.exports.updateHotel = async (req, res, next) => {
         let uploader = req.uploaders.getUploader('root');
         const dataIndexUri = await uploader.upload(newContents, 'dataIndex');
         if (dataIndexUri !== origDataIndex.ref) {
-          await req.uploaders.onChain.upload(dataIndexUri, req.params.address);
+          await req.uploaders.onChain.upload(req.walletPassword, dataIndexUri, req.params.address);
         }
       }
     }
@@ -180,7 +180,7 @@ module.exports.updateHotel = async (req, res, next) => {
  */
 module.exports.deleteHotel = async (req, res, next) => {
   try {
-    await req.uploaders.onChain.remove(req.params.address);
+    await req.uploaders.onChain.remove(req.walletPassword, req.params.address);
     if (req.query.offChain && parseBoolean(req.query.offChain)) {
       await req.uploaders.getUploader('root').remove('dataIndex');
       for (let field of DATA_INDEX_FIELDS) {

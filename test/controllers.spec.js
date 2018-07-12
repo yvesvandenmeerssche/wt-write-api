@@ -96,7 +96,7 @@ describe('controllers', function () {
           if (err) return done(err);
           try {
             assert.ok(uploaders.onChain.upload.calledOnce);
-            assert.equal(uploaders.onChain.upload.getCall(0).args[0], 'dummy://dataIndex.json');
+            assert.equal(uploaders.onChain.upload.getCall(0).args[1], 'dummy://dataIndex.json');
             assert.equal(uploaders.offChain.root.upload.callCount, 4);
             assert.ok(uploaders.offChain.root.upload.calledWith({
               descriptionUri: 'dummy://description.json',
@@ -217,7 +217,8 @@ describe('controllers', function () {
           if (err) return done(err);
           try {
             assert.equal(uploaders.onChain.upload.callCount, 1);
-            assert.ok(uploaders.onChain.upload.calledWith('dummy://dataIndex.json', '0xchanged'));
+            assert.equal(uploaders.onChain.upload.getCall(0).args[1], 'dummy://dataIndex.json');
+            assert.equal(uploaders.onChain.upload.getCall(0).args[2], '0xchanged');
             assert.equal(uploaders.offChain.root.upload.callCount, 2);
             assert.equal(uploaders.offChain.root.upload.args[0][1], 'description');
             assert.equal(uploaders.offChain.root.upload.args[1][1], 'dataIndex');
@@ -287,7 +288,7 @@ describe('controllers', function () {
           if (err) return done(err);
           try {
             assert.ok(uploaders.onChain.remove.calledOnce);
-            assert.equal(uploaders.onChain.remove.args[0][0], '0xdummy');
+            assert.equal(uploaders.onChain.remove.args[0][1], '0xdummy');
             assert.equal(uploaders.offChain.root.remove.callCount, 0);
             done();
           } catch (e) {
@@ -306,7 +307,7 @@ describe('controllers', function () {
           if (err) return done(err);
           try {
             assert.ok(uploaders.onChain.remove.calledOnce);
-            assert.equal(uploaders.onChain.remove.args[0][0], '0xdummy');
+            assert.equal(uploaders.onChain.remove.args[0][1], '0xdummy');
             assert.equal(uploaders.offChain.root.remove.callCount, 4);
             assert.ok(uploaders.offChain.root.remove.calledWith('dataIndex'));
             assert.ok(uploaders.offChain.root.remove.calledWith('description'));

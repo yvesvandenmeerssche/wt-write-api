@@ -15,13 +15,17 @@ module.exports = Object.assign({
   // hotel.
   uploaders: new UploaderConfig(new DummyOnChainUploader(), {
     'root': new DummyOffChainUploader(),
-    /* Alternatively:
+  }),
+  /* Alternatively:
+  uploaders: new UploaderConfig(new WTUploader(wtLibs, wtIndexAddress, walletData), {
     'root': new S3Uploader({
       'accessKeyId': '...',
       'secretAccessKey': '...',
       'region': 'eu-central-1',
       'bucket': 'bucket',
       'keyPrefix': 'my-hotel',
-    }); */
+    });
   }),
+  */
+  walletPassword: 'dummy',
 }, require(`./${env}`));
