@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const { logger } = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error } = require('./errors');
-const { attachUploaderConfig } = require('./middleware');
+const { attachProfile } = require('./middleware');
 const { createHotel, updateHotel, deleteHotel, getHotel } = require('./controllers');
 
 const app = express();
@@ -20,10 +20,10 @@ app.get('/', (req, res) => {
 });
 
 // Hotels
-app.post('/hotel', attachUploaderConfig, createHotel);
-app.get('/hotel/:address', attachUploaderConfig, getHotel);
-app.delete('/hotel/:address', attachUploaderConfig, deleteHotel);
-app.patch('/hotel/:address', attachUploaderConfig, updateHotel);
+app.post('/hotel', attachProfile, createHotel);
+app.get('/hotel/:address', attachProfile, getHotel);
+app.delete('/hotel/:address', attachProfile, deleteHotel);
+app.patch('/hotel/:address', attachProfile, updateHotel);
 
 // 404 handler
 app.use('*', (req, res, next) => {

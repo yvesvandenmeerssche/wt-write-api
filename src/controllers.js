@@ -88,6 +88,7 @@ async function _getDataIndex (hotelAddress) {
 module.exports.createHotel = async (req, res, next) => {
   // TODO: Find out if the hotel already exists?
   try {
+    const profile = req.profile;
     // 1. Validate request payload.
     _validateRequest(req.body, true);
     // 2. Add `updatedAt` timestamps.
@@ -99,13 +100,13 @@ module.exports.createHotel = async (req, res, next) => {
       if (!data) {
         continue;
       }
-      let uploader = req.uploaders.getUploader(field.name);
+      let uploader = profile.uploaders.getUploader(field.name);
       dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
     }
     // 4. Upload the data index.
-    const dataIndexUri = await req.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
+    const dataIndexUri = await profile.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
     // 5. Upload the resulting data to ethereum.
-    const address = await req.uploaders.onChain.upload(req.walletPassword, dataIndexUri);
+    const address = await profile.uploaders.onChain.upload(profile.walletPassword, dataIndexUri);
     res.status(201).json({
       address: address,
     });
@@ -122,6 +123,7 @@ module.exports.createHotel = async (req, res, next) => {
  */
 module.exports.updateHotel = async (req, res, next) => {
   try {
+    const profile = req.profile;
     // 1. Validate request.
     _validateRequest(req.body, false);
     // 2. Add `updatedAt` timestamps.
@@ -133,7 +135,7 @@ module.exports.updateHotel = async (req, res, next) => {
       if (!data) {
         continue;
       }
-      let uploader = req.uploaders.getUploader(field.name);
+      let uploader = profile.uploaders.getUploader(field.name);
       dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
     }
     // 4. Find out if the data index and wt index need to be reuploaded.
@@ -150,10 +152,10 @@ module.exports.updateHotel = async (req, res, next) => {
       }
       const newContents = Object.assign({}, origContents, dataIndex);
       if (!_.isEqual(origContents, newContents)) {
-        let uploader = req.uploaders.getUploader('root');
+        let uploader = profile.uploaders.getUploader('root');
         const dataIndexUri = await uploader.upload(newContents, 'dataIndex');
         if (dataIndexUri !== origDataIndex.ref) {
-          await req.uploaders.onChain.upload(req.walletPassword, dataIndexUri, req.params.address);
+          await profile.uploaders.onChain.upload(profile.walletPassword, dataIndexUri, req.params.address);
         }
       }
     }
@@ -180,11 +182,12 @@ module.exports.updateHotel = async (req, res, next) => {
  */
 module.exports.deleteHotel = async (req, res, next) => {
   try {
-    await req.uploaders.onChain.remove(req.walletPassword, req.params.address);
+    const profile = req.profile;
+    await profile.uploaders.onChain.remove(profile.walletPassword, req.params.address);
     if (req.query.offChain && parseBoolean(req.query.offChain)) {
-      await req.uploaders.getUploader('root').remove('dataIndex');
+      await profile.uploaders.getUploader('root').remove('dataIndex');
       for (let field of DATA_INDEX_FIELDS) {
-        let uploader = req.uploaders.getUploader(field.name);
+        let uploader = profile.uploaders.getUploader(field.name);
         await uploader.remove(field.name);
       }
     }
