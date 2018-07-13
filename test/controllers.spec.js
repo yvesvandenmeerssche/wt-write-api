@@ -1,12 +1,10 @@
 /* eslint-env mocha */
-/* eslint-disable no-unused-vars */
-const { assert, expect } = require('chai');
+const { assert } = require('chai');
 const request = require('supertest');
 const sinon = require('sinon');
 
 const { getDescription, getRatePlans,
   getAvailability } = require('./utils/fixtures');
-const { wtLibs } = require('../src/config');
 const config = require('../src/config');
 const WT = require('../src/services/wt');
 
