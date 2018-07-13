@@ -4,7 +4,7 @@ const { logger } = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error } = require('./errors');
 const { attachProfile } = require('./middleware');
-const { createHotel, updateHotel, deleteHotel, getHotel } = require('./controllers');
+const { createHotel, updateHotel, deleteHotel, getHotel } = require('./controllers/hotels');
 
 const app = express();
 

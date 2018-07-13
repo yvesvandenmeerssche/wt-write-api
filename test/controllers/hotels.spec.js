@@ -4,9 +4,9 @@ const request = require('supertest');
 const sinon = require('sinon');
 
 const { getDescription, getRatePlans,
-  getAvailability } = require('./utils/fixtures');
-const config = require('../src/config');
-const WT = require('../src/services/wt');
+  getAvailability } = require('../utils/fixtures');
+const config = require('../../src/config');
+const WT = require('../../src/services/wt');
 
 const offChainUploader = config.uploaders.getUploader('root');
 
@@ -22,7 +22,7 @@ describe('controllers', function () {
   let originalWT;
 
   before(() => {
-    server = require('../src/index');
+    server = require('../../src/index');
     originalWT = WT.get();
 
     // Mock WT.

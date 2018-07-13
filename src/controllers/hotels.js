@@ -1,11 +1,11 @@
 const _ = require('lodash');
 
-const { DATA_INDEX_FIELDS, DATA_INDEX_FIELD_NAMES } = require('./data-interface');
+const { DATA_INDEX_FIELDS, DATA_INDEX_FIELD_NAMES } = require('../data-interface');
 const { HttpValidationError, HttpBadRequestError,
-  HttpBadGatewayError } = require('./errors');
-const { ValidationError } = require('./services/validators');
-const { parseBoolean, QueryParserError } = require('./services/query-parsers');
-const WT = require('./services/wt');
+  HttpBadGatewayError } = require('../errors');
+const { ValidationError } = require('../services/validators');
+const { parseBoolean, QueryParserError } = require('../services/query-parsers');
+const WT = require('../services/wt');
 
 /**
  * Add the `updatedAt` timestamp to the following components (if
