@@ -1,10 +1,10 @@
 const { assert } = require('chai');
 
-const { getDescription, getRatePlans,
-  getAvailability } = require('../../utils/fixtures');
+const { getDescription, getRatePlans, getAvailability,
+  getUploaders } = require('../../utils/fixtures');
 
-const { validateDescription, validateRatePlans,
-  validateAvailability, ValidationError } = require('../../../src/services/validators');
+const { validateDescription, validateRatePlans, validateAvailability,
+  validateUploaders, ValidationError } = require('../../../src/services/validators');
 
 describe('validators', function () {
   describe('validateDescription', () => {
@@ -94,6 +94,26 @@ describe('validators', function () {
       availability.certainty = 'maybe';
       assert.throws(() => validateAvailability(availability), ValidationError,
         /Unknown property/);
+    });
+  });
+
+  describe('validateUploaders', () => {
+    it('should pass when the data is correct', () => {
+      validateUploaders(getUploaders());
+    });
+
+    it('should fail when the root attribute is missing', () => {
+      let uploaders = getUploaders();
+      delete uploaders.root;
+      assert.throws(() => validateUploaders(uploaders), ValidationError,
+        /Missing required property: root/);
+    });
+
+    it('should fail when the s3 uploader is misconfigured', () => {
+      let uploaders = getUploaders();
+      delete uploaders.availability.s3.accessKeyId;
+      assert.throws(() => validateUploaders(uploaders), ValidationError,
+        /Data does not match any schemas/);
     });
   });
 });

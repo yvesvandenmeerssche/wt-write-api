@@ -1,0 +1,68 @@
+{
+  "description": "Uploader configuration.",
+  "type": "object",
+  "definitions": {
+    "dummy": {
+      "type": "object",
+      "required": [
+        "dummy"
+      ],
+      "properties": {
+        "dummy": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    "s3": {
+      "type": "object",
+      "required": [
+        "s3"
+      ],
+      "properties": {
+        "s3": {
+          "required": [
+            "accessKeyId",
+            "secretAccessKey",
+            "region",
+            "bucket",
+            "keyPrefix"
+          ],
+          "type": "object",
+          "properties": {
+            "accessKeyId": {
+              "type": "string"
+            },
+            "secretAccessKey": {
+              "type": "string"
+            },
+            "region": {
+              "type": "string"
+            },
+            "bucket": {
+              "type": "string"
+            },
+            "keyPrefix": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "uploader": {
+      "oneOf": [
+        { "$ref": "#/definitions/s3" },
+        { "$ref": "#/definitions/dummy" }
+      ]
+    }
+  },
+  "required": [
+    "root"
+  ],
+  "properties": {
+    "root": { "$ref": "#/definitions/uploader" },
+    "description": { "$ref": "#/definitions/uploader" },
+    "ratePlans": { "$ref": "#/definitions/uploader" },
+    "availability": { "$ref": "#/definitions/uploader" }
+  }
+}

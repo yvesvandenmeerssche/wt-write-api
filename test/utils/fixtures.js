@@ -48,3 +48,19 @@ module.exports.getAvailability = function () {
     updates: [],
   };
 };
+
+/** Return a valid uploaders representation. */
+module.exports.getUploaders = function () {
+  return {
+    root: { dummy: {} },
+    availability: {
+      s3: {
+        accessKeyId: 'dummyKeyId',
+        secretAccessKey: 'dummyAccessKey',
+        region: 'eu-central-1',
+        bucket: 'bucket',
+        keyPrefix: 'my-hotel',
+      }
+    },
+  };
+};

@@ -8,6 +8,8 @@ const timezones = require('timezones.json');
 const descriptionSchema = require('./description-schema.json');
 const ratePlansSchema = require('./rateplans-schema.json');
 const availabilitySchema = require('./availability-schema.json');
+const uploadersSchema = require('./uploaders-schema.json');
+const { wtLibs } = require('../../config');
 
 class ValidationError extends Error {};
 
@@ -79,6 +81,35 @@ module.exports.validateRatePlans = function (data) {
  */
 module.exports.validateAvailability = function (data) {
   return _validate(data, availabilitySchema);
+};
+
+/**
+ * Validate data against wallet json schema definition.
+ *
+ * @param {Object} data
+ * @return {undefined}
+ * @throws {ValidationError} When data validation fails.
+ */
+module.exports.validateWallet = function (data) {
+  const wallet = wtLibs.createWallet(data)
+  try {
+    wallet.unlock('dummy');
+  } catch (err) {
+    if (err instanceof MalformedWalletError) {
+      throw new ValidationError(err.msg);
+    }
+  }
+};
+
+/**
+ * Validate uploaders against their json schema definition.
+ *
+ * @param {Object} data
+ * @return {undefined}
+ * @throws {ValidationError} When data validation fails.
+ */
+module.exports.validateUploaders = function (data) {
+  return _validate(data, uploadersSchema);
 };
 
 module.exports.ValidationError = ValidationError;
