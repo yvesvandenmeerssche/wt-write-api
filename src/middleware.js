@@ -3,8 +3,12 @@ const WTLibs = require('@windingtree/wt-js-libs');
 const WT = require('./services/wt');
 const Profile = require('./models/profile');
 const { UploaderConfig } = require('./services/uploaders');
-const { HttpUnauthorizedError } = require('./errors');
+const { HttpBadGatewayError, HttpPaymentRequiredError,
+  HttpForbiddenError, HttpUnauthorizedError } = require('./errors');
 
+/**
+ * Attach profile to req based on the provided access key.
+ */
 module.exports.attachProfile = async (req, res, next) => {
   try {
     const wt = WT.get(),
@@ -40,4 +44,25 @@ module.exports.attachProfile = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+/**
+ * Replace well-defined on-chain errors with the corresponding
+ * HTTP errors.
+ */
+module.exports.handleOnChainErrors = (err, req, res, next) => {
+  if (!err) {
+    return next();
+  }
+  if (err instanceof WTLibs.errors.WalletSigningError) {
+    return next(new HttpForbiddenError());
+  }
+  if (err instanceof WTLibs.errors.InsufficientFundsError) {
+    return next(new HttpPaymentRequiredError());
+  }
+  if (err instanceof WTLibs.errors.InaccessibleEthereumNodeError) {
+    let msg = 'Ethereum node not reachable. Please try again later.';
+    return next(new HttpBadGatewayError(msg));
+  }
+  next(err);
 };
