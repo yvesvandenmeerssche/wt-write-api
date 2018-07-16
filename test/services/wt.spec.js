@@ -9,10 +9,12 @@ const ratePlans = getRatePlans();
 const availability = getAvailability();
 
 const wtLibsMock = {
-  createWallet: () => Promise.resolve({
-    lock: () => undefined,
-    unlock: () => undefined,
-  }),
+  createWallet: () => {
+    return {
+      lock: () => undefined,
+      unlock: () => undefined,
+    };
+  },
   getWTIndex: () => {
     return {
       getHotel: () => Promise.resolve({

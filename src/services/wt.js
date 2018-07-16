@@ -53,7 +53,7 @@ class WT {
    *
    * @param {Object} walletData
    */
-  async createWallet (walletData) {
+  createWallet (walletData) {
     return this.wtLibs.createWallet(walletData);
   }
 

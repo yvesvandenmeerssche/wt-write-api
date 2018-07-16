@@ -46,10 +46,10 @@ describe('controllers - hotels', function () {
     // Mock WT.
     wtMock = {
       createWallet: () => {
-        return Promise.resolve({
+        return {
           lock: () => undefined,
           unlock: () => undefined,
-        });
+        };
       },
       getDataIndex: (hotelAddress) => {
         return {
