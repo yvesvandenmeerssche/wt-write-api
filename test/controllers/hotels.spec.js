@@ -6,7 +6,6 @@ const sinon = require('sinon');
 const { getDescription, getRatePlans,
   getAvailability, getWallet } = require('../utils/fixtures');
 const Profile = require('../../src/models/profile');
-const config = require('../../src/config');
 const WT = require('../../src/services/wt');
 const { UploaderConfig } = require('../../src/services/uploaders');
 
@@ -14,9 +13,8 @@ const offChainUploader = {
   upload: sinon.stub().callsFake((data, label) => {
     return `dummy://${label}.json`;
   }),
-  remove: sinon.spy()
+  remove: sinon.spy(),
 };
-
 
 describe('controllers - hotels', function () {
   let server;
@@ -39,8 +37,8 @@ describe('controllers - hotels', function () {
       uploaders: {
         root: {
           dummy: {},
-        }
-      }
+        },
+      },
     });
 
     // Mock WT.

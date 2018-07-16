@@ -1,4 +1,5 @@
 /* eslint-env mocha */
+/* eslint-disable promise/no-promise-in-callback */
 
 const { assert } = require('chai');
 const sinon = require('sinon');
@@ -35,8 +36,8 @@ describe('middleware', () => {
       uploaders: {
         root: {
           dummy: {},
-        }
-      }
+        },
+      },
     });
   });
 
@@ -84,8 +85,8 @@ describe('middleware', () => {
           walletMock.lock.resetHistory();
           walletMock.unlock.resetHistory();
           await req.profile.withWallet((wallet) => {
-              assert.equal(wallet, walletMock);
-            });
+            assert.equal(wallet, walletMock);
+          });
           assert.ok(walletMock.unlock.calledOnce);
           assert.ok(walletMock.unlock.args[0][0]); // A password was supplied.
           assert.ok(walletMock.lock.calledOnce); // Wallet has been locked again.

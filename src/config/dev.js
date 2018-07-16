@@ -27,7 +27,7 @@ module.exports = {
     connection: {
       filename: './.dev.sqlite',
     },
-    useNullAsDefault: true
+    useNullAsDefault: true,
   }),
   logger: winston.createLogger({
     level: 'debug',

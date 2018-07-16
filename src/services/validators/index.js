@@ -92,7 +92,7 @@ module.exports.validateAvailability = function (data) {
  * @throws {ValidationError} When data validation fails.
  */
 module.exports.validateWallet = function (data) {
-  const wallet = wtLibs.createWallet(data)
+  const wallet = wtLibs.createWallet(data);
   try {
     wallet.unlock('dummy');
   } catch (err) {

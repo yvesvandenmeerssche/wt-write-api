@@ -8,9 +8,9 @@ const PROFILE_FIELDS = [
   { name: 'uploaders', validator: validateUploaders },
 ];
 
-function _validateRequest(body) {
+function _validateRequest (body) {
   for (let field of PROFILE_FIELDS) {
-    if (! body[field.name]) {
+    if (!body[field.name]) {
       throw new HttpValidationError('validationFailed', `Missing required property: ${field.name}`);
     }
     field.validator(body[field.name]);
@@ -27,7 +27,7 @@ module.exports.createProfile = async (req, res, next) => {
     // 2. Save profile.
     let profileKey = await Profile.create({
       wallet: req.body.wallet,
-      uploaders: req.body.uploaders
+      uploaders: req.body.uploaders,
     });
     // 3. Return the access key.
     res.status(201).json({ accessKey: profileKey });

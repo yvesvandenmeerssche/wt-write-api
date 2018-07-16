@@ -38,10 +38,10 @@ async function _generateKey () {
  */
 module.exports.create = async function (profileData) {
   const accessKey = profileData.accessKey || (await _generateKey());
-  const profile = await db(TABLE).insert({
-    wallet: JSON.stringify(profileData.wallet),
-    uploaders: JSON.stringify(profileData.uploaders),
-    access_key: accessKey,
+  await db(TABLE).insert({
+    'wallet': JSON.stringify(profileData.wallet),
+    'uploaders': JSON.stringify(profileData.uploaders),
+    'access_key': accessKey,
   });
   return accessKey;
 };
@@ -54,7 +54,7 @@ module.exports.create = async function (profileData) {
  */
 module.exports.get = async function (accessKey) {
   const profile = (await db(TABLE).select('access_key', 'uploaders', 'wallet').where({
-    access_key: accessKey,
+    'access_key': accessKey,
   }))[0];
   return profile && {
     wallet: JSON.parse(profile.wallet),

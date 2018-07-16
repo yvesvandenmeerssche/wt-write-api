@@ -1,6 +1,7 @@
+/* eslint-env mocha */
+/* eslint-disable promise/no-promise-in-callback,promise/no-callback-in-promise */
 const { assert } = require('chai');
 const request = require('supertest');
-const sinon = require('sinon');
 
 const { getWallet, getUploaders } = require('../utils/fixtures');
 const Profile = require('../../src/models/profile');

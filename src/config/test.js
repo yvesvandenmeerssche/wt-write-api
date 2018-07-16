@@ -26,6 +26,6 @@ module.exports = {
     connection: {
       filename: './.test.sqlite',
     },
-    useNullAsDefault: true
+    useNullAsDefault: true,
   }),
 };
