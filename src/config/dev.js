@@ -1,6 +1,5 @@
-const WTLibs = require('@windingtree/wt-js-libs');
-
 const winston = require('winston');
+const WTLibs = require('@windingtree/wt-js-libs');
 const knex = require('knex');
 
 module.exports = {

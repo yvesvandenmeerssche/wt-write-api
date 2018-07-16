@@ -25,7 +25,7 @@ app.post('/profile', createProfile);
 
 // Hotels
 app.post('/hotel', attachProfile, createHotel);
-app.get('/hotel/:address', attachProfile, getHotel);
+app.get('/hotel/:address', getHotel);
 app.delete('/hotel/:address', attachProfile, deleteHotel);
 app.patch('/hotel/:address', attachProfile, updateHotel);
 

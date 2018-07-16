@@ -1,22 +1,43 @@
-const { uploaders, walletPassword } = require('./config');
-const WT = require('./services/wt');
+const WTLibs = require('@windingtree/wt-js-libs');
 
-module.exports.attachProfile = (req, res, next) => {
-  // NOTE: We assume this will be dynamically assembled based on
-  // users authentication info in the future.
-  const wt = WT.get();
-  const walletData = { dummy: 'dummy' }; // TODO
-  req.profile = {
-    uploaders: uploaders,
-    withWallet: async (fn) => {
-      let wallet = await wt.createWallet(walletData);
-      wallet.unlock(walletPassword);
-      try {
-        return (await fn(wallet));
-      } finally {
-        wallet.lock();
-      }
-    },
-  };
-  next();
+const WT = require('./services/wt');
+const Profile = require('./models/profile');
+const { UploaderConfig } = require('./services/uploaders');
+const { HttpUnauthorizedError } = require('./errors');
+
+module.exports.attachProfile = async (req, res, next) => {
+  try {
+    const wt = WT.get(),
+      accessKey = req.header('X-Access-Key'),
+      walletPassword = req.header('X-Wallet-Password');
+    if (!accessKey || !walletPassword) {
+      throw new HttpUnauthorizedError();
+    }
+    const profile = await Profile.get(accessKey);
+    if (!profile) {
+      throw new HttpUnauthorizedError('unauthorized', 'Invalid access key.');
+    }
+    req.profile = {
+      uploaders: UploaderConfig.fromProfile(profile),
+      withWallet: async (fn) => {
+        const wallet = wt.createWallet(profile.wallet);
+        try {
+          wallet.unlock(walletPassword);
+        } catch (err) {
+          if (err instanceof WTLibs.errors.WalletPasswordError) {
+            throw new HttpUnauthorizedError('unauthorized', 'Invalid password.');
+          }
+          throw err;
+        }
+        try {
+          return (await fn(wallet));
+        } finally {
+          wallet.lock();
+        }
+      },
+    };
+    next();
+  } catch (err) {
+    next(err);
+  }
 };

@@ -122,6 +122,24 @@ class UploaderConfig {
   }
 
   /**
+   * Create an UploaderConfig instance from profile data.
+   *
+   * @param {Object} profile
+   */
+  static fromProfile (profile) {
+    const config = profile.uploaderConfig;
+    let opts = {};
+    for (let documentKey in config) {
+      const uploaderKey = Object.keys(config[documentKey])[0];
+      opts[documentKey] = new ({
+        dummy: DummyUploader,
+        s3: S3Uploader,
+      }[uploaderKey])(config[documentKey][uploaderKey]);
+    }
+    return new UploaderConfig(opts);
+  }
+
+  /**
    * Get off-chain uploader for the specified data subtree.
    */
   getUploader (subtree) {

@@ -65,6 +65,7 @@ module.exports.getUploaders = function () {
   };
 };
 
+// Password for this wallet is 'windingtree'.
 module.exports.getWallet = function () {
   return {
     "address": "d037ab9025d43f60a31b32a82e10936f07484246",

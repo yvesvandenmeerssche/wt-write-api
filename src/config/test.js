@@ -1,6 +1,4 @@
 const WTLibs = require('@windingtree/wt-js-libs');
-
-const winston = require('winston');
 const knex = require('knex');
 
 module.exports = {
@@ -29,13 +27,5 @@ module.exports = {
       filename: './.test.sqlite',
     },
     useNullAsDefault: true
-  }),
-  logger: winston.createLogger({
-    level: 'warn',
-    transports: [
-      new winston.transports.Console({
-        format: winston.format.simple(),
-      }),
-    ],
   }),
 };
