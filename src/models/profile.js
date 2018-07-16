@@ -6,9 +6,9 @@ const TABLE = 'profiles';
 
 module.exports.createTable = async function () {
   await db.schema.createTable(TABLE, (table) => {
-    table.string('secret_key').primary();
+    table.string('access_key').primary();
     table.string('wallet', 1023);
-    table.string('uploader_config', 1023);
+    table.string('uploaders', 1023);
   });
 };
 
@@ -37,13 +37,13 @@ async function _generateKey () {
  * @return {Object}
  */
 module.exports.create = async function (profileData) {
-  const secretKey = profileData.secretKey || (await _generateKey());
+  const accessKey = profileData.accessKey || (await _generateKey());
   const profile = await db(TABLE).insert({
     wallet: JSON.stringify(profileData.wallet),
-    uploader_config: JSON.stringify(profileData.uploaderConfig),
-    secret_key: secretKey,
+    uploaders: JSON.stringify(profileData.uploaders),
+    access_key: accessKey,
   });
-  return secretKey;
+  return accessKey;
 };
 
 /**
@@ -52,13 +52,13 @@ module.exports.create = async function (profileData) {
  * @param {Object} profileData
  * @return {Object}
  */
-module.exports.get = async function (secretKey) {
-  const profile = (await db(TABLE).select('secret_key', 'uploader_config', 'wallet').where({
-    secret_key: secretKey,
+module.exports.get = async function (accessKey) {
+  const profile = (await db(TABLE).select('access_key', 'uploaders', 'wallet').where({
+    access_key: accessKey,
   }))[0];
   return profile && {
     wallet: JSON.parse(profile.wallet),
-    uploaderConfig: JSON.parse(profile.uploader_config),
-    secretKey: secretKey,
+    uploaders: JSON.parse(profile.uploaders),
+    accessKey: accessKey,
   };
 };

@@ -32,7 +32,7 @@ describe('middleware', () => {
 
     accessKey = await Profile.create({
       wallet: getWallet(),
-      uploaderConfig: {
+      uploaders: {
         root: {
           dummy: {},
         }

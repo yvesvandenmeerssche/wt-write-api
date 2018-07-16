@@ -127,7 +127,7 @@ class UploaderConfig {
    * @param {Object} profile
    */
   static fromProfile (profile) {
-    const config = profile.uploaderConfig;
+    const config = profile.uploaders;
     let opts = {};
     for (let documentKey in config) {
       const uploaderKey = Object.keys(config[documentKey])[0];

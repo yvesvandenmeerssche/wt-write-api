@@ -38,8 +38,8 @@ describe('controllers - profiles', function () {
             assert.ok(profile);
             assert.deepEqual(profile, {
               wallet: getWallet(),
-              uploaderConfig: getUploaders(),
-              secretKey: res.body.accessKey,
+              uploaders: getUploaders(),
+              accessKey: res.body.accessKey,
             });
             done();
           }).catch((e) => {

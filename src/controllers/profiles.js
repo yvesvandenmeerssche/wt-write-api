@@ -27,7 +27,7 @@ module.exports.createProfile = async (req, res, next) => {
     // 2. Save profile.
     let profileKey = await Profile.create({
       wallet: req.body.wallet,
-      uploaderConfig: req.body.uploaders
+      uploaders: req.body.uploaders
     });
     // 3. Return the access key.
     res.status(201).json({ accessKey: profileKey });

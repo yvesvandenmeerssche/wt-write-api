@@ -36,7 +36,7 @@ describe('controllers - hotels', function () {
 
     accessKey = await Profile.create({
       wallet: getWallet(),
-      uploaderConfig: {
+      uploaders: {
         root: {
           dummy: {},
         }

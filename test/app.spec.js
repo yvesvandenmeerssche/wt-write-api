@@ -4,6 +4,12 @@ const { expect } = require('chai');
 const request = require('supertest');
 
 const { db } = require('../src/config');
+const { resetDB } = require('../src/db');
+
+// Global "before" hook - runs before all tests.
+before(async () => {
+  await resetDB();
+});
 
 // Global "after" hook - runs after all tests.
 // (Without it, the test suite won't return.)
