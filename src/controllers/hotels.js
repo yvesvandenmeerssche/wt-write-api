@@ -1,8 +1,10 @@
 const _ = require('lodash');
+const WTLibs = require('@windingtree/wt-js-libs');
 
 const { DATA_INDEX_FIELDS, DATA_INDEX_FIELD_NAMES } = require('../data-interface');
 const { HttpValidationError, HttpBadRequestError,
-  HttpBadGatewayError } = require('../errors');
+  HttpBadGatewayError, HttpPaymentRequiredError,
+  HttpForbiddenError } = require('../errors');
 const { ValidationError } = require('../services/validators');
 const { parseBoolean, QueryParserError } = require('../services/query-parsers');
 const WT = require('../services/wt');
@@ -94,6 +96,13 @@ module.exports.createHotel = async (req, res, next) => {
     if (err instanceof ValidationError) {
       return next(new HttpValidationError('validationFailed', err.message));
     }
+    if (err instanceof WTLibs.errors.InsufficientFundsError) {
+      return next(new HttpPaymentRequiredError());
+    }
+    if (err instanceof WTLibs.errors.InaccessibleEthereumNodeError) {
+      let msg = 'Ethereum node not reachable. Please try again later.';
+      return next(new HttpBadGatewayError(msg));
+    }
     next(err);
   }
 };
@@ -139,6 +148,16 @@ module.exports.updateHotel = async (req, res, next) => {
   } catch (err) {
     if (err instanceof ValidationError) {
       return next(new HttpValidationError('validationFailed', err.message));
+    }
+    if (err instanceof WTLibs.errors.WalletSigningError) {
+      return next(new HttpForbiddenError());
+    }
+    if (err instanceof WTLibs.errors.InsufficientFundsError) {
+      return next(new HttpPaymentRequiredError());
+    }
+    if (err instanceof WTLibs.errors.InaccessibleEthereumNodeError) {
+      let msg = 'Ethereum node not reachable. Please try again later.';
+      return next(new HttpBadGatewayError(msg));
     }
     next(err);
   }
@@ -209,6 +228,16 @@ module.exports.getHotel = async (req, res, next) => {
     if (err instanceof ValidationError) {
       let msg = 'Invalid upstream response - hotel data is not valid.';
       return next(new HttpBadGatewayError('badGateway', msg));
+    }
+    if (err instanceof WTLibs.errors.WalletSigningError) {
+      return next(new HttpForbiddenError());
+    }
+    if (err instanceof WTLibs.errors.InsufficientFundsError) {
+      return next(new HttpPaymentRequiredError());
+    }
+    if (err instanceof WTLibs.errors.InaccessibleEthereumNodeError) {
+      let msg = 'Ethereum node not reachable. Please try again later.';
+      return next(new HttpBadGatewayError(msg));
     }
     next(err);
   }

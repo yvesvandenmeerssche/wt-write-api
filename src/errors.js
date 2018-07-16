@@ -30,6 +30,12 @@ HttpUnauthorizedError.defaultCode = 'unauthorized';
 HttpUnauthorizedError.defaultMsgShort = 'Not authorized.';
 HttpUnauthorizedError.defaultMsgLong = 'You need to provide a valid API access key and wallet password.';
 
+class HttpPaymentRequiredError extends HttpError {};
+HttpPaymentRequiredError.status = 402;
+HttpPaymentRequiredError.defaultCode = 'paymentRequired';
+HttpPaymentRequiredError.defaultMsgShort = 'Payment required.';
+HttpPaymentRequiredError.defaultMsgLong = 'Not enough ether balance in your wallet.';
+
 class HttpForbiddenError extends HttpError {};
 HttpForbiddenError.status = 403;
 HttpForbiddenError.defaultCode = 'forbidden';
@@ -59,12 +65,13 @@ HttpBadGatewayError.defaultMsgShort = 'Bad gateway.';
 HttpBadGatewayError.defaultMsgLong = 'Invalid response from an upstream server.';
 
 module.exports = {
-  HttpError: HttpError,
-  HttpUnauthorizedError: HttpUnauthorizedError,
-  HttpForbiddenError: HttpForbiddenError,
-  Http404Error: Http404Error,
-  HttpBadRequestError: HttpBadRequestError,
-  HttpValidationError: HttpValidationError,
-  HttpInternalError: HttpInternalError,
-  HttpBadGatewayError: HttpBadGatewayError,
+  HttpError,
+  HttpUnauthorizedError,
+  HttpPaymentRequiredError,
+  HttpForbiddenError,
+  Http404Error,
+  HttpBadRequestError,
+  HttpValidationError,
+  HttpInternalError,
+  HttpBadGatewayError,
 };
