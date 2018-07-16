@@ -14,7 +14,7 @@ class WT {
   }
 
   async _addHotel (withWallet, dataIndexUri) {
-    const index = await this._getWTIndex();
+    const index = this._getWTIndex();
     return withWallet(async (wallet) => {
       const { hotel, transactionData, eventCallbacks } = await index.addHotel({
         manager: wallet.getAddress(),
@@ -28,7 +28,7 @@ class WT {
   }
 
   async _updateHotel (withWallet, dataIndexUri, hotelAddress) {
-    const index = await this._getWTIndex();
+    const index = this._getWTIndex();
     const hotel = await index.getHotel(hotelAddress);
     hotel.dataUri = dataIndexUri;
     const transactionDataList = await index.updateHotel(hotel);
@@ -81,7 +81,7 @@ class WT {
    * @return {Promise<void>}
    */
   async remove (withWallet, hotelAddress) {
-    const index = await this._getWTIndex();
+    const index = this._getWTIndex();
     const hotel = await index.getHotel(hotelAddress);
     const { transactionData, eventCallbacks } = await index.removeHotel(hotel);
     await withWallet(async (wallet) => {

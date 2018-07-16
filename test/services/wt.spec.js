@@ -13,44 +13,46 @@ const wtLibsMock = {
     lock: () => undefined,
     unlock: () => undefined,
   }),
-  getWTIndex: () => Promise.resolve({
-    getHotel: () => Promise.resolve({
-      get dataIndex () {
-        return {
-          ref: 'dummy://dataIndex.json',
-          contents: {
-            get descriptionUri () {
-              return Promise.resolve({
-                ref: 'dummy://description.json',
-                toPlainObject: () => Promise.resolve({
+  getWTIndex: () => {
+    return {
+      getHotel: () => Promise.resolve({
+        get dataIndex () {
+          return {
+            ref: 'dummy://dataIndex.json',
+            contents: {
+              get descriptionUri () {
+                return Promise.resolve({
                   ref: 'dummy://description.json',
-                  contents: description,
-                }),
-              });
-            },
-            get ratePlansUri () {
-              return Promise.resolve({
-                ref: 'dummy://ratePlans.json',
-                toPlainObject: () => Promise.resolve({
+                  toPlainObject: () => Promise.resolve({
+                    ref: 'dummy://description.json',
+                    contents: description,
+                  }),
+                });
+              },
+              get ratePlansUri () {
+                return Promise.resolve({
                   ref: 'dummy://ratePlans.json',
-                  contents: ratePlans,
-                }),
-              });
-            },
-            get availabilityUri () {
-              return Promise.resolve({
-                ref: 'dummy://availability.json',
-                toPlainObject: () => Promise.resolve({
+                  toPlainObject: () => Promise.resolve({
+                    ref: 'dummy://ratePlans.json',
+                    contents: ratePlans,
+                  }),
+                });
+              },
+              get availabilityUri () {
+                return Promise.resolve({
                   ref: 'dummy://availability.json',
-                  contents: availability,
-                }),
-              });
+                  toPlainObject: () => Promise.resolve({
+                    ref: 'dummy://availability.json',
+                    contents: availability,
+                  }),
+                });
+              },
             },
-          },
-        };
-      },
-    }),
-  }),
+          };
+        },
+      }),
+    };
+  },
 };
 
 describe('WT', () => {
