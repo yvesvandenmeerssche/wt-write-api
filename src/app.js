@@ -5,6 +5,7 @@ const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error } = require('./errors');
 const { attachProfile } = require('./middleware');
 const { createHotel, updateHotel, deleteHotel, getHotel } = require('./controllers/hotels');
+const { createProfile } = require('./controllers/profiles');
 
 const app = express();
 
@@ -18,6 +19,9 @@ app.get('/', (req, res) => {
     version,
   });
 });
+
+// Profiles
+app.post('/profile', createProfile);
 
 // Hotels
 app.post('/hotel', attachProfile, createHotel);

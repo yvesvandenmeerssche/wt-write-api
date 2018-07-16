@@ -13,7 +13,7 @@ const offChainUploader = config.uploaders.getUploader('root');
 sinon.spy(offChainUploader, 'upload');
 sinon.spy(offChainUploader, 'remove');
 
-describe('controllers', function () {
+describe('controllers - hotels', function () {
   let server;
   const description = getDescription();
   const ratePlans = getRatePlans();

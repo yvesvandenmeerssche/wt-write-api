@@ -4,6 +4,7 @@ const tv4Formats = require('tv4-formats');
 const countryCodes = require('iso-3166-1-alpha-2');
 const currencyCodes = require('currency-codes');
 const timezones = require('timezones.json');
+const WTLibs = require('@windingtree/wt-js-libs');
 
 const descriptionSchema = require('./description-schema.json');
 const ratePlansSchema = require('./rateplans-schema.json');
@@ -95,7 +96,7 @@ module.exports.validateWallet = function (data) {
   try {
     wallet.unlock('dummy');
   } catch (err) {
-    if (err instanceof MalformedWalletError) {
+    if (err instanceof WTLibs.errors.MalformedWalletError) {
       throw new ValidationError(err.msg);
     }
   }

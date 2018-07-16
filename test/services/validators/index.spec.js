@@ -1,10 +1,10 @@
 const { assert } = require('chai');
 
 const { getDescription, getRatePlans, getAvailability,
-  getUploaders } = require('../../utils/fixtures');
+  getUploaders, getWallet } = require('../../utils/fixtures');
 
 const { validateDescription, validateRatePlans, validateAvailability,
-  validateUploaders, ValidationError } = require('../../../src/services/validators');
+  validateUploaders, validateWallet, ValidationError } = require('../../../src/services/validators');
 
 describe('validators', function () {
   describe('validateDescription', () => {
@@ -114,6 +114,17 @@ describe('validators', function () {
       delete uploaders.availability.s3.accessKeyId;
       assert.throws(() => validateUploaders(uploaders), ValidationError,
         /Data does not match any schemas/);
+    });
+  });
+
+  describe('validateWallet', () => {
+    it('should pass when the data is correct', () => {
+      validateWallet(getWallet());
+    });
+
+    it('should fail when the data is invalid', () => {
+      let wallet = { dummy: 'dummy' };
+      assert.throws(() => validateWallet(wallet), ValidationError);
     });
   });
 });
