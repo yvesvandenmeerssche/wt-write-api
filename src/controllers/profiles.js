@@ -24,7 +24,7 @@ module.exports.createProfile = async (req, res, next) => {
   try {
     // 1. Validate request payload.
     _validateRequest(req.body);
-    // 2. Save profile.
+    // 2. Save the new profile.
     // (Note: validation of wallet and uploader contents is done
     // here as well.)
     let profileKey = await Profile.create({
@@ -48,7 +48,7 @@ module.exports.updateProfile = async (req, res, next) => {
   try {
     // 1. Validate request payload.
     _validateRequest(req.body);
-    // 2. Save the new profile.
+    // 2. Update the profile.
     // (Note: validation of wallet and uploader contents is done
     // here as well.)
     await Profile.update(req.profile.accessKey, {
