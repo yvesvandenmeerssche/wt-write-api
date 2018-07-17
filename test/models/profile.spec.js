@@ -67,4 +67,40 @@ describe('models - profile', () => {
       assert.isOk(await Profile.get(accessKey2));
     });
   });
+
+  describe('update', () => {
+    it('should update the given profile', async () => {
+      const uploaders = getUploaders();
+      const accessKey = await Profile.create({
+        wallet: getWallet(),
+        uploaders: uploaders,
+      });
+      delete uploaders.availability;
+      Profile.update(accessKey, {
+        wallet: getWallet(),
+        uploaders: uploaders,
+      });
+      const profile = await Profile.get(accessKey);
+      assert.deepEqual(profile.uploaders, uploaders);
+      assert.deepEqual(profile.wallet, getWallet());
+    });
+
+    it('should raise a ValidationError when data is not valid', async () => {
+      const uploaders = getUploaders();
+      const accessKey = await Profile.create({
+        wallet: getWallet(),
+        uploaders: uploaders,
+      });
+      delete uploaders.root;
+      try {
+        await Profile.update(accessKey, {
+          wallet: getWallet(),
+          uploaders: uploaders,
+        });
+        throw new Error('Should have raised an error');
+      } catch (err) {
+        assert.instanceOf(err, ValidationError);
+      }
+    });
+  });
 });

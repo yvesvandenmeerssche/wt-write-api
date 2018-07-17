@@ -5,7 +5,7 @@ const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error } = require('./errors');
 const { attachProfile, handleOnChainErrors } = require('./middleware');
 const { createHotel, updateHotel, deleteHotel, getHotel } = require('./controllers/hotels');
-const { createProfile, deleteProfile } = require('./controllers/profiles');
+const { createProfile, updateProfile, deleteProfile } = require('./controllers/profiles');
 
 const app = express();
 
@@ -21,7 +21,9 @@ app.get('/', (req, res) => {
 });
 
 // Profiles
+// NOTE: For security reasons, profiles are write only.
 app.post('/profile', createProfile);
+app.put('/profile', attachProfile, updateProfile);
 app.delete('/profile', attachProfile, deleteProfile);
 
 // Hotels

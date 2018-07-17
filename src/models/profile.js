@@ -67,6 +67,21 @@ module.exports.create = async function (profileData) {
 };
 
 /**
+ * Overwrite an existing profile with new data.
+ *
+ * @param {Object} profileData
+ * @return {Promise<void>}
+ */
+module.exports.update = async function (accessKey, profileData) {
+  _validate(profileData);
+  await db(TABLE).where('access_key', accessKey).update({
+    'wallet': JSON.stringify(profileData.wallet),
+    'uploaders': JSON.stringify(profileData.uploaders),
+    'updated_at': db.fn.now(),
+  });
+};
+
+/**
  * Get a profile.
  *
  * @param {String} accessKey

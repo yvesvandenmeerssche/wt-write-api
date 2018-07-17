@@ -83,6 +83,82 @@ describe('controllers - profiles', function () {
     });
   });
 
+  describe('PUT /profile', () => {
+    let accessKey;
+
+    before(async () => {
+      accessKey = await Profile.create({
+        wallet: getWallet(),
+        uploaders: getUploaders(),
+      });
+    });
+
+    it('should overwrite profile with the given data', (done) => {
+      let uploaders = { root: { dummy: {} } };
+      request(server)
+        .put('/profile')
+        .set('X-Access-Key', accessKey)
+        .set('X-Wallet-Password', 'windingtree')
+        .send({
+          wallet: getWallet(),
+          uploaders: uploaders,
+        })
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          Profile.get(accessKey).then((profile) => {
+            assert.deepEqual(profile, {
+              wallet: getWallet(),
+              uploaders: uploaders,
+              accessKey: accessKey,
+            });
+            done();
+          }).catch((e) => {
+            done(e);
+          });
+        });
+    });
+
+    it('should return 422 if the data is invalid', (done) => {
+      request(server)
+        .put('/profile')
+        .set('X-Access-Key', accessKey)
+        .set('X-Wallet-Password', 'windingtree')
+        .send({
+          wallet: { dummy: 'dummy' },
+          uploaders: getUploaders(),
+        })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 if a required attribute is missing', (done) => {
+      request(server)
+        .put('/profile')
+        .set('X-Access-Key', accessKey)
+        .set('X-Wallet-Password', 'windingtree')
+        .send({
+          uploaders: getUploaders(),
+        })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 if an unknown attribute is present', (done) => {
+      request(server)
+        .put('/profile')
+        .set('X-Access-Key', accessKey)
+        .set('X-Wallet-Password', 'windingtree')
+        .send({
+          wallet: getWallet(),
+          uploaders: getUploaders(),
+          hobbies: ['gardening', 'fashion'],
+        })
+        .expect(422)
+        .end(done);
+    });
+  });
+
   describe('DELETE /profile', () => {
     it('should delete the given profile', (done) => {
       Profile.create({
