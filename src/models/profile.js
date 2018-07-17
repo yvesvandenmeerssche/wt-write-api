@@ -9,6 +9,10 @@ module.exports.createTable = async function () {
     table.string('access_key').primary();
     table.string('wallet', 1023);
     table.string('uploaders', 1023);
+    // The timestamp is not exposed outside of the DB - we
+    // have added it as a precautionary measure to help in
+    // case of possible future problem investigations.
+    table.timestamp('updated_at').defaultTo(db.fn.now());
   });
 };
 
