@@ -1,6 +1,5 @@
 const _ = require('lodash');
 
-const { DATA_INDEX_FIELDS, DATA_INDEX_FIELD_NAMES } = require('../data-interface');
 const { HttpValidationError, HttpBadRequestError,
   HttpBadGatewayError } = require('../errors');
 const { ValidationError } = require('../services/validators');
@@ -45,11 +44,11 @@ function _addTimestamps (body) {
  */
 function _validateRequest (body, enforceRequired) {
   for (let field in body) {
-    if (DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
+    if (WT.DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
       throw new HttpValidationError('validationFailed', `Unknown property: ${field}`);
     }
   }
-  for (let field of DATA_INDEX_FIELDS) {
+  for (let field of WT.DATA_INDEX_FIELDS) {
     let data = body[field.name];
     if (enforceRequired && field.required && !data) {
       throw new HttpValidationError('validationFailed', `Missing property: ${field.name}`);
@@ -75,7 +74,7 @@ module.exports.createHotel = async (req, res, next) => {
     _addTimestamps(req.body);
     // 3. Upload the actual data parts.
     let dataIndex = {};
-    for (let field of DATA_INDEX_FIELDS) {
+    for (let field of WT.DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
       if (!data) {
         continue;
@@ -111,7 +110,7 @@ module.exports.updateHotel = async (req, res, next) => {
     _addTimestamps(req.body);
     // 3. Upload the changed data parts.
     let dataIndex = {};
-    for (let field of DATA_INDEX_FIELDS) {
+    for (let field of WT.DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
       if (!data) {
         continue;
@@ -163,7 +162,7 @@ module.exports.deleteHotel = async (req, res, next) => {
     await wt.remove(profile.withWallet, req.params.address);
     if (req.query.offChain && parseBoolean(req.query.offChain)) {
       await profile.uploaders.getUploader('root').remove('dataIndex');
-      for (let field of DATA_INDEX_FIELDS) {
+      for (let field of WT.DATA_INDEX_FIELDS) {
         let uploader = profile.uploaders.getUploader(field.name);
         await uploader.remove(field.name);
       }
@@ -194,11 +193,11 @@ module.exports.getHotel = async (req, res, next) => {
     const fields = _.filter((req.query.fields || '').split(',')),
       wt = WT.get();
     for (let field of fields) {
-      if (DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
+      if (WT.DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
         throw new HttpValidationError('validationFailed', `Unknown field: ${field}`);
       }
     }
-    const fieldNames = _(DATA_INDEX_FIELDS)
+    const fieldNames = _(WT.DATA_INDEX_FIELDS)
       .map('name')
       .filter((name) => (fields.length === 0 || fields.indexOf(name) !== -1))
       .value();

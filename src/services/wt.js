@@ -1,4 +1,14 @@
-const { DATA_INDEX_FIELDS } = require('../data-interface');
+const _ = require('lodash');
+
+const { validateDescription, validateRatePlans, validateAvailability } = require('./validators');
+
+/* A declarative description of hotel data. */
+const DATA_INDEX_FIELDS = [
+  { name: 'description', required: true, validator: validateDescription },
+  { name: 'ratePlans', required: false, validator: validateRatePlans },
+  { name: 'availability', required: false, validator: validateAvailability },
+];
+const DATA_INDEX_FIELD_NAMES = _.map(DATA_INDEX_FIELDS, 'name');
 
 /**
  * Gateway to the WT platform. Wraps wtLibs.
@@ -149,4 +159,6 @@ module.exports = {
   WT,
   get,
   set,
+  DATA_INDEX_FIELDS,
+  DATA_INDEX_FIELD_NAMES,
 };
