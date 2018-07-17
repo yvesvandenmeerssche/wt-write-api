@@ -64,13 +64,13 @@ class S3Uploader extends OffChainUploader {
    */
   constructor (options) {
     const requiredOptions = ['accessKeyId', 'secretAccessKey', 'region',
-      'bucket', 'keyPrefix'];
+      'bucket'];
     for (let attr of requiredOptions) {
       if (!options || !options[attr]) {
         throw new Error(`Missing required option: ${attr}.`);
       }
     }
-    if (options.keyPrefix.endsWith('/')) {
+    if (options.keyPrefix && options.keyPrefix.endsWith('/')) {
       throw new Error(`Invalid keyPrefix - cannot end with '/': ${options.keyPrefix}`);
     }
     super();
@@ -101,9 +101,19 @@ class S3Uploader extends OffChainUploader {
     throw err;
   }
 
+  /**
+   * Get AWS object key for the given document label.
+   */
+  _getKey (label) {
+    if (this._keyPrefix) {
+      return `${this._keyPrefix}/${label}.json`;
+    }
+    return `${label}.json`;
+  }
+
   async upload (data, label) {
     super.upload(data, label);
-    const key = `${this._keyPrefix}/${label}.json`,
+    const key = this._getKey(label),
       params = {
         Bucket: this._bucket,
         Key: key,
@@ -118,7 +128,7 @@ class S3Uploader extends OffChainUploader {
   }
 
   async remove (label) {
-    const key = `${this._keyPrefix}/${label}.json`,
+    const key = this._getKey(label),
       params = { Bucket: this._bucket, Key: key };
     try {
       await this._s3.deleteObject(params).promise();

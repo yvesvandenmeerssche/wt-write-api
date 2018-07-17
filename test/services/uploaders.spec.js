@@ -78,6 +78,20 @@ describe('uploaders', () => {
         });
       });
 
+      it('should work well without a keyPrefix', async () => {
+        const uploader = new S3Uploader({
+          accessKeyId: 'dummy',
+          secretAccessKey: 'dummy',
+          bucket: 'bucket',
+          region: 'eu-central-1',
+        });
+        uploader._s3.putObject.resetHistory();
+        return uploader.upload({ key: 'value' }, 'description').then((url) => {
+          assert.equal(url, 'https://bucket.s3.amazonaws.com/description.json');
+          assert.equal(uploader._s3.putObject.args[0][0].Key, 'description.json');
+        });
+      });
+
       it('should throw a HttpForbiddenError if AWS credentials are not right', async () => {
         const uploader = _createUploader();
         try {
