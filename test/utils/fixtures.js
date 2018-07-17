@@ -23,7 +23,6 @@ module.exports.getDescription = function () {
 module.exports.getRatePlans = function () {
   return {
     basic: {
-      id: 'id-basic',
       name: 'Basic',
       description: 'One bed, one pillow, no breakfast.',
       updatedAt: (new Date()).toISOString(),

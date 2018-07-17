@@ -52,7 +52,6 @@
       "additionalProperties": {
         "type": "object",
         "required": [
-          "id",
           "name",
           "description",
           "occupancy",
@@ -62,12 +61,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "id": {
-            "description": "Vendor room type ID (should be unique for hotel)",
-            "title": "ID",
-            "type": "string",
-            "maxLength": 100
           },
           "name": {
             "description": "Name of the room type to show to users",
