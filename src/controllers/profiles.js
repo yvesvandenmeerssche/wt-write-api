@@ -1,19 +1,19 @@
 const { HttpValidationError } = require('../errors');
-const { validateWallet, validateUploaders,
-  ValidationError } = require('../services/validators');
+const { ValidationError } = require('../services/validators');
 const Profile = require('../models/profile');
 
-const PROFILE_FIELDS = [
-  { name: 'wallet', validator: validateWallet },
-  { name: 'uploaders', validator: validateUploaders },
-];
+const PROFILE_FIELDS = ['wallet', 'uploaders'];
 
 function _validateRequest (body) {
   for (let field of PROFILE_FIELDS) {
-    if (!body[field.name]) {
-      throw new HttpValidationError('validationFailed', `Missing required property: ${field.name}`);
+    if (!body[field]) {
+      throw new HttpValidationError('validationFailed', `Missing required property: ${field}`);
     }
-    field.validator(body[field.name]);
+  }
+  for (let field in body) {
+    if (PROFILE_FIELDS.indexOf(field) === -1) {
+      throw new HttpValidationError('validationFailed', `Unknown property: ${field}`);
+    }
   }
 }
 
@@ -25,6 +25,8 @@ module.exports.createProfile = async (req, res, next) => {
     // 1. Validate request payload.
     _validateRequest(req.body);
     // 2. Save profile.
+    // (Note: validation of wallet and uploader contents is done
+    // here as well.)
     let profileKey = await Profile.create({
       wallet: req.body.wallet,
       uploaders: req.body.uploaders,

@@ -59,5 +59,27 @@ describe('controllers - profiles', function () {
         .expect(422)
         .end(done);
     });
+
+    it('should return 422 if a required attribute is missing', (done) => {
+      request(server)
+        .post('/profile')
+        .send({
+          uploaders: getUploaders(),
+        })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 if an unknown attribute is present', (done) => {
+      request(server)
+        .post('/profile')
+        .send({
+          wallet: getWallet(),
+          uploaders: getUploaders(),
+          hobbies: ['gardening', 'fashion'],
+        })
+        .expect(422)
+        .end(done);
+    });
   });
 });

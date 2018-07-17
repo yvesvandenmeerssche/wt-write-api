@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 
 const { db } = require('../config');
+const { validateWallet, validateUploaders } = require('../services/validators');
 
 const TABLE = 'profiles';
 
@@ -34,6 +35,20 @@ async function _generateKey () {
   });
 }
 
+const VALIDATED_FIELDS = [
+  { name: 'wallet', validator: validateWallet },
+  { name: 'uploaders', validator: validateUploaders },
+];
+
+/**
+ * Validate the given profile data.
+ */
+function _validate (profileData) {
+  for (let field of VALIDATED_FIELDS) {
+    field.validator(profileData[field.name]);
+  }
+}
+
 /**
  * Create a new profile and return its secret key.
  *
@@ -41,7 +56,8 @@ async function _generateKey () {
  * @return {Object}
  */
 module.exports.create = async function (profileData) {
-  const accessKey = profileData.accessKey || (await _generateKey());
+  _validate(profileData);
+  const accessKey = await _generateKey();
   await db(TABLE).insert({
     'wallet': JSON.stringify(profileData.wallet),
     'uploaders': JSON.stringify(profileData.uploaders),
