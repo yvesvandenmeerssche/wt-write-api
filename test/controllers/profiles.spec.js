@@ -5,6 +5,7 @@ const request = require('supertest');
 
 const { getWallet, getUploaders } = require('../utils/fixtures');
 const Profile = require('../../src/models/profile');
+const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../../src/constants');
 
 describe('controllers - profiles', function () {
   let server;
@@ -97,8 +98,8 @@ describe('controllers - profiles', function () {
       let uploaders = { root: { dummy: {} } };
       request(server)
         .put('/profile')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
           wallet: getWallet(),
           uploaders: uploaders,
@@ -122,8 +123,8 @@ describe('controllers - profiles', function () {
     it('should return 422 if the data is invalid', (done) => {
       request(server)
         .put('/profile')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
           wallet: { dummy: 'dummy' },
           uploaders: getUploaders(),
@@ -135,8 +136,8 @@ describe('controllers - profiles', function () {
     it('should return 422 if a required attribute is missing', (done) => {
       request(server)
         .put('/profile')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
           uploaders: getUploaders(),
         })
@@ -147,8 +148,8 @@ describe('controllers - profiles', function () {
     it('should return 422 if an unknown attribute is present', (done) => {
       request(server)
         .put('/profile')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
           wallet: getWallet(),
           uploaders: getUploaders(),
@@ -167,8 +168,8 @@ describe('controllers - profiles', function () {
       }).then((accessKey) => {
         request(server)
           .delete('/profile')
-          .set('X-Access-Key', accessKey)
-          .set('X-Wallet-Password', 'windingtree')
+          .set(ACCESS_KEY_HEADER, accessKey)
+          .set(WALLET_PASSWORD_HEADER, 'windingtree')
           .expect(204)
           .end((err, res) => {
             if (err) return done(err);

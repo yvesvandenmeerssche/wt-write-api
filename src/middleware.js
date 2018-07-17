@@ -5,6 +5,7 @@ const Profile = require('./models/profile');
 const { UploaderConfig } = require('./services/uploaders');
 const { HttpBadGatewayError, HttpPaymentRequiredError,
   HttpForbiddenError, HttpUnauthorizedError } = require('./errors');
+const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('./constants');
 
 /**
  * Attach profile to req based on the provided access key.
@@ -12,8 +13,8 @@ const { HttpBadGatewayError, HttpPaymentRequiredError,
 module.exports.attachProfile = async (req, res, next) => {
   try {
     const wt = WT.get(),
-      accessKey = req.header('X-Access-Key'),
-      walletPassword = req.header('X-Wallet-Password');
+      accessKey = req.header(ACCESS_KEY_HEADER),
+      walletPassword = req.header(WALLET_PASSWORD_HEADER);
     if (!accessKey || !walletPassword) {
       throw new HttpUnauthorizedError();
     }

@@ -10,6 +10,7 @@ const { attachProfile } = require('../src/middleware');
 const Profile = require('../src/models/profile');
 const WT = require('../src/services/wt');
 const { getWallet } = require('./utils/fixtures');
+const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../src/constants');
 let origWT;
 
 describe('middleware', () => {
@@ -52,8 +53,8 @@ describe('middleware', () => {
       const req = {
         header: (key) => {
           return {
-            'X-Access-Key': accessKey,
-            'X-Wallet-Password': 'windingtree',
+            [ACCESS_KEY_HEADER]: accessKey,
+            [WALLET_PASSWORD_HEADER]: 'windingtree',
           }[key];
         },
       };
@@ -75,8 +76,8 @@ describe('middleware', () => {
       const req = {
         header: (key) => {
           return {
-            'X-Access-Key': accessKey,
-            'X-Wallet-Password': 'windingtree',
+            [ACCESS_KEY_HEADER]: accessKey,
+            [WALLET_PASSWORD_HEADER]: 'windingtree',
           }[key];
         },
       };
@@ -109,7 +110,7 @@ describe('middleware', () => {
     it('should throw HttpUnauthorizedError when access key is not provided', (done) => {
       const req = {
         header: (key) => {
-          return { 'X-Wallet-Password': 'windingtree' }[key];
+          return { [WALLET_PASSWORD_HEADER]: 'windingtree' }[key];
         },
       };
       attachProfile(req, undefined, (err) => {
@@ -127,8 +128,8 @@ describe('middleware', () => {
       const req = {
         header: (key) => {
           return {
-            'X-Access-Key': 'invalid',
-            'X-Wallet-Password': 'windingtree',
+            [ACCESS_KEY_HEADER]: 'invalid',
+            [WALLET_PASSWORD_HEADER]: 'windingtree',
           }[key];
         },
       };
@@ -146,7 +147,7 @@ describe('middleware', () => {
     it('should throw HttpUnauthorizedError when wallet password is not provided', (done) => {
       const req = {
         header: (key) => {
-          return { 'X-Access-Key': accessKey }[key];
+          return { [ACCESS_KEY_HEADER]: accessKey }[key];
         },
       };
       attachProfile(req, undefined, (err) => {
@@ -164,8 +165,8 @@ describe('middleware', () => {
       const req = {
         header: (key) => {
           return {
-            'X-Access-Key': accessKey,
-            'X-Wallet-Password': 'invalid',
+            [ACCESS_KEY_HEADER]: accessKey,
+            [WALLET_PASSWORD_HEADER]: 'invalid',
           }[key];
         },
       };

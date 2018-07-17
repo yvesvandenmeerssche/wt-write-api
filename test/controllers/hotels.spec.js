@@ -8,6 +8,7 @@ const { getDescription, getRatePlans,
 const Profile = require('../../src/models/profile');
 const WT = require('../../src/services/wt');
 const { UploaderConfig } = require('../../src/services/uploaders');
+const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../../src/constants');
 
 const offChainUploader = {
   upload: sinon.stub().callsFake((data, label) => {
@@ -98,8 +99,8 @@ describe('controllers - hotels', function () {
         
       request(server)
         .post('/hotels')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
           description: desc,
           ratePlans: ratePlans,
@@ -132,8 +133,8 @@ describe('controllers - hotels', function () {
     it('should return 201 when only non-required fields are missing', (done) => {
       request(server)
         .post('/hotels')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description: getDescription() })
         .expect(201)
         .end(done);
@@ -150,8 +151,8 @@ describe('controllers - hotels', function () {
     it('should return 422 when description is missing', (done) => {
       request(server)
         .post('/hotels')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ ratePlans: getRatePlans(), availability: getAvailability() })
         .expect(422)
         .end(done);
@@ -162,8 +163,8 @@ describe('controllers - hotels', function () {
       delete desc.name;
       request(server)
         .post('/hotels')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description: desc })
         .expect(422)
         .end(done);
@@ -172,8 +173,8 @@ describe('controllers - hotels', function () {
     it('should return 422 when unexpected top-level properties are present', (done) => {
       request(server)
         .post('/hotels')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description: getDescription(), religion: 'pagan' })
         .expect(422)
         .end(done);
@@ -190,8 +191,8 @@ describe('controllers - hotels', function () {
       request(server)
         .post('/hotels')
         .send({ description, ratePlans, availability })
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .expect(201)
         .end((err, res) => {
           if (err) return done(err);
@@ -219,8 +220,8 @@ describe('controllers - hotels', function () {
 
       request(server)
         .patch('/hotels/dummy')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
           description: desc,
           ratePlans: ratePlans,
@@ -246,8 +247,8 @@ describe('controllers - hotels', function () {
 
       request(server)
         .patch('/hotels/0xchanged?forceSync=1')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description })
         .expect(204)
         .end((err, res) => {
@@ -272,8 +273,8 @@ describe('controllers - hotels', function () {
 
       request(server)
         .patch('/hotels/0xnotchanged?forceSync=1')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description })
         .expect(204)
         .end((err, res) => {
@@ -305,8 +306,8 @@ describe('controllers - hotels', function () {
       delete desc.name;
       request(server)
         .patch('/hotels/dummy')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
           description: desc,
           ratePlans: ratePlans,
@@ -318,8 +319,8 @@ describe('controllers - hotels', function () {
     it('should return 422 when unexpected top-level properties are present', (done) => {
       request(server)
         .patch('/hotels/dummy')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
           description: getDescription(),
           ratePlans: getRatePlans(),
@@ -336,8 +337,8 @@ describe('controllers - hotels', function () {
       offChainUploader.remove.resetHistory();
       request(server)
         .delete('/hotels/0xdummy')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .expect(204)
         .end((err, res) => {
           if (err) return done(err);
@@ -357,8 +358,8 @@ describe('controllers - hotels', function () {
       offChainUploader.remove.resetHistory();
       request(server)
         .delete('/hotels/0xdummy?offChain=1')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .expect(204)
         .end((err, res) => {
           if (err) return done(err);
@@ -380,8 +381,8 @@ describe('controllers - hotels', function () {
     it('should return HTTP 400 if the offChain parameter is ambiguous', (done) => {
       request(server)
         .delete('/hotels/0xdummy?offChain=maybe')
-        .set('X-Access-Key', accessKey)
-        .set('X-Wallet-Password', 'windingtree')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .expect(400)
         .end(done);
     });
