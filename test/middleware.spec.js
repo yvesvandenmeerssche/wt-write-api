@@ -63,6 +63,7 @@ describe('middleware', () => {
           assert.isDefined(req.profile);
           assert.isDefined(req.profile.uploaders);
           assert.isDefined(req.profile.withWallet);
+          assert.isDefined(req.profile.accessKey);
           done();
         } catch (e) {
           done(e);

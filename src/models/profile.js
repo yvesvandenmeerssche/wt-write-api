@@ -53,7 +53,7 @@ function _validate (profileData) {
  * Create a new profile and return its secret key.
  *
  * @param {Object} profileData
- * @return {Object}
+ * @return {Promise<String>}
  */
 module.exports.create = async function (profileData) {
   _validate(profileData);
@@ -69,8 +69,8 @@ module.exports.create = async function (profileData) {
 /**
  * Get a profile.
  *
- * @param {Object} profileData
- * @return {Object}
+ * @param {String} accessKey
+ * @return {Promise<Object>}
  */
 module.exports.get = async function (accessKey) {
   const profile = (await db(TABLE).select('access_key', 'uploaders', 'wallet').where({
@@ -81,4 +81,13 @@ module.exports.get = async function (accessKey) {
     uploaders: JSON.parse(profile.uploaders),
     accessKey: accessKey,
   };
+};
+/**
+ * Delete a profile.
+ *
+ * @param {String} accessKey
+ * @return {Promise<void>}
+ */
+module.exports.delete = async function (accessKey) {
+  await db(TABLE).where('access_key', accessKey).delete();
 };

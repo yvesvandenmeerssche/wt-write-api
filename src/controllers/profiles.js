@@ -40,3 +40,15 @@ module.exports.createProfile = async (req, res, next) => {
     next(err);
   }
 };
+
+/**
+ * Delete an existing profile.
+ */
+module.exports.deleteProfile = async (req, res, next) => {
+  try {
+    await Profile.delete(req.profile.accessKey);
+    res.sendStatus(204);
+  } catch (err) {
+    next(err);
+  }
+};

@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-/* eslint-disable promise/no-promise-in-callback,promise/no-callback-in-promise */
+/* eslint-disable promise/no-promise-in-callback,promise/no-callback-in-promise,promise/no-nesting */
 const { assert } = require('chai');
 const request = require('supertest');
 
@@ -80,6 +80,28 @@ describe('controllers - profiles', function () {
         })
         .expect(422)
         .end(done);
+    });
+  });
+
+  describe('DELETE /profile', () => {
+    it('should delete the given profile', (done) => {
+      Profile.create({
+        wallet: getWallet(),
+        uploaders: getUploaders(),
+      }).then((accessKey) => {
+        request(server)
+          .delete('/profile')
+          .set('X-Access-Key', accessKey)
+          .set('X-Wallet-Password', 'windingtree')
+          .expect(204)
+          .end((err, res) => {
+            if (err) return done(err);
+            Profile.get(accessKey).then((profile) => {
+              assert.isNotOk(profile);
+              done();
+            }).catch(done);
+          });
+      }).catch(done);
     });
   });
 });

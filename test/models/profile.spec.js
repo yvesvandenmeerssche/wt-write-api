@@ -7,13 +7,14 @@ const { getWallet, getUploaders } = require('../utils/fixtures');
 
 describe('models - profile', () => {
   describe('create', () => {
-    it('should create a new profile and return its secret key', async () => {
+    it('should create a new profile and return its access key', async () => {
       const accessKey = await Profile.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
       assert.ok(typeof accessKey === 'string');
-      assert.isAbove(accessKey.length, 32);
+      assert.isAbove(accessKey.length, 32); // Should be secure enough.
+      assert.isBelow(accessKey.length, 255); // Should fit to the DB.
     });
 
     it('should raise a ValidationError when data is not valid', async () => {
@@ -48,6 +49,22 @@ describe('models - profile', () => {
     it('should return undefined if no such profile exists', async () => {
       const profile = await Profile.get('nonexistent');
       assert.equal(profile, undefined);
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete the given profile', async () => {
+      const accessKey1 = await Profile.create({
+        wallet: getWallet(),
+        uploaders: getUploaders(),
+      });
+      const accessKey2 = await Profile.create({
+        wallet: getWallet(),
+        uploaders: getUploaders(),
+      });
+      await Profile.delete(accessKey1);
+      assert.isNotOk(await Profile.get(accessKey1));
+      assert.isOk(await Profile.get(accessKey2));
     });
   });
 });

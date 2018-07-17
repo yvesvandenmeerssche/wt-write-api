@@ -22,6 +22,7 @@ module.exports.attachProfile = async (req, res, next) => {
       throw new HttpUnauthorizedError('unauthorized', 'Invalid access key.');
     }
     req.profile = {
+      accessKey: profile.accessKey,
       uploaders: UploaderConfig.fromProfile(profile),
       withWallet: async (fn) => {
         const wallet = wt.createWallet(profile.wallet);
