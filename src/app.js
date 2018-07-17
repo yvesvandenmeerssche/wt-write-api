@@ -27,10 +27,10 @@ app.put('/profile', attachProfile, updateProfile);
 app.delete('/profile', attachProfile, deleteProfile);
 
 // Hotels
-app.post('/hotel', attachProfile, createHotel, handleOnChainErrors);
-app.get('/hotel/:address', getHotel);
-app.delete('/hotel/:address', attachProfile, deleteHotel, handleOnChainErrors);
-app.patch('/hotel/:address', attachProfile, updateHotel, handleOnChainErrors);
+app.post('/hotels', attachProfile, createHotel, handleOnChainErrors);
+app.get('/hotels/:address', getHotel);
+app.delete('/hotels/:address', attachProfile, deleteHotel, handleOnChainErrors);
+app.patch('/hotels/:address', attachProfile, updateHotel, handleOnChainErrors);
 
 // 404 handler
 app.use('*', (req, res, next) => {
