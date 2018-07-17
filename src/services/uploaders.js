@@ -1,5 +1,7 @@
 const AWS = require('aws-sdk');
 
+const { HttpForbiddenError, HttpBadGatewayError } = require('../errors');
+
 /**
  * Base class for all off-chain uploaders.
  */
@@ -84,7 +86,7 @@ class S3Uploader extends OffChainUploader {
     this._keyPrefix = options.keyPrefix;
   }
 
-  upload (data, label) {
+  async upload (data, label) {
     super.upload(data, label);
     const key = `${this._keyPrefix}/${label}.json`,
       params = {
@@ -92,17 +94,41 @@ class S3Uploader extends OffChainUploader {
         Key: key,
         Body: JSON.stringify(data),
       };
-    return this._s3.putObject(params)
-      .promise()
-      .then(() => `https://${this._bucket}.s3.amazonaws.com/${key}`);
+    try {
+      await this._s3.putObject(params).promise();
+    } catch (err) {
+      // Wrap well-defined errors from AWS in our http errors.
+      if (err.statusCode === 403) {
+        let msg = `Forbidden by upstream (AWS): ${err.message}`;
+        throw new HttpForbiddenError('forbidden', msg);
+      }
+      if (err.statusCode >= 500) {
+        let msg = `Invalid response from upstream (AWS): ${err.message}`;
+        throw new HttpBadGatewayError('badGatewayError', msg);
+      }
+      throw err;
+    }
+    return `https://${this._bucket}.s3.amazonaws.com/${key}`;
   }
 
-  remove (label) {
+  async remove (label) {
     const key = `${this._keyPrefix}/${label}.json`,
       params = { Bucket: this._bucket, Key: key };
-    return this._s3.deleteObject(params)
-      .promise()
-      .then(() => true);
+    try {
+      await this._s3.deleteObject(params).promise();
+    } catch (err) {
+      // Wrap well-defined errors from AWS in our http errors.
+      if (err.statusCode === 403) {
+        let msg = `Forbidden by upstream (AWS): ${err.message}`;
+        throw new HttpForbiddenError('forbidden', msg);
+      }
+      if (err.statusCode >= 500) {
+        let msg = `Invalid response from upstream (AWS): ${err.message}`;
+        throw new HttpBadGatewayError('badGatewayError', msg);
+      }
+      throw err;
+    }
+    return true;
   }
 };
 
