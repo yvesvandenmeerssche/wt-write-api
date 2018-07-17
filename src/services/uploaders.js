@@ -139,6 +139,11 @@ class S3Uploader extends OffChainUploader {
   }
 };
 
+const _UPLOADERS_BY_CODE = { // Used in profile configurations.
+  s3: S3Uploader,
+  dummy: DummyUploader,
+};
+
 /**
  * Specific combination of off-chain uploaders to be used.
  */
@@ -164,10 +169,12 @@ class UploaderConfig {
     let opts = {};
     for (let documentKey in config) {
       const uploaderKey = Object.keys(config[documentKey])[0];
-      opts[documentKey] = new ({
-        dummy: DummyUploader,
-        s3: S3Uploader,
-      }[uploaderKey])(config[documentKey][uploaderKey]);
+      if (uploaderKey in _UPLOADERS_BY_CODE) {
+        let uploaderOpts = config[documentKey][uploaderKey];
+        opts[documentKey] = new _UPLOADERS_BY_CODE[uploaderKey](uploaderOpts);
+      } else {
+        throw new Error(`Unknown uploader type: ${uploaderKey}`);
+      }
     }
     return new UploaderConfig(opts);
   }
