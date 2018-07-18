@@ -110,6 +110,9 @@ module.exports.updateHotel = async (req, res, next) => {
       wt = WT.get();
     // 1. Validate request.
     _validateRequest(req.body, false);
+    if (Object.keys(req.body).length === 0) {
+      throw new HttpBadRequestError('badRequest', 'No data provided');
+    }
     // 2. Add `updatedAt` timestamps.
     _addTimestamps(req.body);
     // 3. Upload the changed data parts.

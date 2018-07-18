@@ -329,6 +329,16 @@ describe('controllers - hotels', function () {
         .expect(422)
         .end(done);
     });
+
+    it('should return 400 when no data is sent', (done) => {
+      request(server)
+        .patch('/hotels/dummy')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({})
+        .expect(400)
+        .end(done);
+    });
   });
 
   describe('DELETE /hotels/:address', () => {
