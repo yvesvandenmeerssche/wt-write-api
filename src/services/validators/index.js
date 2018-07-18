@@ -85,7 +85,7 @@ module.exports.validateAvailability = function (data) {
 };
 
 /**
- * Validate data against wallet json schema definition.
+ * Validate data using the web3 library.
  *
  * @param {Object} data
  * @return {undefined}

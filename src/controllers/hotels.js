@@ -73,15 +73,19 @@ module.exports.createHotel = async (req, res, next) => {
     // 2. Add `updatedAt` timestamps.
     _addTimestamps(req.body);
     // 3. Upload the actual data parts.
-    let dataIndex = {};
+    let dataIndex = {},
+      uploading = [];
     for (let field of WT.DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
       if (!data) {
         continue;
       }
       let uploader = profile.uploaders.getUploader(field.name);
-      dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
+      uploading.push((async () => {
+        dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
+      })());
     }
+    await Promise.all(uploading);
     // 4. Upload the data index.
     const dataIndexUri = await profile.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
     // 5. Upload the resulting data to ethereum.
@@ -109,15 +113,19 @@ module.exports.updateHotel = async (req, res, next) => {
     // 2. Add `updatedAt` timestamps.
     _addTimestamps(req.body);
     // 3. Upload the changed data parts.
-    let dataIndex = {};
+    let dataIndex = {},
+      uploading = [];
     for (let field of WT.DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
       if (!data) {
         continue;
       }
       let uploader = profile.uploaders.getUploader(field.name);
-      dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
+      uploading.push((async () => {
+        dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
+      })());
     }
+    await Promise.all(uploading);
     // 4. Find out if the data index and wt index need to be reuploaded.
     //
     // NOTE: This is applied only optionally as it is expensive
@@ -162,10 +170,14 @@ module.exports.deleteHotel = async (req, res, next) => {
     await wt.remove(profile.withWallet, req.params.address);
     if (req.query.offChain && parseBoolean(req.query.offChain)) {
       await profile.uploaders.getUploader('root').remove('dataIndex');
+      let deleting = [];
       for (let field of WT.DATA_INDEX_FIELDS) {
         let uploader = profile.uploaders.getUploader(field.name);
-        await uploader.remove(field.name);
+        deleting.push((async () => {
+          await uploader.remove(field.name);
+        })());
       }
+      await Promise.all(deleting);
     }
     res.sendStatus(204);
   } catch (err) {
@@ -180,7 +192,7 @@ module.exports.deleteHotel = async (req, res, next) => {
  * Get a hotel from the WT index.
  *
  * Accepts the "fields" parameter which can specify one or more
- * comma-separated fields from DATA_INDEX_FIELDS.
+ * comma-separated fields from WT.DATA_INDEX_FIELDS.
  *
  * Performs validation to avoid returning broken data.
  *

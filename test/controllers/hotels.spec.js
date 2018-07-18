@@ -11,7 +11,7 @@ const { UploaderConfig } = require('../../src/services/uploaders');
 const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../../src/constants');
 
 const offChainUploader = {
-  upload: sinon.stub().callsFake((data, label) => {
+  upload: sinon.stub().callsFake(async (data, label) => {
     return `dummy://${label}.json`;
   }),
   remove: sinon.spy(),

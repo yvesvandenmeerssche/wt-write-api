@@ -15,7 +15,7 @@ class OffChainUploader {
    *   of updating on-chain data.)
    * @return {Promise<string>} URL of the uploaded data.
    */
-  upload (data, label) {
+  async upload (data, label) {
     if (!data) {
       throw new Error('Please provide the data to be uploaded.');
     }
@@ -33,8 +33,8 @@ class OffChainUploader {
    * @return {Promise<Boolean>} A Promise of the deletion result
    *    - true if deletion was possible, false otherwise.
    */
-  remove (label) {
-    return Promise.resolve(false);
+  async remove (label) {
+    return false;
   }
 };
 
@@ -43,9 +43,9 @@ class OffChainUploader {
  * actually do anything - useful for testing.
  */
 class DummyUploader extends OffChainUploader {
-  upload (data, label) {
+  async upload (data, label) {
     super.upload(data, label);
-    return Promise.resolve(`dummy://${label}.json`);
+    return `dummy://${label}.json`;
   }
 };
 
