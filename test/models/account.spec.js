@@ -35,13 +35,13 @@ describe('models - account', () => {
     });
   });
 
-  describe('get', () => {
+  describe('getByKey', () => {
     it('should get a previously created account', async () => {
       const { id, accessKey } = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
-      const account = await Account.get(accessKey);
+      const account = await Account.getByKey(accessKey);
       assert.deepEqual(account, {
         id,
         wallet: getWallet(),
@@ -50,7 +50,7 @@ describe('models - account', () => {
     });
 
     it('should return undefined if no such account exists', async () => {
-      const account = await Account.get('nonexistent');
+      const account = await Account.getByKey('nonexistent');
       assert.equal(account, undefined);
     });
   });
@@ -66,8 +66,8 @@ describe('models - account', () => {
         uploaders: getUploaders(),
       });
       await Account.delete(id1);
-      assert.isNotOk(await Account.get(accessKey1));
-      assert.isOk(await Account.get(accessKey2));
+      assert.isNotOk(await Account.getByKey(accessKey1));
+      assert.isOk(await Account.getByKey(accessKey2));
     });
   });
 
@@ -83,7 +83,7 @@ describe('models - account', () => {
         wallet: getWallet(),
         uploaders: uploaders,
       });
-      const account = await Account.get(accessKey);
+      const account = await Account.getByKey(accessKey);
       assert.deepEqual(account.uploaders, uploaders);
       assert.deepEqual(account.wallet, getWallet());
     });

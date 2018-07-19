@@ -112,7 +112,7 @@ module.exports.update = async function (id, accountData) {
  * @param {String} accessKey
  * @return {Promise<Object>}
  */
-module.exports.get = async function (accessKey) {
+module.exports.getByKey = async function (accessKey) {
   const account = (await db(TABLE).select('id', 'uploaders', 'wallet').where({
     'access_key': _hashKey(accessKey),
   }))[0];

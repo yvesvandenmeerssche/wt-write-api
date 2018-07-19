@@ -18,7 +18,7 @@ module.exports.attachAccount = async (req, res, next) => {
     if (!accessKey || !walletPassword) {
       throw new HttpUnauthorizedError();
     }
-    const account = await Account.get(accessKey);
+    const account = await Account.getByKey(accessKey);
     if (!account) {
       throw new HttpUnauthorizedError('unauthorized', 'Invalid access key.');
     }

@@ -38,7 +38,7 @@ describe('controllers - accounts', function () {
           } catch (e) {
             done(e);
           }
-          Account.get(res.body.accessKey).then((account) => {
+          Account.getByKey(res.body.accessKey).then((account) => {
             assert.ok(account);
             assert.deepEqual(account, {
               wallet: getWallet(),
@@ -115,7 +115,7 @@ describe('controllers - accounts', function () {
         .expect(204)
         .end((err, res) => {
           if (err) return done(err);
-          Account.get(accessKey).then((account) => {
+          Account.getByKey(accessKey).then((account) => {
             assert.deepEqual(account, {
               wallet: getWallet(),
               uploaders: uploaders,
@@ -205,7 +205,7 @@ describe('controllers - accounts', function () {
         .expect(204)
         .end((err, res) => {
           if (err) return done(err);
-          Account.get(accessKey).then((account) => {
+          Account.getByKey(accessKey).then((account) => {
             assert.isNotOk(account);
             done();
           }).catch(done);
