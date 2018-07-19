@@ -33,14 +33,14 @@ describe('controllers - hotels', function () {
       return new UploaderConfig({ root: offChainUploader });
     });
 
-    accessKey = await Account.create({
+    accessKey = (await Account.create({
       wallet: getWallet(),
       uploaders: {
         root: {
           dummy: {},
         },
       },
-    });
+    })).accessKey;
 
     // Mock WT.
     wtMock = {

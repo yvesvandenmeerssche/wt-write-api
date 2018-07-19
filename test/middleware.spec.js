@@ -32,14 +32,14 @@ describe('middleware', () => {
       createWallet: () => walletMock,
     });
 
-    accessKey = await Account.create({
+    accessKey = (await Account.create({
       wallet: getWallet(),
       uploaders: {
         root: {
           dummy: {},
         },
       },
-    });
+    })).accessKey;
   });
 
   after(() => {
@@ -65,6 +65,7 @@ describe('middleware', () => {
           assert.isDefined(req.account.uploaders);
           assert.isDefined(req.account.withWallet);
           assert.isDefined(req.account.accessKey);
+          assert.isDefined(req.account.id);
           done();
         } catch (e) {
           done(e);

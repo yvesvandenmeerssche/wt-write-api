@@ -7,14 +7,17 @@ const { getWallet, getUploaders } = require('../utils/fixtures');
 
 describe('models - account', () => {
   describe('create', () => {
-    it('should create a new account and return its access key', async () => {
-      const accessKey = await Account.create({
+    it('should create a new account and return its ID and access key', async () => {
+      const created = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
-      assert.ok(typeof accessKey === 'string');
-      assert.isAbove(accessKey.length, 32); // Should be secure enough.
-      assert.isBelow(accessKey.length, 255); // Should fit to the DB.
+      assert.property(created, 'id');
+      assert.property(created, 'accessKey');
+      assert.ok(typeof created.id === 'string');
+      assert.ok(typeof created.accessKey === 'string');
+      assert.isAbove(created.accessKey.length, 32); // Should be secure enough.
+      assert.isBelow(created.accessKey.length, 255); // Should fit to the DB.
     });
 
     it('should raise a ValidationError when data is not valid', async () => {
@@ -34,15 +37,16 @@ describe('models - account', () => {
 
   describe('get', () => {
     it('should get a previously created account', async () => {
-      const accessKey = await Account.create({
+      const { id, accessKey } = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
       const account = await Account.get(accessKey);
       assert.deepEqual(account, {
+        id,
         wallet: getWallet(),
         uploaders: getUploaders(),
-        accessKey: accessKey,
+        accessKey,
       });
     });
 
@@ -54,11 +58,11 @@ describe('models - account', () => {
 
   describe('delete', () => {
     it('should delete the given account', async () => {
-      const accessKey1 = await Account.create({
+      const { accessKey: accessKey1 } = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
-      const accessKey2 = await Account.create({
+      const { accessKey: accessKey2 } = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
@@ -71,7 +75,7 @@ describe('models - account', () => {
   describe('update', () => {
     it('should update the given account', async () => {
       const uploaders = getUploaders();
-      const accessKey = await Account.create({
+      const { accessKey } = await Account.create({
         wallet: getWallet(),
         uploaders: uploaders,
       });
@@ -87,7 +91,7 @@ describe('models - account', () => {
 
     it('should raise a ValidationError when data is not valid', async () => {
       const uploaders = getUploaders();
-      const accessKey = await Account.create({
+      const { accessKey } = await Account.create({
         wallet: getWallet(),
         uploaders: uploaders,
       });

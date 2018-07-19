@@ -1,4 +1,4 @@
-const { HttpValidationError } = require('../errors');
+const { HttpForbiddenError, HttpValidationError } = require('../errors');
 const { ValidationError } = require('../services/validators');
 const Account = require('../models/account');
 
@@ -27,12 +27,12 @@ module.exports.createAccount = async (req, res, next) => {
     // 2. Save the new account.
     // (Note: validation of wallet and uploader contents is done
     // here as well.)
-    let accountKey = await Account.create({
+    let { id: accountId, accessKey } = await Account.create({
       wallet: req.body.wallet,
       uploaders: req.body.uploaders,
     });
-    // 3. Return the access key.
-    res.status(201).json({ accessKey: accountKey });
+    // 3. Return the account id and access key.
+    res.status(201).json({ accountId, accessKey });
   } catch (err) {
     if (err instanceof ValidationError) {
       return next(new HttpValidationError('validationFailed', err.message));
@@ -48,6 +48,10 @@ module.exports.updateAccount = async (req, res, next) => {
   try {
     // 1. Validate request payload.
     _validateRequest(req.body);
+    if (req.params.id !== req.account.id) {
+      let msg = 'You do not have the right to update this account.';
+      throw new HttpForbiddenError('forbidden', msg);
+    }
     // 2. Update the account.
     // (Note: validation of wallet and uploader contents is done
     // here as well.)
@@ -70,6 +74,10 @@ module.exports.updateAccount = async (req, res, next) => {
  */
 module.exports.deleteAccount = async (req, res, next) => {
   try {
+    if (req.params.id !== req.account.id) {
+      let msg = 'You do not have the right to delete this account.';
+      throw new HttpForbiddenError('forbidden', msg);
+    }
     await Account.delete(req.account.accessKey);
     res.sendStatus(204);
   } catch (err) {

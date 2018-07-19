@@ -19,7 +19,7 @@ describe('controllers - accounts', function () {
   });
 
   describe('POST /account', () => {
-    it('should save the account and return its secret key', (done) => {
+    it('should save the account and return its id and secret key', (done) => {
       request(server)
         .post('/account')
         .send({
@@ -32,7 +32,9 @@ describe('controllers - accounts', function () {
           if (err) return done(err);
           try {
             assert.ok(res.body.accessKey);
+            assert.ok(res.body.accountId);
             assert.ok((typeof res.body.accessKey) === 'string');
+            assert.ok((typeof res.body.accountId) === 'string');
           } catch (e) {
             done(e);
           }
@@ -42,6 +44,7 @@ describe('controllers - accounts', function () {
               wallet: getWallet(),
               uploaders: getUploaders(),
               accessKey: res.body.accessKey,
+              id: res.body.accountId,
             });
             done();
           }).catch((e) => {
@@ -84,20 +87,26 @@ describe('controllers - accounts', function () {
     });
   });
 
-  describe('PUT /account', () => {
-    let accessKey;
+  describe('PUT /account/:id', () => {
+    let accessKey, accountId, accountId2;
 
     before(async () => {
-      accessKey = await Account.create({
+      const created = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
+      accessKey = created.accessKey;
+      accountId = created.id;
+      accountId2 =  (await Account.create({
+        wallet: getWallet(),
+        uploaders: getUploaders(),
+      })).id;
     });
 
     it('should overwrite account with the given data', (done) => {
       let uploaders = { root: { dummy: {} } };
       request(server)
-        .put('/account')
+        .put(`/account/${accountId}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -112,6 +121,7 @@ describe('controllers - accounts', function () {
               wallet: getWallet(),
               uploaders: uploaders,
               accessKey: accessKey,
+              id: accountId,
             });
             done();
           }).catch((e) => {
@@ -120,9 +130,22 @@ describe('controllers - accounts', function () {
         });
     });
 
+    it('should return 403 if the access key does not match account ID', (done) => {
+      request(server)
+        .put(`/account/${accountId2}`)
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({
+          wallet: getWallet(),
+          uploaders: getUploaders(),
+        })
+        .expect(403)
+        .end(done);
+    });
+
     it('should return 422 if the data is invalid', (done) => {
       request(server)
-        .put('/account')
+        .put(`/account/${accountId}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -135,7 +158,7 @@ describe('controllers - accounts', function () {
 
     it('should return 422 if a required attribute is missing', (done) => {
       request(server)
-        .put('/account')
+        .put(`/account/${accountId}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -147,7 +170,7 @@ describe('controllers - accounts', function () {
 
     it('should return 422 if an unknown attribute is present', (done) => {
       request(server)
-        .put('/account')
+        .put(`/account/${accountId}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -160,25 +183,44 @@ describe('controllers - accounts', function () {
     });
   });
 
-  describe('DELETE /account', () => {
-    it('should delete the given account', (done) => {
-      Account.create({
+  describe('DELETE /account/:id', () => {
+    let accountId, accessKey, accountId2;
+
+    beforeEach(async () => {
+      const created = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
-      }).then((accessKey) => {
-        request(server)
-          .delete('/account')
-          .set(ACCESS_KEY_HEADER, accessKey)
-          .set(WALLET_PASSWORD_HEADER, 'windingtree')
-          .expect(204)
-          .end((err, res) => {
-            if (err) return done(err);
-            Account.get(accessKey).then((account) => {
-              assert.isNotOk(account);
-              done();
-            }).catch(done);
-          });
-      }).catch(done);
+      });
+      accessKey = created.accessKey;
+      accountId = created.id;
+      accountId2 = (await Account.create({
+        wallet: getWallet(),
+        uploaders: getUploaders(),
+      })).id;
+    });
+
+    it('should delete the given account', (done) => {
+      request(server)
+        .delete(`/account/${accountId}`)
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          Account.get(accessKey).then((account) => {
+            assert.isNotOk(account);
+            done();
+          }).catch(done);
+        });
+    });
+
+    it('should return 403 if the access key does not match account ID', (done) => {
+      request(server)
+        .delete(`/account/${accountId2}`)
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .expect(403)
+        .end(done);
     });
   });
 });

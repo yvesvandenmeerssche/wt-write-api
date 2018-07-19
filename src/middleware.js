@@ -22,8 +22,7 @@ module.exports.attachAccount = async (req, res, next) => {
     if (!account) {
       throw new HttpUnauthorizedError('unauthorized', 'Invalid access key.');
     }
-    req.account = {
-      accessKey: account.accessKey,
+    req.account = Object.assign({}, account, {
       uploaders: UploaderConfig.fromAccount(account),
       withWallet: async (fn) => {
         const wallet = wt.createWallet(account.wallet);
@@ -41,7 +40,7 @@ module.exports.attachAccount = async (req, res, next) => {
           wallet.lock();
         }
       },
-    };
+    });
     next();
   } catch (err) {
     next(err);

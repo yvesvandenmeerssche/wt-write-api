@@ -7,7 +7,8 @@ const TABLE = 'accounts';
 
 module.exports.createTable = async function () {
   await db.schema.createTable(TABLE, (table) => {
-    table.string('access_key').primary();
+    table.string('id').primary();
+    table.string('access_key').unique().notNullable();
     table.string('wallet', 1023);
     table.string('uploaders', 1023);
     // The timestamp is not exposed outside of the DB - we
@@ -21,18 +22,29 @@ module.exports.dropTable = async function () {
   await db.schema.dropTableIfExists(TABLE);
 };
 
+async function _generateRandomString (bytesCnt, encoding) {
+  return new Promise((resolve, reject) => {
+    crypto.randomBytes(bytesCnt, (err, buffer) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(buffer.toString(encoding));
+    });
+  });
+}
+
 /**
  * Generate a new secret key.
  */
 async function _generateKey () {
-  return new Promise((resolve, reject) => {
-    crypto.randomBytes(48, (err, buffer) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(buffer.toString('base64'));
-    });
-  });
+  return _generateRandomString(48, 'base64');
+}
+
+/**
+ * Generate a random account ID.
+ */
+async function _generateID () {
+  return _generateRandomString(8, 'hex');
 }
 
 const VALIDATED_FIELDS = [
@@ -50,20 +62,22 @@ function _validate (accountData) {
 }
 
 /**
- * Create a new account and return its secret key.
+ * Create a new account and return its ID and secret key.
  *
  * @param {Object} accountData
- * @return {Promise<String>}
+ * @return {Promise<Object>}
  */
 module.exports.create = async function (accountData) {
   _validate(accountData);
-  const accessKey = await _generateKey();
+  const accessKey = await _generateKey(),
+    id = await _generateID();
   await db(TABLE).insert({
+    'id': id,
     'wallet': JSON.stringify(accountData.wallet),
     'uploaders': JSON.stringify(accountData.uploaders),
     'access_key': accessKey,
   });
-  return accessKey;
+  return { id, accessKey };
 };
 
 /**
@@ -82,23 +96,24 @@ module.exports.update = async function (accessKey, accountData) {
 };
 
 /**
- * Get an account.
+ * Get an account by access key.
  *
  * @param {String} accessKey
  * @return {Promise<Object>}
  */
 module.exports.get = async function (accessKey) {
-  const account = (await db(TABLE).select('access_key', 'uploaders', 'wallet').where({
+  const account = (await db(TABLE).select('id', 'uploaders', 'wallet').where({
     'access_key': accessKey,
   }))[0];
   return account && {
+    id: account.id,
     wallet: JSON.parse(account.wallet),
     uploaders: JSON.parse(account.uploaders),
     accessKey: accessKey,
   };
 };
 /**
- * Delete an account.
+ * Delete an account by access key.
  *
  * @param {String} accessKey
  * @return {Promise<void>}
