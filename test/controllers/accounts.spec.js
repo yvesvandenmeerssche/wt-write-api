@@ -43,7 +43,6 @@ describe('controllers - accounts', function () {
             assert.deepEqual(account, {
               wallet: getWallet(),
               uploaders: getUploaders(),
-              accessKey: res.body.accessKey,
               id: res.body.accountId,
             });
             done();
@@ -97,7 +96,7 @@ describe('controllers - accounts', function () {
       });
       accessKey = created.accessKey;
       accountId = created.id;
-      accountId2 =  (await Account.create({
+      accountId2 = (await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       })).id;
@@ -120,7 +119,6 @@ describe('controllers - accounts', function () {
             assert.deepEqual(account, {
               wallet: getWallet(),
               uploaders: uploaders,
-              accessKey: accessKey,
               id: accountId,
             });
             done();

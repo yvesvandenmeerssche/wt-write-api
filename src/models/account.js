@@ -8,7 +8,7 @@ const TABLE = 'accounts';
 module.exports.createTable = async function () {
   await db.schema.createTable(TABLE, (table) => {
     table.string('id').primary();
-    table.string('access_key').unique().notNullable();
+    table.string('access_key').unique().notNullable(); // Hashed access key.
     table.string('wallet', 1023);
     table.string('uploaders', 1023);
     // The timestamp is not exposed outside of the DB - we
@@ -47,6 +47,17 @@ async function _generateID () {
   return _generateRandomString(8, 'hex');
 }
 
+/**
+ * Return a secure hash of the access key.
+ *
+ * Since access keys are long, randomly generated strings, we do
+ * not need to use pbdkf2 nor salts.
+ */
+function _hashKey (accessKey) {
+  const hash = crypto.createHash('sha256');
+  return hash.update(accessKey).digest('hex');
+}
+
 const VALIDATED_FIELDS = [
   { name: 'wallet', validator: validateWallet },
   { name: 'uploaders', validator: validateUploaders },
@@ -75,7 +86,7 @@ module.exports.create = async function (accountData) {
     'id': id,
     'wallet': JSON.stringify(accountData.wallet),
     'uploaders': JSON.stringify(accountData.uploaders),
-    'access_key': accessKey,
+    'access_key': _hashKey(accessKey),
   });
   return { id, accessKey };
 };
@@ -86,9 +97,9 @@ module.exports.create = async function (accountData) {
  * @param {Object} accountData
  * @return {Promise<void>}
  */
-module.exports.update = async function (accessKey, accountData) {
+module.exports.update = async function (id, accountData) {
   _validate(accountData);
-  await db(TABLE).where('access_key', accessKey).update({
+  await db(TABLE).where('id', id).update({
     'wallet': JSON.stringify(accountData.wallet),
     'uploaders': JSON.stringify(accountData.uploaders),
     'updated_at': db.fn.now(),
@@ -103,21 +114,20 @@ module.exports.update = async function (accessKey, accountData) {
  */
 module.exports.get = async function (accessKey) {
   const account = (await db(TABLE).select('id', 'uploaders', 'wallet').where({
-    'access_key': accessKey,
+    'access_key': _hashKey(accessKey),
   }))[0];
   return account && {
     id: account.id,
     wallet: JSON.parse(account.wallet),
     uploaders: JSON.parse(account.uploaders),
-    accessKey: accessKey,
   };
 };
 /**
- * Delete an account by access key.
+ * Delete an account by ID.
  *
  * @param {String} accessKey
  * @return {Promise<void>}
  */
-module.exports.delete = async function (accessKey) {
-  await db(TABLE).where('access_key', accessKey).delete();
+module.exports.delete = async function (id) {
+  await db(TABLE).where('id', id).delete();
 };

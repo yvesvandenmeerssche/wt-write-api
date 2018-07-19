@@ -55,7 +55,7 @@ module.exports.updateAccount = async (req, res, next) => {
     // 2. Update the account.
     // (Note: validation of wallet and uploader contents is done
     // here as well.)
-    await Account.update(req.account.accessKey, {
+    await Account.update(req.account.id, {
       wallet: req.body.wallet,
       uploaders: req.body.uploaders,
     });
@@ -78,7 +78,7 @@ module.exports.deleteAccount = async (req, res, next) => {
       let msg = 'You do not have the right to delete this account.';
       throw new HttpForbiddenError('forbidden', msg);
     }
-    await Account.delete(req.account.accessKey);
+    await Account.delete(req.account.id);
     res.sendStatus(204);
   } catch (err) {
     next(err);

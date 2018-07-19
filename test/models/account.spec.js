@@ -46,7 +46,6 @@ describe('models - account', () => {
         id,
         wallet: getWallet(),
         uploaders: getUploaders(),
-        accessKey,
       });
     });
 
@@ -58,7 +57,7 @@ describe('models - account', () => {
 
   describe('delete', () => {
     it('should delete the given account', async () => {
-      const { accessKey: accessKey1 } = await Account.create({
+      const { id: id1, accessKey: accessKey1 } = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
@@ -66,7 +65,7 @@ describe('models - account', () => {
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
-      await Account.delete(accessKey1);
+      await Account.delete(id1);
       assert.isNotOk(await Account.get(accessKey1));
       assert.isOk(await Account.get(accessKey2));
     });
@@ -75,12 +74,12 @@ describe('models - account', () => {
   describe('update', () => {
     it('should update the given account', async () => {
       const uploaders = getUploaders();
-      const { accessKey } = await Account.create({
+      const { id, accessKey } = await Account.create({
         wallet: getWallet(),
         uploaders: uploaders,
       });
       delete uploaders.availability;
-      Account.update(accessKey, {
+      Account.update(id, {
         wallet: getWallet(),
         uploaders: uploaders,
       });
@@ -91,13 +90,13 @@ describe('models - account', () => {
 
     it('should raise a ValidationError when data is not valid', async () => {
       const uploaders = getUploaders();
-      const { accessKey } = await Account.create({
+      const { id } = await Account.create({
         wallet: getWallet(),
         uploaders: uploaders,
       });
       delete uploaders.root;
       try {
-        await Account.update(accessKey, {
+        await Account.update(id, {
           wallet: getWallet(),
           uploaders: uploaders,
         });

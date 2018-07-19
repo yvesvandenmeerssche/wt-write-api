@@ -64,7 +64,6 @@ describe('middleware', () => {
           assert.isDefined(req.account);
           assert.isDefined(req.account.uploaders);
           assert.isDefined(req.account.withWallet);
-          assert.isDefined(req.account.accessKey);
           assert.isDefined(req.account.id);
           done();
         } catch (e) {
