@@ -118,6 +118,7 @@ module.exports.updateHotel = async (req, res, next) => {
     // 3. Upload the changed data parts.
     let dataIndex = {},
       uploading = [];
+    const origDataIndex = await wt.getDataIndex(req.params.address);
     for (let field of WT.DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
       if (!data) {
@@ -125,24 +126,20 @@ module.exports.updateHotel = async (req, res, next) => {
       }
       let uploader = account.uploaders.getUploader(field.name);
       uploading.push((async () => {
-        dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
+        const docKey = `${field.name}Uri`;
+        let preferredUrl = origDataIndex.contents[docKey];
+        dataIndex[docKey] = await uploader.upload(data, field.name, preferredUrl);
       })());
     }
     await Promise.all(uploading);
+
     // 4. Find out if the data index and wt index need to be reuploaded.
-    //
-    // NOTE: This is applied only optionally as it is expensive
-    // and shouldn't be necessary when all operations are done through
-    // this API.
-    if (req.query.forceSync && parseBoolean(req.query.forceSync)) {
-      const origDataIndex = await wt.getDataIndex(req.params.address);
-      const newContents = Object.assign({}, origDataIndex.contents, dataIndex);
-      if (!_.isEqual(origDataIndex.contents, newContents)) {
-        let uploader = account.uploaders.getUploader('root');
-        const dataIndexUri = await uploader.upload(newContents, 'dataIndex');
-        if (dataIndexUri !== origDataIndex.ref) {
-          await wt.upload(account.withWallet, dataIndexUri, req.params.address);
-        }
+    const newContents = Object.assign({}, origDataIndex.contents, dataIndex);
+    if (!_.isEqual(origDataIndex.contents, newContents)) {
+      let uploader = account.uploaders.getUploader('root');
+      const dataIndexUri = await uploader.upload(newContents, 'dataIndex', origDataIndex.ref);
+      if (dataIndexUri !== origDataIndex.ref) {
+        await wt.upload(account.withWallet, dataIndexUri, req.params.address);
       }
     }
     res.sendStatus(204);
@@ -158,26 +155,23 @@ module.exports.updateHotel = async (req, res, next) => {
  * Delete the hotel from WT index.
  *
  * If req.query.offChain is true, it also tries to delete the
- * off-chain data.
- *
- * NOTE: "Standard" off-chain storage is assumed. In case the
- * hotel was not created via this API (or with a different
- * uploader configuration), the off-chain resources will not be
- * deleted.
+ * off-chain data if possible (which might or might not succeed,
+ * based on uploader configuration).
  *
  */
 module.exports.deleteHotel = async (req, res, next) => {
   try {
     const account = req.account,
-      wt = WT.get();
+      wt = WT.get(),
+      dataIndex = await wt.getDataIndex(req.params.address);
     await wt.remove(account.withWallet, req.params.address);
     if (req.query.offChain && parseBoolean(req.query.offChain)) {
-      await account.uploaders.getUploader('root').remove('dataIndex');
+      await account.uploaders.getUploader('root').remove(dataIndex.ref);
       let deleting = [];
       for (let field of WT.DATA_INDEX_FIELDS) {
         let uploader = account.uploaders.getUploader(field.name);
         deleting.push((async () => {
-          await uploader.remove(field.name);
+          await uploader.remove(dataIndex.contents[`${field.name}Uri`]);
         })());
       }
       await Promise.all(deleting);

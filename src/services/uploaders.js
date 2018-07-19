@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+const shortid = require('shortid');
 
 const { HttpForbiddenError, HttpBadGatewayError } = require('../errors');
 
@@ -10,12 +11,15 @@ class OffChainUploader {
    * Upload data to an off-chain storage.
    *
    * @param {Object} data Hotel data to be uploaded.
-   * @param {string} label To be used to create the final URL,
-   *   if possible. (Serves for re-using URLs to avoid the need
-   *   of updating on-chain data.)
+   * @param {string} label To make generated URLs more
+   *   human-friendly, if possible.
+   * @param {string} preferredUrl Upload to the given URL, if
+   *   possible. (If not possible, upload to an arbitrary URL
+   *   instead.) Serves to avoid the need of updating
+   *   blockchain.
    * @return {Promise<string>} URL of the uploaded data.
    */
-  async upload (data, label) {
+  async upload (data, label, preferredUrl) {
     if (!data) {
       throw new Error('Please provide the data to be uploaded.');
     }
@@ -28,12 +32,11 @@ class OffChainUploader {
   /**
    * Remove data from an off-chain storage, if possible.
    *
-   * @param {string} label Used to identify the data to be
-   *   removed.
+   * @param {string} url Remove document from the given URL, if possible.
    * @return {Promise<Boolean>} A Promise of the deletion result
    *    - true if deletion was possible, false otherwise.
    */
-  async remove (label) {
+  async remove (url) {
     return false;
   }
 };
@@ -43,8 +46,8 @@ class OffChainUploader {
  * actually do anything - useful for testing.
  */
 class DummyUploader extends OffChainUploader {
-  async upload (data, label) {
-    super.upload(data, label);
+  async upload (data, label, preferredUrl) {
+    super.upload(data, label, preferredUrl);
     return `dummy://${label}.json`;
   }
 };
@@ -102,23 +105,43 @@ class S3Uploader extends OffChainUploader {
   }
 
   /**
-   * Get AWS object key for the given document label.
+   * Generate AWS object key for the given document label.
    */
-  _getKey (label) {
+  _generateKey (label) {
+    const filename = `${label}_${shortid.generate()}.json`;
     if (this._keyPrefix) {
-      return `${this._keyPrefix}/${label}.json`;
+      return `${this._keyPrefix}/${filename}`;
     }
-    return `${label}.json`;
+    return filename;
   }
 
-  async upload (data, label) {
+  /**
+   * Split URL into a `bucket` and `key` pair.
+   * Return "undefined' if not possible.
+   */
+  _decode (url) {
+    const match = url.match(/^https?:\/\/([^.]+).s3.amazonaws.com\/(.+)$/);
+    return match && {
+      bucket: match[1],
+      key: match[2],
+    };
+  }
+
+  async upload (data, label, preferredUrl) {
     super.upload(data, label);
-    const key = this._getKey(label),
-      params = {
-        Bucket: this._bucket,
-        Key: key,
-        Body: JSON.stringify(data),
-      };
+    const urlMatch = preferredUrl && this._decode(preferredUrl);
+    let key;
+    if (urlMatch && urlMatch.bucket === this._bucket) {
+      key = urlMatch.key; // The preferredUrl can be reused.
+    } else {
+      key = this._generateKey(label);
+    }
+    const params = {
+      Bucket: this._bucket,
+      Key: key,
+      Body: JSON.stringify(data),
+    };
+
     try {
       await this._s3.putObject(params).promise();
     } catch (err) {
@@ -127,11 +150,16 @@ class S3Uploader extends OffChainUploader {
     return `https://${this._bucket}.s3.amazonaws.com/${key}`;
   }
 
-  async remove (label) {
-    const key = this._getKey(label),
-      params = { Bucket: this._bucket, Key: key };
+  async remove (url) {
+    const urlMatch = this._decode(url);
+    if (!urlMatch || (urlMatch.bucket !== this._bucket)) {
+      return false;
+    }
     try {
-      await this._s3.deleteObject(params).promise();
+      await this._s3.deleteObject({
+        Bucket: this._bucket,
+        Key: urlMatch.key,
+      }).promise();
     } catch (err) {
       this._handleUpstreamError(err);
     }

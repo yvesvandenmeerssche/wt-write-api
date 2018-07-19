@@ -119,9 +119,9 @@ describe('controllers - hotels', function () {
               ratePlansUri: 'dummy://ratePlans.json',
               availabilityUri: 'dummy://availability.json',
             }));
-            assert.ok(offChainUploader.upload.calledWith(desc));
-            assert.ok(offChainUploader.upload.calledWith(ratePlans));
-            assert.ok(offChainUploader.upload.calledWith(availability));
+            assert.ok(offChainUploader.upload.calledWithExactly(desc, 'description'));
+            assert.ok(offChainUploader.upload.calledWithExactly(ratePlans, 'ratePlans'));
+            assert.ok(offChainUploader.upload.calledWithExactly(availability, 'availability'));
             assert.deepEqual(res.body, { address: 'dummyAddress' });
             done();
           } catch (e) {
@@ -232,8 +232,8 @@ describe('controllers - hotels', function () {
           try {
             assert.equal(wtMock.upload.callCount, 0);
             assert.equal(offChainUploader.upload.callCount, 2);
-            assert.ok(offChainUploader.upload.calledWith(desc));
-            assert.ok(offChainUploader.upload.calledWith(ratePlans));
+            assert.ok(offChainUploader.upload.calledWithExactly(desc, 'description', 'dummy://description.json'));
+            assert.ok(offChainUploader.upload.calledWithExactly(ratePlans, 'ratePlans', 'dummy://ratePlans.json'));
             done();
           } catch (e) {
             done(e);
@@ -377,10 +377,10 @@ describe('controllers - hotels', function () {
             assert.ok(wtMock.remove.calledOnce);
             assert.equal(wtMock.remove.args[0][1], '0xdummy');
             assert.equal(offChainUploader.remove.callCount, 4);
-            assert.ok(offChainUploader.remove.calledWith('dataIndex'));
-            assert.ok(offChainUploader.remove.calledWith('description'));
-            assert.ok(offChainUploader.remove.calledWith('ratePlans'));
-            assert.ok(offChainUploader.remove.calledWith('availability'));
+            assert.ok(offChainUploader.remove.calledWith('dummy://dataIndex.json'));
+            assert.ok(offChainUploader.remove.calledWith('dummy://description.json'));
+            assert.ok(offChainUploader.remove.calledWith('dummy://ratePlans.json'));
+            assert.ok(offChainUploader.remove.calledWith('dummy://availability.json'));
             done();
           } catch (e) {
             done(e);

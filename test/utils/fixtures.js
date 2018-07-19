@@ -58,7 +58,7 @@ module.exports.getUploaders = function () {
         secretAccessKey: 'dummyAccessKey',
         region: 'eu-central-1',
         bucket: 'bucket',
-        keyPrefix: 'my-hotel',
+        keyPrefix: 'prefix',
       },
     },
   };
