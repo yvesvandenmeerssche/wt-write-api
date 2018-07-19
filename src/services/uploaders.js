@@ -123,16 +123,34 @@ class S3Uploader extends OffChainUploader {
     const match = url.match(/^https?:\/\/([^.]+).s3.amazonaws.com\/(.+)$/);
     return match && {
       bucket: match[1],
+      keyPrefix: match[2].split('/').slice(0, -1).join('/'),
       key: match[2],
     };
   }
 
+  /**
+   * Return true if the given url is in this uploader's scope,
+   * false otherwise.
+   *
+   * @param {Object} decodedUrl Output from the _decode
+   * function.
+   * @return {Boolean}
+   */
+  _isInScope (decodedUrl) {
+    if (!decodedUrl) {
+      return false;
+    }
+    const bucketAgrees = decodedUrl.bucket === this._bucket,
+      keyPrefixAgrees = decodedUrl.keyPrefix === (this._keyPrefix || '');
+    return bucketAgrees && keyPrefixAgrees;
+  }
+
   async upload (data, label, preferredUrl) {
     super.upload(data, label);
-    const urlMatch = preferredUrl && this._decode(preferredUrl);
+    const decodedUrl = preferredUrl && this._decode(preferredUrl);
     let key;
-    if (urlMatch && urlMatch.bucket === this._bucket) {
-      key = urlMatch.key; // The preferredUrl can be reused.
+    if (this._isInScope(decodedUrl)) {
+      key = decodedUrl.key; // The preferredUrl can be reused.
     } else {
       key = this._generateKey(label);
     }
@@ -151,14 +169,14 @@ class S3Uploader extends OffChainUploader {
   }
 
   async remove (url) {
-    const urlMatch = this._decode(url);
-    if (!urlMatch || (urlMatch.bucket !== this._bucket)) {
+    const decodedUrl = this._decode(url);
+    if (!this._isInScope(decodedUrl)) {
       return false;
     }
     try {
       await this._s3.deleteObject({
         Bucket: this._bucket,
-        Key: urlMatch.key,
+        Key: decodedUrl.key,
       }).promise();
     } catch (err) {
       this._handleUpstreamError(err);

@@ -100,6 +100,22 @@ describe('uploaders', () => {
         assert.match(uploader._s3.putObject.args[0][0].Key, /my-hotel\/description_.+\.json/);
       });
 
+      it('should generate a URL if the preferred one is out of scope for the uploader', async () => {
+        const uploader = _createUploader();
+        uploader._s3.putObject.resetHistory();
+        const url = await uploader.upload({ key: 'value' }, 'description', 'https://another.s3.amazonaws.com/dummy.json');
+        assert.match(url, /https:\/\/bucket.s3.amazonaws.com\/my-hotel\/description_.+\.json/);
+        assert.match(uploader._s3.putObject.args[0][0].Key, /my-hotel\/description_.+\.json/);
+      });
+
+      it('should generate a URL if the key prefix is different from uploader configuration', async () => {
+        const uploader = _createUploader();
+        uploader._s3.putObject.resetHistory();
+        const url = await uploader.upload({ key: 'value' }, 'description', 'https://bucket.s3.amazonaws.com/description.json');
+        assert.match(url, /https:\/\/bucket.s3.amazonaws.com\/my-hotel\/description_.+\.json/);
+        assert.match(uploader._s3.putObject.args[0][0].Key, /my-hotel\/description_.+\.json/);
+      });
+
       it('should throw a HttpForbiddenError if AWS credentials are not right', async () => {
         const uploader = _createUploader();
         try {
@@ -175,6 +191,16 @@ describe('uploaders', () => {
         assert.deepEqual(uploader._decode(url), {
           bucket: 'tiger',
           key: 'prefix/description.json',
+          keyPrefix: 'prefix',
+        });
+      });
+
+      it('should work well without prefix', async () => {
+        let url = 'https://tiger.s3.amazonaws.com/description.json';
+        assert.deepEqual(uploader._decode(url), {
+          bucket: 'tiger',
+          key: 'description.json',
+          keyPrefix: '',
         });
       });
 
