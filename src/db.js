@@ -1,4 +1,4 @@
-const Profile = require('./models/profile');
+const Account = require('./models/account');
 
 /**
  * Create all necessary tables.
@@ -6,7 +6,7 @@ const Profile = require('./models/profile');
  * @return {Promise<void>}
  */
 async function setupDB () {
-  await Profile.createTable();
+  await Account.createTable();
 }
 
 /**
@@ -15,7 +15,7 @@ async function setupDB () {
  * @return {Promise<void>}
  */
 async function resetDB () {
-  await Profile.dropTable();
+  await Account.dropTable();
   await setupDB();
 }
 

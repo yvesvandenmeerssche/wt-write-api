@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const { db } = require('../config');
 const { validateWallet, validateUploaders } = require('../services/validators');
 
-const TABLE = 'profiles';
+const TABLE = 'accounts';
 
 module.exports.createTable = async function () {
   await db.schema.createTable(TABLE, (table) => {
@@ -41,64 +41,64 @@ const VALIDATED_FIELDS = [
 ];
 
 /**
- * Validate the given profile data.
+ * Validate the given account data.
  */
-function _validate (profileData) {
+function _validate (accountData) {
   for (let field of VALIDATED_FIELDS) {
-    field.validator(profileData[field.name]);
+    field.validator(accountData[field.name]);
   }
 }
 
 /**
- * Create a new profile and return its secret key.
+ * Create a new account and return its secret key.
  *
- * @param {Object} profileData
+ * @param {Object} accountData
  * @return {Promise<String>}
  */
-module.exports.create = async function (profileData) {
-  _validate(profileData);
+module.exports.create = async function (accountData) {
+  _validate(accountData);
   const accessKey = await _generateKey();
   await db(TABLE).insert({
-    'wallet': JSON.stringify(profileData.wallet),
-    'uploaders': JSON.stringify(profileData.uploaders),
+    'wallet': JSON.stringify(accountData.wallet),
+    'uploaders': JSON.stringify(accountData.uploaders),
     'access_key': accessKey,
   });
   return accessKey;
 };
 
 /**
- * Overwrite an existing profile with new data.
+ * Overwrite an existing account with new data.
  *
- * @param {Object} profileData
+ * @param {Object} accountData
  * @return {Promise<void>}
  */
-module.exports.update = async function (accessKey, profileData) {
-  _validate(profileData);
+module.exports.update = async function (accessKey, accountData) {
+  _validate(accountData);
   await db(TABLE).where('access_key', accessKey).update({
-    'wallet': JSON.stringify(profileData.wallet),
-    'uploaders': JSON.stringify(profileData.uploaders),
+    'wallet': JSON.stringify(accountData.wallet),
+    'uploaders': JSON.stringify(accountData.uploaders),
     'updated_at': db.fn.now(),
   });
 };
 
 /**
- * Get a profile.
+ * Get an account.
  *
  * @param {String} accessKey
  * @return {Promise<Object>}
  */
 module.exports.get = async function (accessKey) {
-  const profile = (await db(TABLE).select('access_key', 'uploaders', 'wallet').where({
+  const account = (await db(TABLE).select('access_key', 'uploaders', 'wallet').where({
     'access_key': accessKey,
   }))[0];
-  return profile && {
-    wallet: JSON.parse(profile.wallet),
-    uploaders: JSON.parse(profile.uploaders),
+  return account && {
+    wallet: JSON.parse(account.wallet),
+    uploaders: JSON.parse(account.uploaders),
     accessKey: accessKey,
   };
 };
 /**
- * Delete a profile.
+ * Delete an account.
  *
  * @param {String} accessKey
  * @return {Promise<void>}

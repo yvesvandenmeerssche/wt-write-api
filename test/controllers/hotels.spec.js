@@ -5,7 +5,7 @@ const sinon = require('sinon');
 
 const { getDescription, getRatePlans,
   getAvailability, getWallet } = require('../utils/fixtures');
-const Profile = require('../../src/models/profile');
+const Account = require('../../src/models/account');
 const WT = require('../../src/services/wt');
 const { UploaderConfig } = require('../../src/services/uploaders');
 const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../../src/constants');
@@ -29,11 +29,11 @@ describe('controllers - hotels', function () {
   before(async () => {
     server = require('../../src/index');
     originalWT = WT.get();
-    sinon.stub(UploaderConfig, 'fromProfile').callsFake(() => {
+    sinon.stub(UploaderConfig, 'fromAccount').callsFake(() => {
       return new UploaderConfig({ root: offChainUploader });
     });
 
-    accessKey = await Profile.create({
+    accessKey = await Account.create({
       wallet: getWallet(),
       uploaders: {
         root: {
@@ -87,7 +87,7 @@ describe('controllers - hotels', function () {
   after(() => {
     WT.set(originalWT);
     server.close();
-    UploaderConfig.fromProfile.restore();
+    UploaderConfig.fromAccount.restore();
   });
 
   describe('POST /hotels', () => {

@@ -4,10 +4,10 @@ const { assert } = require('chai');
 const request = require('supertest');
 
 const { getWallet, getUploaders } = require('../utils/fixtures');
-const Profile = require('../../src/models/profile');
+const Account = require('../../src/models/account');
 const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../../src/constants');
 
-describe('controllers - profiles', function () {
+describe('controllers - accounts', function () {
   let server;
 
   before(() => {
@@ -18,10 +18,10 @@ describe('controllers - profiles', function () {
     server.close();
   });
 
-  describe('POST /profile', () => {
-    it('should save the profile and return its secret key', (done) => {
+  describe('POST /account', () => {
+    it('should save the account and return its secret key', (done) => {
       request(server)
-        .post('/profile')
+        .post('/account')
         .send({
           wallet: getWallet(),
           uploaders: getUploaders(),
@@ -36,9 +36,9 @@ describe('controllers - profiles', function () {
           } catch (e) {
             done(e);
           }
-          Profile.get(res.body.accessKey).then((profile) => {
-            assert.ok(profile);
-            assert.deepEqual(profile, {
+          Account.get(res.body.accessKey).then((account) => {
+            assert.ok(account);
+            assert.deepEqual(account, {
               wallet: getWallet(),
               uploaders: getUploaders(),
               accessKey: res.body.accessKey,
@@ -52,7 +52,7 @@ describe('controllers - profiles', function () {
 
     it('should return 422 if the data is invalid', (done) => {
       request(server)
-        .post('/profile')
+        .post('/account')
         .send({
           wallet: { dummy: 'dummy' },
           uploaders: getUploaders(),
@@ -63,7 +63,7 @@ describe('controllers - profiles', function () {
 
     it('should return 422 if a required attribute is missing', (done) => {
       request(server)
-        .post('/profile')
+        .post('/account')
         .send({
           uploaders: getUploaders(),
         })
@@ -73,7 +73,7 @@ describe('controllers - profiles', function () {
 
     it('should return 422 if an unknown attribute is present', (done) => {
       request(server)
-        .post('/profile')
+        .post('/account')
         .send({
           wallet: getWallet(),
           uploaders: getUploaders(),
@@ -84,20 +84,20 @@ describe('controllers - profiles', function () {
     });
   });
 
-  describe('PUT /profile', () => {
+  describe('PUT /account', () => {
     let accessKey;
 
     before(async () => {
-      accessKey = await Profile.create({
+      accessKey = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
     });
 
-    it('should overwrite profile with the given data', (done) => {
+    it('should overwrite account with the given data', (done) => {
       let uploaders = { root: { dummy: {} } };
       request(server)
-        .put('/profile')
+        .put('/account')
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -107,8 +107,8 @@ describe('controllers - profiles', function () {
         .expect(204)
         .end((err, res) => {
           if (err) return done(err);
-          Profile.get(accessKey).then((profile) => {
-            assert.deepEqual(profile, {
+          Account.get(accessKey).then((account) => {
+            assert.deepEqual(account, {
               wallet: getWallet(),
               uploaders: uploaders,
               accessKey: accessKey,
@@ -122,7 +122,7 @@ describe('controllers - profiles', function () {
 
     it('should return 422 if the data is invalid', (done) => {
       request(server)
-        .put('/profile')
+        .put('/account')
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -135,7 +135,7 @@ describe('controllers - profiles', function () {
 
     it('should return 422 if a required attribute is missing', (done) => {
       request(server)
-        .put('/profile')
+        .put('/account')
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -147,7 +147,7 @@ describe('controllers - profiles', function () {
 
     it('should return 422 if an unknown attribute is present', (done) => {
       request(server)
-        .put('/profile')
+        .put('/account')
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -160,21 +160,21 @@ describe('controllers - profiles', function () {
     });
   });
 
-  describe('DELETE /profile', () => {
-    it('should delete the given profile', (done) => {
-      Profile.create({
+  describe('DELETE /account', () => {
+    it('should delete the given account', (done) => {
+      Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       }).then((accessKey) => {
         request(server)
-          .delete('/profile')
+          .delete('/account')
           .set(ACCESS_KEY_HEADER, accessKey)
           .set(WALLET_PASSWORD_HEADER, 'windingtree')
           .expect(204)
           .end((err, res) => {
             if (err) return done(err);
-            Profile.get(accessKey).then((profile) => {
-              assert.isNotOk(profile);
+            Account.get(accessKey).then((account) => {
+              assert.isNotOk(account);
               done();
             }).catch(done);
           });

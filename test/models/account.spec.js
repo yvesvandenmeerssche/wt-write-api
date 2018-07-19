@@ -1,14 +1,14 @@
 /* eslint-env mocha */
 const { assert } = require('chai');
 
-const Profile = require('../../src/models/profile');
+const Account = require('../../src/models/account');
 const { ValidationError } = require('../../src/services/validators');
 const { getWallet, getUploaders } = require('../utils/fixtures');
 
-describe('models - profile', () => {
+describe('models - account', () => {
   describe('create', () => {
-    it('should create a new profile and return its access key', async () => {
-      const accessKey = await Profile.create({
+    it('should create a new account and return its access key', async () => {
+      const accessKey = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
@@ -21,7 +21,7 @@ describe('models - profile', () => {
       let uploaders = getUploaders();
       delete uploaders.root;
       try {
-        await Profile.create({
+        await Account.create({
           wallet: getWallet(),
           uploaders: uploaders,
         });
@@ -33,67 +33,67 @@ describe('models - profile', () => {
   });
 
   describe('get', () => {
-    it('should get a previously created profile', async () => {
-      const accessKey = await Profile.create({
+    it('should get a previously created account', async () => {
+      const accessKey = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
-      const profile = await Profile.get(accessKey);
-      assert.deepEqual(profile, {
+      const account = await Account.get(accessKey);
+      assert.deepEqual(account, {
         wallet: getWallet(),
         uploaders: getUploaders(),
         accessKey: accessKey,
       });
     });
 
-    it('should return undefined if no such profile exists', async () => {
-      const profile = await Profile.get('nonexistent');
-      assert.equal(profile, undefined);
+    it('should return undefined if no such account exists', async () => {
+      const account = await Account.get('nonexistent');
+      assert.equal(account, undefined);
     });
   });
 
   describe('delete', () => {
-    it('should delete the given profile', async () => {
-      const accessKey1 = await Profile.create({
+    it('should delete the given account', async () => {
+      const accessKey1 = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
-      const accessKey2 = await Profile.create({
+      const accessKey2 = await Account.create({
         wallet: getWallet(),
         uploaders: getUploaders(),
       });
-      await Profile.delete(accessKey1);
-      assert.isNotOk(await Profile.get(accessKey1));
-      assert.isOk(await Profile.get(accessKey2));
+      await Account.delete(accessKey1);
+      assert.isNotOk(await Account.get(accessKey1));
+      assert.isOk(await Account.get(accessKey2));
     });
   });
 
   describe('update', () => {
-    it('should update the given profile', async () => {
+    it('should update the given account', async () => {
       const uploaders = getUploaders();
-      const accessKey = await Profile.create({
+      const accessKey = await Account.create({
         wallet: getWallet(),
         uploaders: uploaders,
       });
       delete uploaders.availability;
-      Profile.update(accessKey, {
+      Account.update(accessKey, {
         wallet: getWallet(),
         uploaders: uploaders,
       });
-      const profile = await Profile.get(accessKey);
-      assert.deepEqual(profile.uploaders, uploaders);
-      assert.deepEqual(profile.wallet, getWallet());
+      const account = await Account.get(accessKey);
+      assert.deepEqual(account.uploaders, uploaders);
+      assert.deepEqual(account.wallet, getWallet());
     });
 
     it('should raise a ValidationError when data is not valid', async () => {
       const uploaders = getUploaders();
-      const accessKey = await Profile.create({
+      const accessKey = await Account.create({
         wallet: getWallet(),
         uploaders: uploaders,
       });
       delete uploaders.root;
       try {
-        await Profile.update(accessKey, {
+        await Account.update(accessKey, {
           wallet: getWallet(),
           uploaders: uploaders,
         });

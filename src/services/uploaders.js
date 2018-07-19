@@ -139,7 +139,7 @@ class S3Uploader extends OffChainUploader {
   }
 };
 
-const _UPLOADERS_BY_CODE = { // Used in profile configurations.
+const _UPLOADERS_BY_CODE = { // Used in account configurations.
   s3: S3Uploader,
   dummy: DummyUploader,
 };
@@ -160,12 +160,12 @@ class UploaderConfig {
   }
 
   /**
-   * Create an UploaderConfig instance from profile data.
+   * Create an UploaderConfig instance from account data.
    *
-   * @param {Object} profile
+   * @param {Object} account
    */
-  static fromProfile (profile) {
-    const config = profile.uploaders;
+  static fromAccount (account) {
+    const config = account.uploaders;
     let opts = {};
     for (let documentKey in config) {
       const uploaderKey = Object.keys(config[documentKey])[0];

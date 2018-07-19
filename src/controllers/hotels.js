@@ -67,7 +67,7 @@ function _validateRequest (body, enforceRequired) {
 module.exports.createHotel = async (req, res, next) => {
   try {
     const wt = WT.get();
-    const profile = req.profile;
+    const account = req.account;
     // 1. Validate request payload.
     _validateRequest(req.body, true);
     // 2. Add `updatedAt` timestamps.
@@ -80,16 +80,16 @@ module.exports.createHotel = async (req, res, next) => {
       if (!data) {
         continue;
       }
-      let uploader = profile.uploaders.getUploader(field.name);
+      let uploader = account.uploaders.getUploader(field.name);
       uploading.push((async () => {
         dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
       })());
     }
     await Promise.all(uploading);
     // 4. Upload the data index.
-    const dataIndexUri = await profile.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
+    const dataIndexUri = await account.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
     // 5. Upload the resulting data to ethereum.
-    const address = await wt.upload(profile.withWallet, dataIndexUri);
+    const address = await wt.upload(account.withWallet, dataIndexUri);
     res.status(201).json({
       address: address,
     });
@@ -106,7 +106,7 @@ module.exports.createHotel = async (req, res, next) => {
  */
 module.exports.updateHotel = async (req, res, next) => {
   try {
-    const profile = req.profile,
+    const account = req.account,
       wt = WT.get();
     // 1. Validate request.
     _validateRequest(req.body, false);
@@ -123,7 +123,7 @@ module.exports.updateHotel = async (req, res, next) => {
       if (!data) {
         continue;
       }
-      let uploader = profile.uploaders.getUploader(field.name);
+      let uploader = account.uploaders.getUploader(field.name);
       uploading.push((async () => {
         dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
       })());
@@ -138,10 +138,10 @@ module.exports.updateHotel = async (req, res, next) => {
       const origDataIndex = await wt.getDataIndex(req.params.address);
       const newContents = Object.assign({}, origDataIndex.contents, dataIndex);
       if (!_.isEqual(origDataIndex.contents, newContents)) {
-        let uploader = profile.uploaders.getUploader('root');
+        let uploader = account.uploaders.getUploader('root');
         const dataIndexUri = await uploader.upload(newContents, 'dataIndex');
         if (dataIndexUri !== origDataIndex.ref) {
-          await wt.upload(profile.withWallet, dataIndexUri, req.params.address);
+          await wt.upload(account.withWallet, dataIndexUri, req.params.address);
         }
       }
     }
@@ -168,14 +168,14 @@ module.exports.updateHotel = async (req, res, next) => {
  */
 module.exports.deleteHotel = async (req, res, next) => {
   try {
-    const profile = req.profile,
+    const account = req.account,
       wt = WT.get();
-    await wt.remove(profile.withWallet, req.params.address);
+    await wt.remove(account.withWallet, req.params.address);
     if (req.query.offChain && parseBoolean(req.query.offChain)) {
-      await profile.uploaders.getUploader('root').remove('dataIndex');
+      await account.uploaders.getUploader('root').remove('dataIndex');
       let deleting = [];
       for (let field of WT.DATA_INDEX_FIELDS) {
-        let uploader = profile.uploaders.getUploader(field.name);
+        let uploader = account.uploaders.getUploader(field.name);
         deleting.push((async () => {
           await uploader.remove(field.name);
         })());

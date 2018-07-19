@@ -1,38 +1,38 @@
 const { HttpValidationError } = require('../errors');
 const { ValidationError } = require('../services/validators');
-const Profile = require('../models/profile');
+const Account = require('../models/account');
 
-const PROFILE_FIELDS = ['wallet', 'uploaders'];
+const ACCOUNT_FIELDS = ['wallet', 'uploaders'];
 
 function _validateRequest (body) {
-  for (let field of PROFILE_FIELDS) {
+  for (let field of ACCOUNT_FIELDS) {
     if (!body[field]) {
       throw new HttpValidationError('validationFailed', `Missing required property: ${field}`);
     }
   }
   for (let field in body) {
-    if (PROFILE_FIELDS.indexOf(field) === -1) {
+    if (ACCOUNT_FIELDS.indexOf(field) === -1) {
       throw new HttpValidationError('validationFailed', `Unknown property: ${field}`);
     }
   }
 }
 
 /**
- * Create a new profile.
+ * Create a new account.
  */
-module.exports.createProfile = async (req, res, next) => {
+module.exports.createAccount = async (req, res, next) => {
   try {
     // 1. Validate request payload.
     _validateRequest(req.body);
-    // 2. Save the new profile.
+    // 2. Save the new account.
     // (Note: validation of wallet and uploader contents is done
     // here as well.)
-    let profileKey = await Profile.create({
+    let accountKey = await Account.create({
       wallet: req.body.wallet,
       uploaders: req.body.uploaders,
     });
     // 3. Return the access key.
-    res.status(201).json({ accessKey: profileKey });
+    res.status(201).json({ accessKey: accountKey });
   } catch (err) {
     if (err instanceof ValidationError) {
       return next(new HttpValidationError('validationFailed', err.message));
@@ -42,16 +42,16 @@ module.exports.createProfile = async (req, res, next) => {
 };
 
 /**
- * Update an existing profile.
+ * Update an existing account.
  */
-module.exports.updateProfile = async (req, res, next) => {
+module.exports.updateAccount = async (req, res, next) => {
   try {
     // 1. Validate request payload.
     _validateRequest(req.body);
-    // 2. Update the profile.
+    // 2. Update the account.
     // (Note: validation of wallet and uploader contents is done
     // here as well.)
-    await Profile.update(req.profile.accessKey, {
+    await Account.update(req.account.accessKey, {
       wallet: req.body.wallet,
       uploaders: req.body.uploaders,
     });
@@ -66,11 +66,11 @@ module.exports.updateProfile = async (req, res, next) => {
 };
 
 /**
- * Delete an existing profile.
+ * Delete an existing account.
  */
-module.exports.deleteProfile = async (req, res, next) => {
+module.exports.deleteAccount = async (req, res, next) => {
   try {
-    await Profile.delete(req.profile.accessKey);
+    await Account.delete(req.account.accessKey);
     res.sendStatus(204);
   } catch (err) {
     next(err);

@@ -1,16 +1,16 @@
 const WTLibs = require('@windingtree/wt-js-libs');
 
 const WT = require('./services/wt');
-const Profile = require('./models/profile');
+const Account = require('./models/account');
 const { UploaderConfig } = require('./services/uploaders');
 const { HttpBadGatewayError, HttpPaymentRequiredError,
   HttpForbiddenError, HttpUnauthorizedError } = require('./errors');
 const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('./constants');
 
 /**
- * Attach profile to req based on the provided access key.
+ * Attach account to req based on the provided access key.
  */
-module.exports.attachProfile = async (req, res, next) => {
+module.exports.attachAccount = async (req, res, next) => {
   try {
     const wt = WT.get(),
       accessKey = req.header(ACCESS_KEY_HEADER),
@@ -18,15 +18,15 @@ module.exports.attachProfile = async (req, res, next) => {
     if (!accessKey || !walletPassword) {
       throw new HttpUnauthorizedError();
     }
-    const profile = await Profile.get(accessKey);
-    if (!profile) {
+    const account = await Account.get(accessKey);
+    if (!account) {
       throw new HttpUnauthorizedError('unauthorized', 'Invalid access key.');
     }
-    req.profile = {
-      accessKey: profile.accessKey,
-      uploaders: UploaderConfig.fromProfile(profile),
+    req.account = {
+      accessKey: account.accessKey,
+      uploaders: UploaderConfig.fromAccount(account),
       withWallet: async (fn) => {
-        const wallet = wt.createWallet(profile.wallet);
+        const wallet = wt.createWallet(account.wallet);
         try {
           wallet.unlock(walletPassword);
         } catch (err) {

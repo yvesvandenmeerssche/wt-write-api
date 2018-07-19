@@ -3,9 +3,9 @@ const bodyParser = require('body-parser');
 const { logger } = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error } = require('./errors');
-const { attachProfile, handleOnChainErrors } = require('./middleware');
+const { attachAccount, handleOnChainErrors } = require('./middleware');
 const { createHotel, updateHotel, deleteHotel, getHotel } = require('./controllers/hotels');
-const { createProfile, updateProfile, deleteProfile } = require('./controllers/profiles');
+const { createAccount, updateAccount, deleteAccount } = require('./controllers/accounts');
 
 const app = express();
 
@@ -20,17 +20,17 @@ app.get('/', (req, res) => {
   });
 });
 
-// Profiles
-// NOTE: For security reasons, profiles are write only.
-app.post('/profile', createProfile);
-app.put('/profile', attachProfile, updateProfile);
-app.delete('/profile', attachProfile, deleteProfile);
+// Accounts
+// NOTE: For security reasons, accounts are write only.
+app.post('/account', createAccount);
+app.put('/account', attachAccount, updateAccount);
+app.delete('/account', attachAccount, deleteAccount);
 
 // Hotels
-app.post('/hotels', attachProfile, createHotel, handleOnChainErrors);
+app.post('/hotels', attachAccount, createHotel, handleOnChainErrors);
 app.get('/hotels/:address', getHotel);
-app.delete('/hotels/:address', attachProfile, deleteHotel, handleOnChainErrors);
-app.patch('/hotels/:address', attachProfile, updateHotel, handleOnChainErrors);
+app.delete('/hotels/:address', attachAccount, deleteHotel, handleOnChainErrors);
+app.patch('/hotels/:address', attachAccount, updateHotel, handleOnChainErrors);
 
 // 404 handler
 app.use('*', (req, res, next) => {
