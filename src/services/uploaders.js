@@ -52,6 +52,8 @@ class DummyUploader extends OffChainUploader {
   }
 };
 
+const S3_URL_REGEX = /^https?:\/\/([^.]+).s3.amazonaws.com\/(.+)$/;
+
 /**
  * Uploader for Amazon AWS S3.
  */
@@ -120,7 +122,7 @@ class S3Uploader extends OffChainUploader {
    * Return "undefined' if not possible.
    */
   _decode (url) {
-    const match = url.match(/^https?:\/\/([^.]+).s3.amazonaws.com\/(.+)$/);
+    const match = url.match(S3_URL_REGEX);
     return match && {
       bucket: match[1],
       keyPrefix: match[2].split('/').slice(0, -1).join('/'),
