@@ -1,57 +1,8 @@
 const AWS = require('aws-sdk');
 const shortid = require('shortid');
-const SwarmAdapter = require('@windingtree/off-chain-adapter-swarm');
 
-const { HttpForbiddenError, HttpBadGatewayError } = require('../errors');
-
-/**
- * Base class for all off-chain uploaders.
- */
-class OffChainUploader {
-  /**
-   * Upload data to an off-chain storage.
-   *
-   * @param {Object} data Hotel data to be uploaded.
-   * @param {string} label To make generated URLs more
-   *   human-friendly, if possible.
-   * @param {string} preferredUrl Upload to the given URL, if
-   *   possible. (If not possible, upload to an arbitrary URL
-   *   instead.) Serves to avoid the need of updating
-   *   blockchain.
-   * @return {Promise<string>} URL of the uploaded data.
-   */
-  async upload (data, label, preferredUrl) {
-    if (!data) {
-      throw new Error('Please provide the data to be uploaded.');
-    }
-    if (!label) {
-      throw new Error('Please provide a label for the data.');
-    }
-    // NOTE: implement the rest in the subclasses.
-  }
-
-  /**
-   * Remove data from an off-chain storage, if possible.
-   *
-   * @param {string} url Remove document from the given URL, if possible.
-   * @return {Promise<Boolean>} A Promise of the deletion result
-   *    - true if deletion was possible, false otherwise.
-   */
-  async remove (url) {
-    return false;
-  }
-};
-
-/**
- * A dummy implementation of off-chain uploader that doesn't
- * actually do anything - useful for testing.
- */
-class DummyUploader extends OffChainUploader {
-  async upload (data, label, preferredUrl) {
-    await super.upload(data, label, preferredUrl);
-    return `dummy://${label}.json`;
-  }
-};
+const { HttpForbiddenError, HttpBadGatewayError } = require('../../errors');
+const { OffChainUploader } = require('./base');
 
 const S3_URL_REGEX = /^https?:\/\/([^.]+).s3.amazonaws.com\/(.+)$/;
 
@@ -188,87 +139,6 @@ class S3Uploader extends OffChainUploader {
   }
 };
 
-/**
- * Uploader for Ethereum Swarm.
- */
-class SwarmUploader extends OffChainUploader {
-  constructor (options) {
-    if (!options.providerUrl) {
-      throw new Error('Missing required option: providerUrl');
-    }
-    super();
-    this._swarmAdapter = new SwarmAdapter({
-      swarmProviderUrl: options.providerUrl,
-    });
-  }
-
-  async upload (data, label, preferredUrl) {
-    await super.upload(data, label, preferredUrl);
-    try {
-      return (await this._swarmAdapter.upload(data));
-    } catch (err) {
-      if (err.message && err.message.match(/Error \d\d\d\./)) {
-        let msg = `Invalid response from upstream (Swarm): ${err.message}`;
-        throw new HttpBadGatewayError('badGatewayError', msg);
-      }
-      throw err;
-    }
-  }
-};
-
-const _UPLOADERS_BY_CODE = { // Used in account configurations.
-  dummy: DummyUploader,
-  s3: S3Uploader,
-  swarm: SwarmUploader,
-};
-
-/**
- * Specific combination of off-chain uploaders to be used.
- */
-class UploaderConfig {
-  /**
-   * @param {Object} uploaders Mapping of dot-separated
-   *                 field paths to OffChainUploader instances.
-   */
-  constructor (uploaders) {
-    if (!uploaders || !uploaders.root) {
-      throw new Error('No default (`root`) offchain uploader specified!');
-    }
-    this.uploaders = uploaders;
-  }
-
-  /**
-   * Create an UploaderConfig instance from account data.
-   *
-   * @param {Object} account
-   */
-  static fromAccount (account) {
-    const config = account.uploaders;
-    let opts = {};
-    for (let documentKey in config) {
-      const uploaderKey = Object.keys(config[documentKey])[0];
-      if (uploaderKey in _UPLOADERS_BY_CODE) {
-        let uploaderOpts = config[documentKey][uploaderKey];
-        opts[documentKey] = new _UPLOADERS_BY_CODE[uploaderKey](uploaderOpts);
-      } else {
-        throw new Error(`Unknown uploader type: ${uploaderKey}`);
-      }
-    }
-    return new UploaderConfig(opts);
-  }
-
-  /**
-   * Get off-chain uploader for the specified data subtree.
-   */
-  getUploader (subtree) {
-    return this.uploaders[subtree] || this.uploaders.root;
-  }
-};
-
 module.exports = {
-  OffChainUploader,
-  DummyUploader,
   S3Uploader,
-  SwarmUploader,
-  UploaderConfig,
 };

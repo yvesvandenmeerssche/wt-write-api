@@ -3,8 +3,8 @@ const AWS = require('aws-sdk');
 const { assert } = require('chai');
 const sinon = require('sinon');
 
-const { S3Uploader, SwarmUploader } = require('../../src/services/uploaders');
-const { HttpForbiddenError, HttpBadGatewayError } = require('../../src/errors');
+const { S3Uploader } = require('../../../src/services/uploaders');
+const { HttpForbiddenError, HttpBadGatewayError } = require('../../../src/errors');
 
 function _createUploader () {
   return new S3Uploader({
@@ -207,35 +207,6 @@ describe('uploaders', () => {
       it('should return undefined if the URL does not come from AWS S3', async () => {
         let url = 'http://geocities.com/area51/description.json';
         assert.equal(uploader._decode(url), null);
-      });
-    });
-  });
-
-  describe('SwarmUploader', () => {
-    describe('constructor()', () => {
-      it('should create a new instance with the correct options', () => {
-        new SwarmUploader({ providerUrl: 'http://dummy' });
-      });
-
-      it('should fail when providerUrl is missing', () => {
-        assert.throws(() => {
-          new SwarmUploader({});
-        }, /Missing required option: providerUrl/);
-      });
-    });
-
-    describe('upload()', () => {
-      it('should upload data to swarm', async () => {
-        const uploader = new SwarmUploader({ providerUrl: 'http://dummy' });
-        const swarmAdapterMock = {
-          upload: sinon.stub().returns(Promise.resolve('bzz-raw://dummy')),
-        };
-        uploader._swarmAdapter = swarmAdapterMock;
-        const data = { key: 'value' };
-        const url = await uploader.upload(data, 'dummy');
-        assert.equal(url, 'bzz-raw://dummy');
-        assert.ok(swarmAdapterMock.upload.calledOnce);
-        assert.ok(swarmAdapterMock.upload.calledWithExactly(data));
       });
     });
   });
