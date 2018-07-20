@@ -49,10 +49,31 @@
         }
       }
     },
+    "swarm": {
+      "type": "object",
+      "required": [
+        "swarm"
+      ],
+      "properties": {
+        "swarm": {
+          "required": [
+            "providerUrl"
+          ],
+          "type": "object",
+          "properties": {
+            "providerUrl": {
+              "type": "string",
+              "format": "url"
+            }
+          }
+        }
+      }
+    },
     "uploader": {
       "oneOf": [
         { "$ref": "#/definitions/s3" },
-        { "$ref": "#/definitions/dummy" }
+        { "$ref": "#/definitions/dummy" },
+        { "$ref": "#/definitions/swarm" }
       ]
     }
   },

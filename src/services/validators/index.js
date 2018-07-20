@@ -16,7 +16,7 @@ class ValidationError extends Error {};
 
 const TIMEZONES = new Set(_(timezones).map('utc').flatten().value());
 
-tv4.addFormat(tv4Formats); // We use the "date-time" format from this module.
+tv4.addFormat(tv4Formats); // We use the "date-time" and "uri" formats from this module.
 tv4.addFormat('country-code', (data) => {
   if (countryCodes.getCountry(data)) {
     return null;
