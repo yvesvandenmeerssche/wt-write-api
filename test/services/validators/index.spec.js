@@ -1,7 +1,7 @@
 const { assert } = require('chai');
 
 const { getDescription, getRatePlans, getAvailability,
-  getUploaders, getWallet } = require('../../utils/fixtures');
+  getUploaders, getWallet } = require('../../utils/factories');
 
 const { validateDescription, validateRatePlans, validateAvailability,
   validateUploaders, validateWallet, ValidationError } = require('../../../src/services/validators');

@@ -3,7 +3,7 @@ const { assert } = require('chai');
 
 const Account = require('../../src/models/account');
 const { ValidationError } = require('../../src/services/validators');
-const { getWallet, getUploaders } = require('../utils/fixtures');
+const { getWallet, getUploaders } = require('../utils/factories');
 
 describe('models - account', () => {
   describe('create', () => {

@@ -1,7 +1,7 @@
 const { assert } = require('chai');
 
 const { getDescription, getRatePlans,
-  getAvailability } = require('../utils/fixtures');
+  getAvailability } = require('../utils/factories');
 const { WT } = require('../../src/services/wt');
 
 const description = getDescription();

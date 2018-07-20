@@ -3,7 +3,7 @@
 const { assert } = require('chai');
 const request = require('supertest');
 
-const { getWallet, getUploaders } = require('../utils/fixtures');
+const { getWallet, getUploaders } = require('../utils/factories');
 const Account = require('../../src/models/account');
 const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../../src/constants');
 

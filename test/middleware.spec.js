@@ -9,7 +9,7 @@ const { HttpUnauthorizedError } = require('../src/errors');
 const { attachAccount } = require('../src/middleware');
 const Account = require('../src/models/account');
 const WT = require('../src/services/wt');
-const { getWallet } = require('./utils/fixtures');
+const { getWallet } = require('./utils/factories');
 const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../src/constants');
 let origWT;
 

@@ -4,7 +4,7 @@ const request = require('supertest');
 const sinon = require('sinon');
 
 const { getDescription, getRatePlans,
-  getAvailability, getWallet } = require('../utils/fixtures');
+  getAvailability, getWallet } = require('../utils/factories');
 const Account = require('../../src/models/account');
 const WT = require('../../src/services/wt');
 const { UploaderConfig } = require('../../src/services/uploaders');
