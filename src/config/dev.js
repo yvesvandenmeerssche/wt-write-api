@@ -3,6 +3,17 @@ const WTLibs = require('@windingtree/wt-js-libs');
 const InMemoryAdapter = require('@windingtree/off-chain-adapter-in-memory');
 const SwarmAdapter = require('@windingtree/off-chain-adapter-swarm');
 const knex = require('knex');
+const { deployIndex } = require('../../management/local-network');
+const WT = require('../services/wt');
+
+const logger = winston.createLogger({
+  level: 'debug',
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    }),
+  ],
+});
 
 module.exports = {
   port: 8000,
@@ -44,12 +55,11 @@ module.exports = {
     },
     useNullAsDefault: true,
   }),
-  logger: winston.createLogger({
-    level: 'debug',
-    transports: [
-      new winston.transports.Console({
-        format: winston.format.simple(),
-      }),
-    ],
-  }),
+  networkSetup: async (currentConfig) => {
+    currentConfig.wtIndexAddress = (await deployIndex()).address;
+    const wt = WT.get();
+    wt.wtIndexAddress = currentConfig.wtIndexAddress;
+    logger.info(`Winding Tree index deployed to ${currentConfig.wtIndexAddress}`);
+  },
+  logger: logger,
 };
