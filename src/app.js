@@ -29,7 +29,6 @@ if (config.logHttpTraffic) {
   }));
 }
 
-
 // Root handler
 app.get('/', (req, res) => {
   res.status(200).json({

@@ -10,7 +10,6 @@ const descriptionSchema = require('./description-schema.json');
 const ratePlansSchema = require('./rateplans-schema.json');
 const availabilitySchema = require('./availability-schema.json');
 const uploadersSchema = require('./uploaders-schema.json');
-const { wtLibs } = require('../../config');
 
 class ValidationError extends Error {};
 
@@ -92,6 +91,7 @@ module.exports.validateAvailability = function (data) {
  * @throws {ValidationError} When data validation fails.
  */
 module.exports.validateWallet = function (data) {
+  const { wtLibs } = require('../../config');
   const wallet = wtLibs.createWallet(data);
   try {
     wallet.unlock('dummy');
