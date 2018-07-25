@@ -2,6 +2,7 @@ const winston = require('winston');
 const WTLibs = require('@windingtree/wt-js-libs');
 const InMemoryAdapter = require('@windingtree/off-chain-adapter-in-memory');
 const SwarmAdapter = require('@windingtree/off-chain-adapter-swarm');
+const HttpAdapter = require('@windingtree/off-chain-adapter-http');
 const knex = require('knex');
 const { deployIndex } = require('../../management/local-network');
 const WT = require('../services/wt');
@@ -42,6 +43,11 @@ module.exports = {
           },
           create: (options) => {
             return new SwarmAdapter(options);
+          },
+        },
+        https: {
+          create: () => {
+            return new HttpAdapter();
           },
         },
       },
