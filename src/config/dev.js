@@ -1,5 +1,7 @@
 const winston = require('winston');
 const WTLibs = require('@windingtree/wt-js-libs');
+const InMemoryAdapter = require('@windingtree/off-chain-adapter-in-memory');
+const SwarmAdapter = require('@windingtree/off-chain-adapter-swarm');
 const knex = require('knex');
 
 module.exports = {
@@ -16,6 +18,19 @@ module.exports = {
             return {
               download: () => { return { dummy: 'content' }; },
             };
+          },
+        },
+        json: {
+          create: (options) => {
+            return new InMemoryAdapter(options);
+          },
+        },
+        'bzz-raw': {
+          options: {
+            swarmProviderUrl: 'http://localhost:8500',
+          },
+          create: (options) => {
+            return new SwarmAdapter(options);
           },
         },
       },

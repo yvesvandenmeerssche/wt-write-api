@@ -1,11 +1,13 @@
 const { DummyUploader } = require('./dummy');
 const { SwarmUploader } = require('./swarm');
+const { InMemoryUploader } = require('./in-memory');
 const { S3Uploader } = require('./s3');
 
 const _UPLOADERS_BY_CODE = { // Used in account configurations.
   dummy: DummyUploader,
   s3: S3Uploader,
   swarm: SwarmUploader,
+  json: InMemoryUploader,
 };
 
 /**

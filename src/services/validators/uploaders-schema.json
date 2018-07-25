@@ -14,6 +14,18 @@
         }
       }
     },
+    "json": {
+      "type": "object",
+      "required": [
+        "json"
+      ],
+      "properties": {
+        "json": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
     "s3": {
       "type": "object",
       "required": [
@@ -73,7 +85,8 @@
       "oneOf": [
         { "$ref": "#/definitions/s3" },
         { "$ref": "#/definitions/dummy" },
-        { "$ref": "#/definitions/swarm" }
+        { "$ref": "#/definitions/swarm" },
+        { "$ref": "#/definitions/json" }
       ]
     }
   },
