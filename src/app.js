@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { logger } = require('./config');
+const config = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error } = require('./errors');
 const { attachAccount, handleOnChainErrors } = require('./middleware');
@@ -17,6 +17,8 @@ app.get('/', (req, res) => {
     docs: 'https://github.com/windingtree/wt-write-api/blob/master/README.md',
     info: 'https://github.com/windingtree/wt-write-api',
     version,
+    config: process.env.NODE_ENV,
+    wtIndexAddress: config.wtIndexAddress,
   });
 });
 
@@ -40,7 +42,7 @@ app.use('*', (req, res, next) => {
 // Error handler
 app.use((err, req, res, next) => {
   if (!(err instanceof HttpError)) {
-    logger.error(err.stack);
+    config.logger.error(err.stack);
     err = new HttpInternalError();
   }
 
