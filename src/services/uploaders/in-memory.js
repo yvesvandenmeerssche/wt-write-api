@@ -4,7 +4,7 @@ const { HttpBadGatewayError } = require('../../errors');
 const { OffChainUploader } = require('./base');
 
 /**
- * Uploader for Ethereum Swarm.
+ * Uploader for in memory JSON storage.
  */
 class InMemoryUploader extends OffChainUploader {
   constructor (options) {
@@ -18,7 +18,7 @@ class InMemoryUploader extends OffChainUploader {
       return (await this._inMemoryAdapter.upload(data));
     } catch (err) {
       if (err.message && err.message.match(/Error \d\d\d\./)) {
-        throw new HttpBadGatewayError('badGatewayError', msg);
+        throw new HttpBadGatewayError('badGatewayError', err.message);
       }
       throw err;
     }
