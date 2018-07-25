@@ -130,7 +130,9 @@ class WT {
     let data = {};
     for (let fieldName of fieldNames) {
       let doc = await rawIndex.contents[`${fieldName}Uri`];
-      data[`${fieldName}`] = (await doc.toPlainObject()).contents;
+      if (doc) {
+        data[`${fieldName}`] = (await doc.toPlainObject()).contents;
+      }
     }
     return data;
   }
