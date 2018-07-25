@@ -37,6 +37,7 @@
     "iso-3166-1-alpha-2": "^1.0.0",
     "knex": "^0.15.1",
     "lodash": "^4.17.10",
+    "morgan": "^1.9.0",
     "openapi2schema": "^0.5.0",
     "shortid": "^2.2.12",
     "sqlite3": "^4.0.1",

@@ -61,5 +61,6 @@ module.exports = {
     wt.wtIndexAddress = currentConfig.wtIndexAddress;
     logger.info(`Winding Tree index deployed to ${currentConfig.wtIndexAddress}`);
   },
+  logHttpTraffic: true,
   logger: logger,
 };
