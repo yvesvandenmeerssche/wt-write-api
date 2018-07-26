@@ -5,7 +5,7 @@ platform.
 (Work in progress.)
 
 ## Requirements
-- Nodejs 10.x
+- Nodejs 10.7.x
 
 ### Getting stared
 In order to install and run tests, we must:
