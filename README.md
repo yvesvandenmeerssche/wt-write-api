@@ -91,6 +91,67 @@ $ curl -X POST localhost:8000/account -H 'Content-Type: application/json' --data
 
 ### Create hotel
 
+This is just an example data that we know will pass all the validations. For a better
+description of the actual data model, have a look at `src/services/validators/`,
+where you will find JSON schemas used to validate incoming data.
+
+```json
+{
+  "description": {
+    "name": "Random hotel",
+    "description": "**Beautiful** hotel located in the center of _Prague, Czech Republic_.",
+    "location": {
+      "latitude": 50.075388,
+      "longitude": 14.414170
+    },
+    "contacts": {
+      "general": {
+        "email": "chadima.jiri@gmail.com",
+        "phone": "00420224371111",
+        "url": "https://jirkachadima.cz",
+        "ethereum": "windingtree.eth"
+      }
+    },
+    "address": {
+      "line1": "Rašínovo nábřeží 1981/80",
+      "line2": "Nové Město",
+      "postalCode": "12000",
+      "city": "Prague",
+      "country": "CZ"
+    },
+    "timezone": "Europe/Prague",
+    "currency": "CZK",
+    "amenities": [],
+    "images": [
+      "https://raw.githubusercontent.com/windingtree/media/master/logo-variants/tree/png/tree--gradient-on-white.png",
+      "https://raw.githubusercontent.com/windingtree/media/master/logo-variants/full-logo/png/logo--black-on-green.png"
+    ],
+    "updatedAt": "2018-06-19T15:53:00+0200",
+    "roomTypes": {
+      "1234-abcd": {
+        "name": "string",
+        "description": "string",
+        "totalQuantity": 0,
+        "occupancy": {
+          "min": 1,
+          "max": 3
+        },
+        "amenities": [
+          "TV"
+        ],
+        "images": [
+          "https://raw.githubusercontent.com/windingtree/media/web-assets/logo-variants/full-logo/png/logo--white.png"
+        ],
+        "updatedAt": "2018-06-27T14:59:05.830Z",
+        "properties": {
+          "nonSmoking": "some"
+        }
+      }
+    }
+  }
+}
+```
+
 ```sh
 $ curl -X POST localhost:8000/hotels -H 'Content-Type: application/json' \
   -H 'X-Access-Key: usgq6tSBW+wDYA/MBF367HnNp4tGKaCTRPy3JHPEqJmFBuxq1sA7UhFOpuV80ngC' \
