@@ -5,11 +5,13 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint src test",
-    "dev": "WT_CONFIG=dev node src/index.js",
     "test": "WT_CONFIG=test ./node_modules/.bin/nyc --reporter=text ./node_modules/mocha/bin/mocha --recursive --timeout 20000",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "start": "node src/index.js",
+    "dev": "WT_CONFIG=dev node src/index.js",
     "createdb-dev": "WT_CONFIG=dev node management/createdb.js",
-    "dev-net": "./management/dev-net.sh",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "createdb": "node management/createdb.js",
+    "dev-net": "./management/dev-net.sh"
   },
   "repository": {
     "type": "git",

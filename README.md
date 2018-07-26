@@ -57,6 +57,25 @@ it is not used in the same manner in integration tests.
 You can fiddle with the configuration in `src/config/`.
 
 
+### Running node against Ropsten testnet contract
+
+- To make trying out the node even simpler, we prepared a Docker image pre-configured
+to talk with one of our testing contracts deployed on Ropsten.
+- You can use it in your local environment by running the following commands:
+```sh
+$ docker build -t windingtree/wt-write-api .
+$ docker run -p 8080:8000 -d windingtree/wt-write-api
+# Or you can run a different config with
+$ docker run -p 8080:8000 -e WT_CONFIG=dev windingtree/wt-write-api
+```
+- After that you can access the wt-write-api on local port `8080`
+- This deployment is using a Ropsten configuration that can be found in `src/config/ropsten`
+- **Warning** - If you plan to use Swarm, you have to configure your account's uploader with
+a publicly accessible Swarm gateway as `swarm` client is *not* bundled in the docker image.
+- **Warning** - User wallets (although protected by password) will be stored in the image,
+be careful where your API is running and who can access it.
+- **Warning** - Once your docker container is stopped, all accounts (wallets and configuration) will disappear.
+
 ## Examples
 
 ### Account setup
