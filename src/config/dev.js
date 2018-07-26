@@ -7,15 +7,6 @@ const knex = require('knex');
 const { deployIndex } = require('../../management/local-network');
 const WT = require('../services/wt');
 
-const logger = winston.createLogger({
-  level: 'debug',
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.simple(),
-    }),
-  ],
-});
-
 module.exports = {
   port: 8000,
   wtLibs: WTLibs.createInstance({
@@ -65,8 +56,14 @@ module.exports = {
     currentConfig.wtIndexAddress = (await deployIndex()).address;
     const wt = WT.get();
     wt.wtIndexAddress = currentConfig.wtIndexAddress;
-    logger.info(`Winding Tree index deployed to ${currentConfig.wtIndexAddress}`);
+    currentConfig.logger.info(`Winding Tree index deployed to ${currentConfig.wtIndexAddress}`);
   },
-  logHttpTraffic: true,
-  logger: logger,
+  logger: winston.createLogger({
+    level: 'debug',
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.simple(),
+      }),
+    ],
+  }),
 };

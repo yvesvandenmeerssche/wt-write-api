@@ -21,6 +21,7 @@ module.exports = {
     },
   }),
   wtIndexAddress: '0xdummy',
+  logHttpTraffic: false,
   db: knex({
     client: 'sqlite3',
     connection: {
