@@ -11,6 +11,8 @@
     "dev": "WT_CONFIG=dev node src/index.js",
     "createdb-dev": "WT_CONFIG=dev node management/createdb.js",
     "createdb": "node management/createdb.js",
+    "deploy": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public",
+    "alias": "now alias --team windingtree --token=$NOW_TOKEN",
     "dev-net": "./management/dev-net.sh"
   },
   "repository": {
@@ -68,5 +70,16 @@
   },
   "engines": {
     "node": ">=10.7.0"
+  },
+  "now": {
+    "name": "wt-write-api",
+    "alias": "demo-write-api.windingtree.com"
+  },
+  "nyc": {
+    "exclude": [
+      "scripts/",
+      "test/",
+      "src/config"
+    ]
   }
 }
