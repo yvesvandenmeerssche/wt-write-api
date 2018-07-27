@@ -85,7 +85,7 @@ The account consists of Ethereum wallet in JSON format and a configuration of up
 The uploaders are telling the API where to put data about hotels managed by that
 Ethereum wallet. *The API does not store Wallet passwords.*
 
-In this case, we are settign up swarm as our preferred storage, make sure it is 
+In this case, we are setting up swarm as our preferred storage, make sure it is 
 actually accessible before you try to create a hotel.
 
 ```json

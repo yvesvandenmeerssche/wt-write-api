@@ -11,8 +11,8 @@
     "dev": "WT_CONFIG=dev node src/index.js",
     "createdb-dev": "WT_CONFIG=dev node management/createdb.js",
     "createdb": "node management/createdb.js",
-    "deploy": "now -e NODE_ENV=production --token $NOW_TOKEN --docker --public",
-    "alias": "now alias --token=$NOW_TOKEN",
+    "deploy": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public",
+    "alias": "now alias --team windingtree --token=$NOW_TOKEN",
     "dev-net": "./management/dev-net.sh"
   },
   "repository": {
