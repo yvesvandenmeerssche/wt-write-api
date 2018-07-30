@@ -1,3 +1,4 @@
+const winston = require('winston');
 const WTLibs = require('@windingtree/wt-js-libs');
 const knex = require('knex');
 
@@ -21,12 +22,19 @@ module.exports = {
     },
   }),
   wtIndexAddress: '0xdummy',
-  logHttpTraffic: false,
   db: knex({
     client: 'sqlite3',
     connection: {
       filename: './.test.sqlite',
     },
     useNullAsDefault: true,
+  }),
+  logger: winston.createLogger({
+    level: 'warn',
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.simple(),
+      }),
+    ],
   }),
 };
