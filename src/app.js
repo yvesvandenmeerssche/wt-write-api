@@ -14,18 +14,6 @@ app.use(bodyParser.json());
 
 // Logg HTTP requests.
 app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {
-  skip: function (req, res) {
-    return res.statusCode < 400;
-  },
-  stream: {
-    write: (msg) => config.logger.info(msg),
-  },
-}));
-
-app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {
-  skip: function (req, res) {
-    return res.statusCode >= 400;
-  },
   stream: {
     write: (msg) => config.logger.info(msg),
   },
