@@ -5,7 +5,6 @@ const SwarmAdapter = require('@windingtree/off-chain-adapter-swarm');
 const HttpAdapter = require('@windingtree/off-chain-adapter-http');
 const knex = require('knex');
 const { deployIndex } = require('../../management/local-network');
-const WT = require('../services/wt');
 
 module.exports = {
   port: 8000,
@@ -54,7 +53,7 @@ module.exports = {
   }),
   networkSetup: async (currentConfig) => {
     currentConfig.wtIndexAddress = (await deployIndex()).address;
-    const wt = WT.get();
+    const wt = require('../services/wt').get();
     wt.wtIndexAddress = currentConfig.wtIndexAddress;
     currentConfig.logger.info(`Winding Tree index deployed to ${currentConfig.wtIndexAddress}`);
   },
