@@ -61,7 +61,7 @@ module.exports.getUploaders = function () {
         keyPrefix: 'prefix',
       },
     },
-    ratePlans: { swarm: { providerUrl: 'http://example.com:8045' } },
+    ratePlans: { swarm: {} },
   };
 };
 

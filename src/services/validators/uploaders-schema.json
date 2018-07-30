@@ -68,16 +68,8 @@
       ],
       "properties": {
         "swarm": {
-          "required": [
-            "providerUrl"
-          ],
           "type": "object",
-          "properties": {
-            "providerUrl": {
-              "type": "string",
-              "format": "url"
-            }
-          }
+          "properties": {}
         }
       }
     },

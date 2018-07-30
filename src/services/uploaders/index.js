@@ -2,12 +2,19 @@ const { DummyUploader } = require('./dummy');
 const { SwarmUploader } = require('./swarm');
 const { InMemoryUploader } = require('./in-memory');
 const { S3Uploader } = require('./s3');
+const { swarmProvider } = require('../../config');
 
 const _UPLOADERS_BY_CODE = { // Used in account configurations.
   dummy: DummyUploader,
   s3: S3Uploader,
   swarm: SwarmUploader,
   json: InMemoryUploader,
+};
+
+const _COMMON_OPTIONS = {
+  swarm: {
+    providerUrl: swarmProvider,
+  },
 };
 
 /**
@@ -31,12 +38,13 @@ class UploaderConfig {
    * @param {Object} account
    */
   static fromAccount (account) {
-    const config = account.uploaders;
-    let opts = {};
+    const config = account.uploaders,
+      opts = {};
     for (let documentKey in config) {
       const uploaderKey = Object.keys(config[documentKey])[0];
       if (uploaderKey in _UPLOADERS_BY_CODE) {
-        let uploaderOpts = config[documentKey][uploaderKey];
+        const uploaderOpts = Object.assign({}, config[documentKey][uploaderKey],
+          _COMMON_OPTIONS[uploaderKey]);
         opts[documentKey] = new _UPLOADERS_BY_CODE[uploaderKey](uploaderOpts);
       } else {
         throw new Error(`Unknown uploader type: ${uploaderKey}`);
