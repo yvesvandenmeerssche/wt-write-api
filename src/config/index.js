@@ -8,6 +8,7 @@ module.exports = Object.assign({
     transports: [
       new winston.transports.Console({
         format: winston.format.simple(),
+        stderrLevels: ['error'],
       }),
     ],
   }),
