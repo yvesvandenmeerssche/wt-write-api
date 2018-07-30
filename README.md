@@ -72,7 +72,8 @@ $ docker run -p 8080:8000 -e WT_CONFIG=dev windingtree/wt-write-api
 a publicly accessible Swarm gateway as `swarm` client is *not* bundled in the docker image.
 - **Warning** - User wallets (although protected by password) will be stored in the image,
 be careful where your API is running and who can access it.
-- **Warning** - Once your docker container is stopped, all accounts (wallets and configuration) will disappear.
+- **Warning** - Once your docker container (and its associated volumes, if any) is deleted,
+all accounts (wallets and configuration) will disappear.
 
 ## Examples
 
