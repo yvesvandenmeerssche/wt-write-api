@@ -1,49 +1,12 @@
 const winston = require('winston');
-const WTLibs = require('@windingtree/wt-js-libs');
-const InMemoryAdapter = require('@windingtree/off-chain-adapter-in-memory');
-const SwarmAdapter = require('@windingtree/off-chain-adapter-swarm');
-const HttpAdapter = require('@windingtree/off-chain-adapter-http');
 const knex = require('knex');
 const { deployIndex } = require('../../management/local-network');
 
 module.exports = {
   port: 8000,
-  wtLibs: WTLibs.createInstance({
-    dataModelOptions: {
-      provider: 'http://localhost:8545',
-    },
-    offChainDataOptions: {
-      adapters: {
-        dummy: {
-          options: {},
-          create: () => {
-            return {
-              download: () => { return { dummy: 'content' }; },
-            };
-          },
-        },
-        json: {
-          create: (options) => {
-            return new InMemoryAdapter(options);
-          },
-        },
-        'bzz-raw': {
-          options: {
-            swarmProviderUrl: 'http://localhost:8500',
-          },
-          create: (options) => {
-            return new SwarmAdapter(options);
-          },
-        },
-        https: {
-          create: () => {
-            return new HttpAdapter();
-          },
-        },
-      },
-    },
-  }),
+  ethereumProvider: 'http://localhost:8545',
   wtIndexAddress: '0xdummy',
+  swarmProvider: 'http://localhost:8500',
   db: knex({
     client: 'sqlite3',
     connection: {
