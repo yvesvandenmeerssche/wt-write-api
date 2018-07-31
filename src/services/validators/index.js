@@ -92,12 +92,15 @@ module.exports.validateAvailability = function (data) {
  * @throws {ValidationError} When data validation fails.
  */
 module.exports.validateWallet = function (data) {
+  if (!(data instanceof Object)) { // This case is not handled by the "unlock" method.
+    throw new ValidationError('Not a valid V3 wallet');
+  }
   const wallet = wtLibs.createWallet(data);
   try {
     wallet.unlock('dummy');
   } catch (err) {
     if (err instanceof WTLibs.errors.MalformedWalletError) {
-      throw new ValidationError(err.msg);
+      throw new ValidationError(err.message);
     }
   }
 };

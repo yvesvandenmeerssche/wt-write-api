@@ -122,8 +122,13 @@ describe('validators', function () {
       validateWallet(getWallet());
     });
 
-    it('should fail when the data is invalid', () => {
+    it('should fail when the data is an invalid object', () => {
       let wallet = { dummy: 'dummy' };
+      assert.throws(() => validateWallet(wallet), ValidationError);
+    });
+
+    it('should fail when the data is not an object', () => {
+      let wallet = 'dummy';
       assert.throws(() => validateWallet(wallet), ValidationError);
     });
   });
