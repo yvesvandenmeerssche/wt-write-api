@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const config = require('./config');
 const { version } = require('../package.json');
-const { HttpError, HttpInternalError, Http404Error } = require('./errors');
+const { HttpError, HttpInternalError, Http404Error, HttpBadRequestError } = require('./errors');
 const { attachAccount, handleOnChainErrors } = require('./middleware');
 const { createHotel, updateHotel, deleteHotel, getHotel } = require('./controllers/hotels');
 const { createAccount, updateAccount, deleteAccount } = require('./controllers/accounts');
@@ -11,6 +11,13 @@ const { createAccount, updateAccount, deleteAccount } = require('./controllers/a
 const app = express();
 
 app.use(bodyParser.json());
+app.use((err, req, res, next) => {
+  // Catch and handle bodyParser errors.
+  if (err.statusCode === 400 && err.type === 'entity.parse.failed') {
+    return next(new HttpBadRequestError('badRequest', 'Invalid JSON.'));
+  }
+  next(err);
+});
 
 // Logg HTTP requests.
 app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-version :status :res[content-length] - :response-time ms', {

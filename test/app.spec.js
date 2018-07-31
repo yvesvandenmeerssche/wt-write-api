@@ -26,27 +26,41 @@ describe('API', function () {
     server.close();
   });
 
-  it('GET /', async () => {
-    await request(server)
-      .get('/')
-      .expect(200)
-      .expect('content-type', /json/i)
-      .expect((res) => {
-        expect(res.body).to.have.property('docs');
-        expect(res.body).to.have.property('info');
-        expect(res.body).to.have.property('version');
-      });
+  describe('GET /', () => {
+    it('should return basic information', async () => {
+      await request(server)
+        .get('/')
+        .expect(200)
+        .expect('content-type', /json/i)
+        .expect((res) => {
+          expect(res.body).to.have.property('docs');
+          expect(res.body).to.have.property('info');
+          expect(res.body).to.have.property('version');
+          expect(res.body).to.have.property('config');
+          expect(res.body).to.have.property('wtIndexAddress');
+        });
+    });
+
+    it('should not panic upon malformed json data', async () => {
+      await request(server)
+        .get('/')
+        .send('sdndslsl')
+        .set('Content-Type', 'application/json')
+        .expect(400);
+    });
   });
 
-  it('GET /random-endpoint', async () => {
-    await request(server)
-      .get('/random-endpoint')
-      .expect(404)
-      .expect('content-type', /json/i)
-      .expect((res) => {
-        expect(res.body).to.have.property('code', '#notFound');
-        expect(res.body).to.have.property('short');
-        expect(res.body).to.have.property('long');
-      });
+  describe('GET /unknown-endpoint', () => {
+    it('should return 404', async () => {
+      await request(server)
+        .get('/random-endpoint')
+        .expect(404)
+        .expect('content-type', /json/i)
+        .expect((res) => {
+          expect(res.body).to.have.property('code', '#notFound');
+          expect(res.body).to.have.property('short');
+          expect(res.body).to.have.property('long');
+        });
+    });
   });
 });
