@@ -10,7 +10,7 @@ const descriptionSchema = require('./description-schema.json');
 const ratePlansSchema = require('./rateplans-schema.json');
 const availabilitySchema = require('./availability-schema.json');
 const uploadersSchema = require('./uploaders-schema.json');
-const { wtLibs } = require('../../config');
+const { wtLibs, allowedUploaders } = require('../../config');
 
 class ValidationError extends Error {};
 
@@ -101,6 +101,17 @@ module.exports.validateWallet = function (data) {
     }
   }
 };
+
+// Check if all allowed uploaders are defined in the schema and
+// patch the uploaders schema to reflect allowed uploaders.
+for (let key of allowedUploaders)  {
+  if (! uploadersSchema.definitions[key]) {
+    throw new Error(`Unknown uploader in 'allowedUploaders': ${key}`);
+  }
+}
+uploadersSchema.definitions.uploader.oneOf = allowedUploaders.map((uploader) => {
+  return { '$ref': `#/definitions/${uploader}` };
+});
 
 /**
  * Validate uploaders against their json schema definition.

@@ -16,6 +16,9 @@ const config = Object.assign({
       }),
     ],
   }),
+  // Limit allowed uploaders to prevent dummy uploaders
+  // from being used in production.
+  allowedUploaders: ['s3', 'swarm'],
 }, require(`./${env}`));
 
 config.wtLibs = WTLibs.createInstance({

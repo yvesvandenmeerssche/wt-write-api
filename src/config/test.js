@@ -13,6 +13,7 @@ module.exports = {
     },
     useNullAsDefault: true,
   }),
+  allowedUploaders: ['s3', 'swarm', 'json', 'dummy'],
   logger: winston.createLogger({
     level: 'warn',
     transports: [

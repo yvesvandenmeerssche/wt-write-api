@@ -14,6 +14,7 @@ module.exports = {
     },
     useNullAsDefault: true,
   }),
+  allowedUploaders: ['s3', 'swarm', 'json', 'dummy'],
   networkSetup: async (currentConfig) => {
     currentConfig.wtIndexAddress = (await deployIndex()).address;
     const wt = require('../services/wt').get();
