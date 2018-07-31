@@ -36,7 +36,7 @@ describe('middleware', () => {
       wallet: getWallet(),
       uploaders: {
         root: {
-          dummy: {},
+          inMemory: {},
         },
       },
     })).accessKey;

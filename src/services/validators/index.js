@@ -104,8 +104,8 @@ module.exports.validateWallet = function (data) {
 
 // Check if all allowed uploaders are defined in the schema and
 // patch the uploaders schema to reflect allowed uploaders.
-for (let key of allowedUploaders)  {
-  if (! uploadersSchema.definitions[key]) {
+for (let key of allowedUploaders) {
+  if (!uploadersSchema.definitions[key]) {
     throw new Error(`Unknown uploader in 'allowedUploaders': ${key}`);
   }
 }

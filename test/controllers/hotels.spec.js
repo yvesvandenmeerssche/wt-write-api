@@ -37,7 +37,7 @@ describe('controllers - hotels', function () {
       wallet: getWallet(),
       uploaders: {
         root: {
-          dummy: {},
+          inMemory: {},
         },
       },
     })).accessKey;

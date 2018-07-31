@@ -51,7 +51,7 @@ module.exports.getAvailability = function () {
 /** Return a valid uploaders representation. */
 module.exports.getUploaders = function () {
   return {
-    root: { dummy: {} },
+    root: { inMemory: {} },
     availability: {
       s3: {
         accessKeyId: 'dummyKeyId',

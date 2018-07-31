@@ -3,7 +3,7 @@ const InMemoryAdapter = require('@windingtree/off-chain-adapter-in-memory');
 const { OffChainUploader } = require('./base');
 
 /**
- * Uploader for in memory JSON storage.
+ * Uploader for in memory storage.
  */
 class InMemoryUploader extends OffChainUploader {
   constructor (options) {

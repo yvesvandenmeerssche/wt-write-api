@@ -2,25 +2,13 @@
   "description": "Uploader configuration.",
   "type": "object",
   "definitions": {
-    "dummy": {
+    "inMemory": {
       "type": "object",
       "required": [
-        "dummy"
+        "inMemory"
       ],
       "properties": {
-        "dummy": {
-          "type": "object",
-          "properties": {}
-        }
-      }
-    },
-    "json": {
-      "type": "object",
-      "required": [
-        "json"
-      ],
-      "properties": {
-        "json": {
+        "inMemory": {
           "type": "object",
           "properties": {}
         }
@@ -76,9 +64,8 @@
     "uploader": {
       "oneOf": [
         { "$ref": "#/definitions/s3" },
-        { "$ref": "#/definitions/dummy" },
         { "$ref": "#/definitions/swarm" },
-        { "$ref": "#/definitions/json" }
+        { "$ref": "#/definitions/inMemory" }
       ]
     }
   },

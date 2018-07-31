@@ -103,7 +103,7 @@ describe('controllers - accounts', function () {
     });
 
     it('should overwrite account with the given data', (done) => {
-      let uploaders = { root: { dummy: {} } };
+      let uploaders = { root: { inMemory: {} } };
       request(server)
         .put(`/account/${accountId}`)
         .set(ACCESS_KEY_HEADER, accessKey)
