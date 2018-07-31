@@ -27,15 +27,7 @@ config.wtLibs = WTLibs.createInstance({
   },
   offChainDataOptions: {
     adapters: {
-      dummy: {
-        options: {},
-        create: () => {
-          return {
-            download: () => { return { dummy: 'content' }; },
-          };
-        },
-      },
-      json: {
+      'in-memory': {
         create: (options) => {
           return new InMemoryAdapter(options);
         },
