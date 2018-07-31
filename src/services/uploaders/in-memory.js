@@ -1,6 +1,5 @@
 const InMemoryAdapter = require('@windingtree/off-chain-adapter-in-memory');
 
-const { HttpBadGatewayError } = require('../../errors');
 const { OffChainUploader } = require('./base');
 
 /**
@@ -14,14 +13,7 @@ class InMemoryUploader extends OffChainUploader {
 
   async upload (data, label, preferredUrl) {
     await super.upload(data, label, preferredUrl);
-    try {
-      return (await this._inMemoryAdapter.upload(data));
-    } catch (err) {
-      if (err.message && err.message.match(/Error \d\d\d\./)) {
-        throw new HttpBadGatewayError('badGatewayError', err.message);
-      }
-      throw err;
-    }
+    return this._inMemoryAdapter.upload(data);
   }
 };
 
