@@ -1,6 +1,5 @@
 const winston = require('winston');
 const knex = require('knex');
-const { deployIndex } = require('../../management/local-network');
 
 module.exports = {
   port: 8000,
@@ -16,6 +15,7 @@ module.exports = {
   }),
   allowedUploaders: ['s3', 'swarm', 'inMemory'],
   networkSetup: async (currentConfig) => {
+    const { deployIndex } = require('../utils/local-network');
     currentConfig.wtIndexAddress = (await deployIndex()).address;
     const wt = require('../services/wt').get();
     wt.wtIndexAddress = currentConfig.wtIndexAddress;
