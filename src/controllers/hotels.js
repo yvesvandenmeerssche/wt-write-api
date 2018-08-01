@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const WTLibs = require('@windingtree/wt-js-libs');
 
 const { HttpValidationError, HttpBadRequestError,
   HttpBadGatewayError, Http404Error } = require('../errors');
@@ -221,7 +220,7 @@ module.exports.getHotel = async (req, res, next) => {
       .filter((name) => (fields.length === 0 || fields.indexOf(name) !== -1))
       .value();
     const data = await wt.getDocuments(req.params.address, fieldNames);
-    _validateRequest(data, fields.length > 0);
+    _validateRequest(data, fields.length === 0);
     res.status(200).json(data);
   } catch (err) {
     if (err instanceof ValidationError) {

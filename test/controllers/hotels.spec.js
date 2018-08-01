@@ -78,7 +78,7 @@ describe('controllers - hotels', function () {
         }
         return ret;
       },
-      isValidAddress: (hotelAddress) => (hotelAddress === '0xinvalidaddr') ? false : true,
+      isValidAddress: (hotelAddress) => (hotelAddress !== '0xinvalidaddr'),
       upload: sinon.stub().callsFake(() => Promise.resolve('dummyAddress')),
       remove: sinon.stub().callsFake(() => Promise.resolve()),
     };
@@ -463,6 +463,14 @@ describe('controllers - hotels', function () {
             done(err);
           }
         });
+    });
+
+    it('should not fail on required parameter validation if only some fields are selected', (done) => {
+      request(server)
+        .get('/hotels/0xdummy?fields=ratePlans')
+        .expect(200)
+        .expect('content-type', /application\/json/)
+        .end(done);
     });
 
     it('should return 422 if the fields param is unknown', (done) => {
