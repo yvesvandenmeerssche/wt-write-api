@@ -63,7 +63,7 @@ module.exports.handleOnChainErrors = (err, req, res, next) => {
   }
   if (err instanceof WTLibs.errors.InaccessibleEthereumNodeError) {
     let msg = 'Ethereum node not reachable. Please try again later.';
-    return next(new HttpBadGatewayError(msg));
+    return next(new HttpBadGatewayError('badGatewayError', msg));
   }
   if (err instanceof WTLibs.errors.HotelNotFoundError) {
     return next(new Http404Error('notFound', 'Hotel not found.'));
