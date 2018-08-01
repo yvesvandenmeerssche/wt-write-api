@@ -36,6 +36,18 @@ tv4.addFormat('currency-code', (data) => {
   return 'Not a valid ISO 4217 currency code.';
 });
 
+tv4.setErrorReporter((error, data, schema) => {
+  // Better error messages for some common error cases.
+  if (schema === uploadersSchema.definitions.uploader &&
+      error.code === tv4.errorCodes.ONE_OF_MISSING) {
+    return 'Invalid uploader configuration';
+  }
+  if (schema === uploadersSchema.definitions.uploader &&
+      error.code === tv4.errorCodes.ONE_OF_MULTIPLE) {
+    return 'Only one uploader can be configured per document';
+  }
+});
+
 /* Note: the json schemas were generated from the swagger
  * definition at
  *
