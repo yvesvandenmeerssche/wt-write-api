@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const WTLibs = require('@windingtree/wt-js-libs');
 
 const { HttpValidationError, HttpBadRequestError,
   HttpBadGatewayError, Http404Error } = require('../errors');
@@ -226,6 +227,35 @@ module.exports.getHotel = async (req, res, next) => {
     if (err instanceof ValidationError) {
       let msg = 'Invalid upstream response - hotel data is not valid.';
       return next(new HttpBadGatewayError('badGateway', msg));
+    }
+    next(err);
+  }
+};
+
+/**
+ * Transfer hotel ownership to someone else.
+ */
+module.exports.transferHotel = async (req, res, next) => {
+  try {
+    const account = req.account,
+      wt = WT.get();
+    if (!wt.isValidAddress(req.params.address)) {
+      throw new Http404Error('notFound', 'Hotel not found.');
+    }
+    for (let key of Object.keys(req.body)) {
+      if (key !== 'to') {
+        let msg = `Unknown property in the transfer request: ${key}:`;
+        throw new HttpValidationError('validationFailed', msg);
+      }
+    }
+    if (!wt.isValidAddress(req.body.to)) {
+      throw new HttpValidationError('validationFailed', 'Invalid or missing new manager adress.');
+    }
+    await wt.transferHotel(account.withWallet, req.params.address, req.body.to);
+    res.sendStatus(204);
+  } catch (err) {
+    if (err instanceof WTLibs.errors.InputDataError) {
+      return next(new HttpValidationError('validationFailed', err.message));
     }
     next(err);
   }

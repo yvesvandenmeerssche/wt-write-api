@@ -113,7 +113,7 @@ describe('validators', function () {
       let uploaders = getUploaders();
       delete uploaders.availability.s3.accessKeyId;
       assert.throws(() => validateUploaders(uploaders), ValidationError,
-        /Data does not match any schemas/);
+        /Invalid uploader configuration/);
     });
   });
 

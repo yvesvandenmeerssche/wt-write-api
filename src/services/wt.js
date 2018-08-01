@@ -70,7 +70,7 @@ class WT {
   /**
    * Create or update hotel with the given dataIndexUri.
    *
-   * @param {string} password Wallet password
+   * @param {Function} withWallet
    * @param {string} dataIndexUri
    * @param {string} hotelAddress (optional)
    * @return {Promise<string>} Etherum address of the uploaded
@@ -86,7 +86,7 @@ class WT {
   /**
    * Remove the hotel from WT index.
    *
-   * @param {string} password Wallet password
+   * @param {Function} withWallet
    * @param {string} hotelAddress
    * @return {Promise<void>}
    */
@@ -145,6 +145,24 @@ class WT {
    */
   isValidAddress (address) {
     return !this.wtLibs.dataModel.web3Utils.isZeroAddress(address);
+  }
+
+  /**
+   * Transfer hotel to a different manager.
+   *
+   * @param {Function} withWallet
+   * @param {string} hotelAddress
+   * @param {string} managerAddress
+   * @return {Promise<void>}
+   */
+  async transferHotel (withWallet, hotelAddress, managerAddress) {
+    const index = this._getWTIndex();
+    const hotel = await index.getHotel(hotelAddress);
+    const { transactionData, eventCallbacks } = await index.transferHotelOwnership(
+      hotel, managerAddress);
+    await withWallet(async (wallet) => {
+      await wallet.signAndSendTransaction(transactionData, eventCallbacks);
+    });
   }
 };
 

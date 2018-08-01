@@ -5,7 +5,8 @@ const config = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error, HttpBadRequestError } = require('./errors');
 const { attachAccount, handleOnChainErrors } = require('./middleware');
-const { createHotel, updateHotel, deleteHotel, getHotel } = require('./controllers/hotels');
+const { createHotel, updateHotel, deleteHotel, getHotel,
+  transferHotel } = require('./controllers/hotels');
 const { createAccount, updateAccount, deleteAccount } = require('./controllers/accounts');
 
 const app = express();
@@ -48,6 +49,7 @@ app.post('/hotels', attachAccount, createHotel, handleOnChainErrors);
 app.get('/hotels/:address', getHotel, handleOnChainErrors);
 app.delete('/hotels/:address', attachAccount, deleteHotel, handleOnChainErrors);
 app.patch('/hotels/:address', attachAccount, updateHotel, handleOnChainErrors);
+app.post('/hotels/:address/transfer', attachAccount, transferHotel, handleOnChainErrors);
 
 // 404 handler
 app.use('*', (req, res, next) => {

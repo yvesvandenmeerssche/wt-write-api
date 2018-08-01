@@ -81,7 +81,8 @@ describe('controllers - hotels', function () {
         }
         return ret;
       },
-      isValidAddress: (hotelAddress) => (hotelAddress !== '0xinvalidaddr'),
+      isValidAddress: (hotelAddress) => (hotelAddress && (hotelAddress !== '0xinvalidaddr')),
+      transferHotel: sinon.stub().callsFake(() => Promise.resolve()),
       upload: sinon.stub().callsFake(() => Promise.resolve('dummyAddress')),
       remove: sinon.stub().callsFake(() => Promise.resolve()),
     };
@@ -501,6 +502,81 @@ describe('controllers - hotels', function () {
       request(server)
         .get('/hotels/0xinvalidaddr')
         .expect(404)
+        .end(done);
+    });
+  });
+
+  describe('POST /hotels/:address/transfer', (done) => {
+    // Arbitrary valid addresses.
+    const address1 = '0xfe4d6c10f3b70f2586c41d16c862a19a89cf8f03',
+      address2 = 'd037ab9025d43f60a31b32a82e10936f07484246';
+
+    it('should call the transferHotel method and return 204', (done) => {
+      wtMock.transferHotel.resetHistory();
+      request(server)
+        .post(`/hotels/${address1}/transfer`)
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ to: address2 })
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(wtMock.transferHotel.callCount, 1);
+            assert.equal(wtMock.transferHotel.args[0][1], address1);
+            assert.equal(wtMock.transferHotel.args[0][2], address2);
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+    });
+
+    it('should return 404 when hotel address is unknown or invalid', (done) => {
+      request(server)
+        .post('/hotels/0xinvalidaddr/transfer')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ to: address2 })
+        .expect(404)
+        .end(done);
+    });
+
+    it('should return 422 when new manager address is invalid', (done) => {
+      request(server)
+        .post(`/hotels/${address1}/transfer`)
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ to: '0xinvalidaddr' })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 when the required property is missing', (done) => {
+      request(server)
+        .post(`/hotels/${address1}/transfer`)
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({})
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 when an unknown property is present in the request body', (done) => {
+      request(server)
+        .post(`/hotels/${address1}/transfer`)
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ to: address2, pole: 'north' })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 401 when no credentials are provided', (done) => {
+      request(server)
+        .post(`/hotels/${address1}/transfer`)
+        .send({ to: address2 })
+        .expect(401)
         .end(done);
     });
   });
