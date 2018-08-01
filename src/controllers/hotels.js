@@ -40,18 +40,18 @@ function _addTimestamps (body) {
  *
  * @param {Object} body Request body
  * @param {Boolean} enforceRequired
- * @throw {HttpValidationError} when validation fails
+ * @throw {ValidationError} when validation fails
  */
 function _validateRequest (body, enforceRequired) {
   for (let field in body) {
     if (WT.DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
-      throw new HttpValidationError('validationFailed', `Unknown property: ${field}`);
+      throw new ValidationError(`Unknown property: ${field}`);
     }
   }
   for (let field of WT.DATA_INDEX_FIELDS) {
     let data = body[field.name];
     if (enforceRequired && field.required && !data) {
-      throw new HttpValidationError('validationFailed', `Missing property: ${field.name}`);
+      throw new ValidationError(`Missing property: ${field.name}`);
     }
     if (data) {
       field.validator(data);

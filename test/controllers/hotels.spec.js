@@ -76,6 +76,9 @@ describe('controllers - hotels', function () {
             delete ret[key];
           }
         }
+        if (hotelAddress === '0xnodescription') {
+          delete ret.description;
+        }
         return ret;
       },
       isValidAddress: (hotelAddress) => (hotelAddress !== '0xinvalidaddr'),
@@ -483,6 +486,13 @@ describe('controllers - hotels', function () {
     it('should return 502 if the upstream data are not valid', (done) => {
       request(server)
         .get('/hotels/0xinvalid')
+        .expect(502)
+        .end(done);
+    });
+
+    it('should return 502 if the upstream data miss a required top-level field', (done) => {
+      request(server)
+        .get('/hotels/0xnodescription')
         .expect(502)
         .end(done);
     });
