@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const cors = require('cors');
+
 const config = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error, HttpBadRequestError } = require('./errors');
@@ -10,6 +12,8 @@ const { createHotel, updateHotel, deleteHotel, getHotel,
 const { createAccount, updateAccount, deleteAccount } = require('./controllers/accounts');
 
 const app = express();
+
+app.use(cors());
 
 app.use(bodyParser.json());
 app.use((err, req, res, next) => {

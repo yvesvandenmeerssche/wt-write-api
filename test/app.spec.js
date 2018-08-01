@@ -48,6 +48,13 @@ describe('API', function () {
         .set('Content-Type', 'application/json')
         .expect(400);
     });
+
+    it('should properly implement CORS to be usable from anywhere', async () => {
+      await request(server)
+        .get('/')
+        .set('Content-Type', 'application/json')
+        .expect('Access-Control-Allow-Origin', '*');
+    });
   });
 
   describe('GET /unknown-endpoint', () => {
