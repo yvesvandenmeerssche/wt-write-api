@@ -68,8 +68,6 @@ $ docker run -p 8080:8000 -e WT_CONFIG=dev windingtree/wt-write-api
 ```
 - After that you can access the wt-write-api on local port `8080`
 - This deployment is using a Ropsten configuration that can be found in `src/config/ropsten`
-- **Warning** - If you plan to use Swarm, you have to configure your account's uploader with
-a publicly accessible Swarm gateway as `swarm` client is *not* bundled in the docker image.
 - **Warning** - User wallets (although protected by password) will be stored in the image,
 be careful where your API is running and who can access it.
 - **Warning** - Once your docker container (and its associated volumes, if any) is deleted,
@@ -85,7 +83,8 @@ The uploaders are telling the API where to put data about hotels managed by that
 Ethereum wallet. *The API does not store Wallet passwords.*
 
 In this case, we are setting up swarm as our preferred storage, make sure it is 
-actually accessible before you try to create a hotel.
+actually accessible (via the `swarmProvider` gateway url from config) before you
+try to create hotel.
 
 ```json
 {
