@@ -73,9 +73,12 @@ describe('uploaders', () => {
         const url = await uploader.upload({ key: 'value' }, 'description', preferredUrl);
         assert.equal(url, preferredUrl);
         assert.ok(uploader._s3.putObject.calledOnce);
-        assert.equal(uploader._s3.putObject.args[0][0].Bucket, 'bucket');
-        assert.equal(uploader._s3.putObject.args[0][0].Body, '{"key":"value"}');
-        assert.equal(uploader._s3.putObject.args[0][0].Key, 'my-hotel/description.json');
+        assert.deepEqual(uploader._s3.putObject.args[0][0], {
+          ACL: 'public-read',
+          Bucket: 'bucket',
+          Body: '{"key":"value"}',
+          Key: 'my-hotel/description.json',
+        });
       });
 
       it('should work well without a keyPrefix', async () => {

@@ -109,6 +109,7 @@ class S3Uploader extends OffChainUploader {
       key = this._generateKey(label);
     }
     const params = {
+      ACL: 'public-read',
       Bucket: this._bucket,
       Key: key,
       Body: JSON.stringify(data),
