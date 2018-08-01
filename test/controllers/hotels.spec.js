@@ -78,6 +78,7 @@ describe('controllers - hotels', function () {
         }
         return ret;
       },
+      isValidAddress: (hotelAddress) => (hotelAddress === '0xinvalidaddr') ? false : true,
       upload: sinon.stub().callsFake(() => Promise.resolve('dummyAddress')),
       remove: sinon.stub().callsFake(() => Promise.resolve()),
     };
@@ -339,6 +340,16 @@ describe('controllers - hotels', function () {
         .expect(400)
         .end(done);
     });
+
+    it('should return 404 when hotel address is unknown or invalid', (done) => {
+      request(server)
+        .patch('/hotels/0xinvalidaddr')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ description })
+        .expect(404)
+        .end(done);
+    });
   });
 
   describe('DELETE /hotels/:address', () => {
@@ -403,6 +414,15 @@ describe('controllers - hotels', function () {
         .expect(401)
         .end(done);
     });
+
+    it('should return HTTP 404 hotel address is unknown or invalid', (done) => {
+      request(server)
+        .delete('/hotels/0xinvalidaddr')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .expect(404)
+        .end(done);
+    });
   });
 
   describe('GET /hotels/:address', (done) => {
@@ -456,6 +476,13 @@ describe('controllers - hotels', function () {
       request(server)
         .get('/hotels/0xinvalid')
         .expect(502)
+        .end(done);
+    });
+
+    it('should return 404 if the hotel address is unknown or invalid', (done) => {
+      request(server)
+        .get('/hotels/0xinvalidaddr')
+        .expect(404)
         .end(done);
     });
   });

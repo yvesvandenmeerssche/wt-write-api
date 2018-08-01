@@ -1,7 +1,8 @@
 const _ = require('lodash');
+const WTLibs = require('@windingtree/wt-js-libs');
 
 const { HttpValidationError, HttpBadRequestError,
-  HttpBadGatewayError } = require('../errors');
+  HttpBadGatewayError, Http404Error } = require('../errors');
 const { ValidationError } = require('../services/validators');
 const { parseBoolean, QueryParserError } = require('../services/query-parsers');
 const WT = require('../services/wt');
@@ -108,6 +109,9 @@ module.exports.updateHotel = async (req, res, next) => {
   try {
     const account = req.account,
       wt = WT.get();
+    if (!wt.isValidAddress(req.params.address)) {
+      throw new Http404Error('notFound', 'Hotel not found.');
+    }
     // 1. Validate request.
     _validateRequest(req.body, false);
     if (Object.keys(req.body).length === 0) {
@@ -162,8 +166,11 @@ module.exports.updateHotel = async (req, res, next) => {
 module.exports.deleteHotel = async (req, res, next) => {
   try {
     const account = req.account,
-      wt = WT.get(),
-      dataIndex = await wt.getDataIndex(req.params.address);
+      wt = WT.get();
+    if (!wt.isValidAddress(req.params.address)) {
+      throw new Http404Error('notFound', 'Hotel not found.');
+    }
+    const dataIndex = await wt.getDataIndex(req.params.address);
     await wt.remove(account.withWallet, req.params.address);
     if (req.query.offChain && parseBoolean(req.query.offChain)) {
       await account.uploaders.getUploader('root').remove(dataIndex.ref);
@@ -201,6 +208,9 @@ module.exports.getHotel = async (req, res, next) => {
   try {
     const fields = _.filter((req.query.fields || '').split(',')),
       wt = WT.get();
+    if (!wt.isValidAddress(req.params.address)) {
+      throw new Http404Error('notFound', 'Hotel not found.');
+    }
     for (let field of fields) {
       if (WT.DATA_INDEX_FIELD_NAMES.indexOf(field) === -1) {
         throw new HttpValidationError('validationFailed', `Unknown field: ${field}`);

@@ -136,6 +136,16 @@ class WT {
     }
     return data;
   }
+
+  /**
+   * Return true, if the provided ethereum address is non-zero
+   * and valid, false otherwise.
+   *
+   * @param {string} address
+   */
+  isValidAddress (address) {
+    return !this.wtLibs.dataModel.web3Utils.isZeroAddress(address);
+  }
 };
 
 let _WT;

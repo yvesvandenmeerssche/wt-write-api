@@ -3,7 +3,7 @@ const WTLibs = require('@windingtree/wt-js-libs');
 const WT = require('./services/wt');
 const Account = require('./models/account');
 const { UploaderConfig } = require('./services/uploaders');
-const { HttpBadGatewayError, HttpPaymentRequiredError,
+const { HttpBadGatewayError, HttpPaymentRequiredError, Http404Error,
   HttpForbiddenError, HttpUnauthorizedError } = require('./errors');
 const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('./constants');
 
@@ -64,6 +64,9 @@ module.exports.handleOnChainErrors = (err, req, res, next) => {
   if (err instanceof WTLibs.errors.InaccessibleEthereumNodeError) {
     let msg = 'Ethereum node not reachable. Please try again later.';
     return next(new HttpBadGatewayError(msg));
+  }
+  if (err instanceof WTLibs.errors.HotelNotFoundError) {
+    return next(new Http404Error('notFound', 'Hotel not found.'));
   }
   next(err);
 };

@@ -45,7 +45,7 @@ app.delete('/account/:id', attachAccount, deleteAccount);
 
 // Hotels
 app.post('/hotels', attachAccount, createHotel, handleOnChainErrors);
-app.get('/hotels/:address', getHotel);
+app.get('/hotels/:address', getHotel, handleOnChainErrors);
 app.delete('/hotels/:address', attachAccount, deleteHotel, handleOnChainErrors);
 app.patch('/hotels/:address', attachAccount, updateHotel, handleOnChainErrors);
 
