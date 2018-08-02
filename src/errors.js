@@ -1,3 +1,5 @@
+const { badGatewayStatus } = require('./config');
+
 class HttpError extends Error {
   constructor (code, msgLong, msgShort) {
     super();
@@ -59,7 +61,10 @@ HttpInternalError.defaultMsgShort = 'Something went wrong.';
 HttpInternalError.defaultMsgLong = 'Something went wrong. Please contact the administrator.';
 
 class HttpBadGatewayError extends HttpError {};
-HttpBadGatewayError.status = 502;
+// Allow the 502 status code to be overridden with a custom one
+// as emitting this code is sometimes problematic (e.g. behind
+// cloudflare's servers).
+HttpBadGatewayError.status = badGatewayStatus;
 HttpBadGatewayError.defaultCode = 'badGatewayError';
 HttpBadGatewayError.defaultMsgShort = 'Bad gateway.';
 HttpBadGatewayError.defaultMsgLong = 'Invalid response from an upstream server.';
