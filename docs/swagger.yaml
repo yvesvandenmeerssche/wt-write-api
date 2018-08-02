@@ -1,0 +1,453 @@
+openapi: 3.0.0
+servers:
+  - description: Demo deployment
+    url: 'https://demo-write-api.windingtree.com'
+  - description: Localhost
+    url: 'http://localhost:8000'
+info:
+  description: API for creating and updating hotels in WT
+  version: 0.0.1
+  title: WT write API
+paths:
+  /:
+    get:
+      summary: API info
+      responses:
+        '200':
+          description: Basic information about this API instance.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  docs:
+                    type: string
+                    description: Link to the API documentation.
+                  info:
+                    type: string
+                    description: Link to more information about the API.
+                  version:
+                    type: string
+                    description: Deployed API version number.
+                  config:
+                    type: string
+                    description: Which config is the API using. It might be useful to name configs after used ETH networks.
+                  wtIndexAddress:
+                    type: string
+                    description: Ethereum address of used Winding Tree index.
+  /accounts:
+    post:
+      summary: Create account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        '200':
+          description: ID and access key for the created account.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accountId:
+                    type: string
+                    description: ID of the created account.
+                  accessKey:
+                    type: string
+                    description: Access key to be used for authentication when communicating with the API.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+  '/accounts/{accountId}':
+    parameters:
+      - name: accountId
+        required: true
+        in: path
+        description: Account ID as returned by POST /accounts
+        schema:
+          type: string
+    put:
+      summary: Update account
+      security:
+        - AccessKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+      responses:
+        '204':
+          description: Account was successfully updated.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+    delete:
+      summary: Delete account
+      security:
+        - AccessKey: []
+      responses:
+        '204':
+          description: Account was successfully deleted.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+  /hotels:
+    post:
+      summary: Create hotel in WT.
+      security:
+        - AccessKey: []
+          WalletPassword: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hotel'
+      responses:
+        '201':
+          description: Ethereum address of the created hotel.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                    description: Address of the created hotel
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+  '/hotels/{hotelAddress}':
+    parameters:
+      - name: hotelAddress
+        required: true
+        in: path
+        description: Hotel address as returned by POST /hotels
+        schema:
+          type: string
+    get:
+      summary: Get hotel (provided for convenience to make updates easier) from WT.
+      responses:
+        '200':
+          description: Ethereum address of the created hotel.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hotel'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+    delete:
+      summary: Remove hotel from WT.
+      security:
+        - AccessKey: []
+          WalletPassword: []
+      parameters:
+        - name: offChain
+          required: false
+          in: query
+          description: If true, off-chain data will be deleted as well (if possible). Default is false.
+          schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+      responses:
+        '204':
+          description: Hotel was successfully deleted.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+    patch:
+      summary: Update hotel.
+      security:
+        - AccessKey: []
+          WalletPassword: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotelPatch'
+      responses:
+        '204':
+          description: Hotel was successfully updated.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+  '/hotels/{hotelAddress}/transfer':
+    parameters:
+      - name: hotelAddress
+        required: true
+        in: path
+        description: Hotel address as returned by POST /hotels
+        schema:
+          type: string
+    post:
+      summary: Transfer hotel to a different manager.
+      security:
+        - AccessKey: []
+          WalletPassword: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - to
+              properties:
+                to:
+                  type: string
+                  description: Ethereum address of the new manager.
+      responses:
+        '204':
+          description: Hotel was successfully transferred.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+components:
+  securitySchemes:
+    AccessKey:
+      type: apiKey
+      in: header
+      name: X-Access-Key
+    WalletPassword:
+      type: apiKey
+      in: header
+      name: X-Wallet-Password
+  responses:
+    BadRequestError:
+      description: The server does not understand the request (HTTP code 400)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: The object was not found (HTTP code 404)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnauthorizedError:
+      description: >-
+        Authentication is requested for manipulation of the given resource.
+        (Authentication can be achieved by means of two request headers - `X-Access-Key` and `X-Wallet-Password`.)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ForbiddenError:
+      description: The existing authorization does not give the user permissions for the requested operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnprocessableEntityError:
+      description: Request body or params validation failed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadGatewayError:
+      description: The request could not be completed due to upstream errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Wallet:
+      type: object
+      description: Web3 secret storage - see https://github.com/ethereum/wiki/wiki/Web3-Secret-Storage-Definition.
+      required:
+        - crypto
+        - id
+        - version
+      properties:
+        address:
+          type: string
+        crypto:
+          type: object
+          required:
+            - cipher
+            - ciphertext
+            - cipherparams
+            - kdf
+            - kdfparams
+            - mac
+          properties:
+            cipher:
+              type: string
+            ciphertext:
+              type: string
+            cipherparams:
+              type: object
+            kdf:
+              type: string
+            kdfparams:
+              type: object
+            mac:
+              type: string
+        id:
+          type: string
+        version:
+          type: integer
+    Swarm:
+      description: Ethereum Swarm uploader configuration
+      type: object
+      required:
+        - swarm
+      properties:
+        swarm:
+          type: object
+          properties: {}
+    S3:
+      description: AWS S3 uploader configuration
+      type: object
+      required:
+        - s3
+      properties:
+        s3:
+          type: object
+          required:
+            - accessKeyId
+            - secretAccessKey
+            - region
+            - bucket
+            - keyPrefix
+          properties:
+            accessKeyId:
+              type: string
+            secretAccessKey:
+              type: string
+            region:
+              type: string
+            bucket:
+              type: string
+            keyPrefix:
+              type: string
+    Uploader:
+      description: Uploader configuration for a single document type.
+      oneOf:
+        - $ref: '#/components/schemas/S3'
+        - $ref: '#/components/schemas/Swarm'
+    UploaderConfig:
+      type: object
+      description: Off-chain uploader configuration for the account.
+      required:
+        - root
+      properties:
+        root:
+          $ref: '#/components/schemas/Uploader'
+        description:
+          $ref: '#/components/schemas/Uploader'
+        ratePlans:
+          $ref: '#/components/schemas/Uploader'
+        availability:
+          $ref: '#/components/schemas/Uploader'
+    Account:
+      type: object
+      required:
+        - wallet
+        - uploaders
+      properties:
+        wallet:
+          $ref: '#/components/schemas/Wallet'
+        uploaders:
+          $ref: '#/components/schemas/UploaderConfig'
+    Hotel:
+      type: object
+      description: Hotel data.
+      required:
+        - description
+      properties:
+        description:
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescription
+        ratePlans:
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RatePlans
+        availability:
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/Availability
+    HotelPatch:
+      type: object
+      description: Patch object to update existing hotel data.
+      properties:
+        description:
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescription
+        ratePlans:
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RatePlans
+        availability:
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/Availability
+    Error:
+      title: Error
+      description: Default schema for errors returned by API.
+      properties:
+        status:
+          type: number
+          description: HTTP status
+        code:
+          type: string
+          description: Computer-readable error. Use this for comparison.
+        short:
+          type: string
+          description: Human-readable error with a short description of the error.
+        long:
+          type: string
+          description: Verbose explanation of what happened.
