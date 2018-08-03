@@ -25,8 +25,7 @@
             "accessKeyId",
             "secretAccessKey",
             "region",
-            "bucket",
-            "keyPrefix"
+            "bucket"
           ],
           "type": "object",
           "properties": {
