@@ -176,9 +176,13 @@ module.exports.deleteHotel = async (req, res, next) => {
       await account.uploaders.getUploader('root').remove(dataIndex.ref);
       let deleting = [];
       for (let field of WT.DATA_INDEX_FIELDS) {
+        const documentUri = dataIndex.contents[`${field.name}Uri`];
+        if (!documentUri) {
+          continue;
+        }
         let uploader = account.uploaders.getUploader(field.name);
         deleting.push((async () => {
-          await uploader.remove(dataIndex.contents[`${field.name}Uri`]);
+          await uploader.remove(documentUri);
         })());
       }
       await Promise.all(deleting);
