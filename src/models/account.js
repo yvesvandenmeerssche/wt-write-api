@@ -37,7 +37,7 @@ async function _generateRandomString (bytesCnt, encoding) {
  * Generate a new secret key.
  */
 async function _generateKey () {
-  return _generateRandomString(48, 'base64');
+  return _generateRandomString(32, 'base64');
 }
 
 /**

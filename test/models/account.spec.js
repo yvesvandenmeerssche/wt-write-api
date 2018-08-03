@@ -16,7 +16,7 @@ describe('models - account', () => {
       assert.property(created, 'accessKey');
       assert.ok(typeof created.id === 'string');
       assert.ok(typeof created.accessKey === 'string');
-      assert.isAbove(created.accessKey.length, 32); // Should be secure enough.
+      assert.isAtLeast(created.accessKey.length, 32); // Should be secure enough.
       assert.isBelow(created.accessKey.length, 255); // Should fit to the DB.
     });
 
