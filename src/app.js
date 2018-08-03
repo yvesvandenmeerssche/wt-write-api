@@ -1,7 +1,10 @@
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const swaggerUi = require('swagger-ui-express');
 const cors = require('cors');
+const YAML = require('yamljs');
 
 const config = require('./config');
 const { version } = require('../package.json');
@@ -11,7 +14,12 @@ const { createHotel, updateHotel, deleteHotel, getHotel,
   transferHotel } = require('./controllers/hotels');
 const { createAccount, updateAccount, deleteAccount } = require('./controllers/accounts');
 
+
 const app = express();
+
+// Swagger docs.
+const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.use(cors());
 
