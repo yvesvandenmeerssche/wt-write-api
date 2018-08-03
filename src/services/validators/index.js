@@ -107,6 +107,10 @@ module.exports.validateWallet = function (data) {
   if (!(data instanceof Object)) { // This case is not handled by the "unlock" method.
     throw new ValidationError('Not a valid V3 wallet');
   }
+  if (!data.address) {
+    // wt-js-libs depend on this being present.
+    throw new ValidationError('Not a valid V3 wallet - missing address');
+  }
   const wallet = wtLibs.createWallet(data);
   try {
     wallet.unlock('dummy');
