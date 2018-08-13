@@ -14,12 +14,11 @@ const { createHotel, updateHotel, deleteHotel, getHotel,
   transferHotel } = require('./controllers/hotels');
 const { createAccount, updateAccount, deleteAccount } = require('./controllers/accounts');
 
-
 const app = express();
 
 // Swagger docs.
 const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(cors());
 
