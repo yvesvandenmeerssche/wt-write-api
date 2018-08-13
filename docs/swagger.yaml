@@ -6,7 +6,7 @@ servers:
     url: 'http://localhost:8000'
 info:
   description: API for creating and updating hotels in WT
-  version: 0.0.1
+  version: 0.1.0
   title: WT write API
 paths:
   /:
