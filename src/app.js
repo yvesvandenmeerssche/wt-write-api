@@ -1,7 +1,10 @@
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const swaggerUi = require('swagger-ui-express');
 const cors = require('cors');
+const YAML = require('yamljs');
 
 const config = require('./config');
 const { version } = require('../package.json');
@@ -12,6 +15,10 @@ const { createHotel, updateHotel, deleteHotel, getHotel,
 const { createAccount, updateAccount, deleteAccount } = require('./controllers/accounts');
 
 const app = express();
+
+// Swagger docs.
+const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(cors());
 
@@ -34,8 +41,8 @@ app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-v
 // Root handler
 app.get('/', (req, res) => {
   res.status(200).json({
-    docs: 'https://github.com/windingtree/wt-write-api/blob/master/README.md',
-    info: 'https://github.com/windingtree/wt-write-api',
+    docs: 'https://demo-write-api.windingtree.com/docs',
+    info: 'https://github.com/windingtree/wt-write-api/blob/master/README.md',
     version,
     config: process.env.WT_CONFIG,
     wtIndexAddress: config.wtIndexAddress,
