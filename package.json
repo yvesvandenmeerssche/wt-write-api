@@ -1,6 +1,6 @@
 {
   "name": "wt-write-api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "API to write data to the Winding Tree platform",
   "main": "src/index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "dev": "WT_CONFIG=dev node src/index.js",
     "createdb-dev": "WT_CONFIG=dev node management/createdb.js",
     "createdb": "node management/createdb.js",
-    "deploy": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public",
+    "deploy": "now -e NODE_ENV=production -e WT_BAD_GATEWAY_CODE=500 --team windingtree --token $NOW_TOKEN --docker --public",
     "alias": "now alias --team windingtree --token=$NOW_TOKEN",
     "dev-net": "./management/dev-net.sh"
   },
