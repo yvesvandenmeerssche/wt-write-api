@@ -13,7 +13,7 @@ jobs:
     - npm run coverage
   - stage: deploy
     install: true
-    if: tag IS present
+    if: (branch = master AND type = cron) OR tag IS present
     script:
     - echo 'Deploying to NOW'
     - npm install -g now
