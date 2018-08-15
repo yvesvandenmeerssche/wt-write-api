@@ -191,7 +191,7 @@ describe('controllers - hotels', function () {
         availability = getAvailability();
       offChainUploader.upload.resetHistory();
       delete description.updatedAt;
-      delete ratePlans.basic.updatedAt;
+      delete ratePlans.ratePlans.basic.updatedAt;
       delete availability.latestSnapshot.updatedAt;
       request(server)
         .post('/hotels')
@@ -206,7 +206,7 @@ describe('controllers - hotels', function () {
             let uploadedRatePlans = offChainUploader.upload.args[1][0];
             let uploadedAvailability = offChainUploader.upload.args[2][0];
             assert.ok('updatedAt' in uploadedDesc);
-            assert.ok('updatedAt' in uploadedRatePlans.basic);
+            assert.ok('updatedAt' in uploadedRatePlans.ratePlans.basic);
             assert.ok('updatedAt' in uploadedAvailability.latestSnapshot);
             done();
           } catch (e) {

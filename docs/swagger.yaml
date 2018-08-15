@@ -420,21 +420,21 @@ components:
         - description
       properties:
         description:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescription
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/5df0f0bbf719c9880830c2cff45c12b44396f642/hotel-data-swagger.yaml#/components/schemas/HotelDescription
         ratePlans:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RatePlans
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/5df0f0bbf719c9880830c2cff45c12b44396f642/hotel-data-swagger.yaml#/components/schemas/RatePlans
         availability:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/Availability
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/5df0f0bbf719c9880830c2cff45c12b44396f642/hotel-data-swagger.yaml#/components/schemas/Availability
     HotelPatch:
       type: object
       description: Patch object to update existing hotel data.
       properties:
         description:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/HotelDescription
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/5df0f0bbf719c9880830c2cff45c12b44396f642/hotel-data-swagger.yaml#/components/schemas/HotelDescription
         ratePlans:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/RatePlans
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/5df0f0bbf719c9880830c2cff45c12b44396f642/hotel-data-swagger.yaml#/components/schemas/RatePlans
         availability:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/master/hotel-data-swagger.yaml#/components/schemas/Availability
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/5df0f0bbf719c9880830c2cff45c12b44396f642/hotel-data-swagger.yaml#/components/schemas/Availability
     Error:
       title: Error
       description: Default schema for errors returned by API.

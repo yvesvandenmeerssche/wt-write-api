@@ -58,21 +58,21 @@ describe('validators', function () {
 
     it('should fail when a required attribute is missing', () => {
       let plans = getRatePlans();
-      delete plans.basic.name;
+      delete plans.ratePlans.basic.name;
       assert.throws(() => validateRatePlans(plans), ValidationError,
         /Missing required property: name/);
     });
 
     it('should fail when an unknown attribute is provided', () => {
       let plans = getRatePlans();
-      plans.basic.colour = 'green';
+      plans.ratePlans.basic.colour = 'green';
       assert.throws(() => validateRatePlans(plans), ValidationError,
         /Unknown property/);
     });
 
     it('should fail when the currency code is invalid', () => {
       let plans = getRatePlans();
-      plans.basic.currency = 'OMG';
+      plans.ratePlans.basic.currency = 'OMG';
       assert.throws(() => validateRatePlans(plans), ValidationError, /ISO 4217/);
     });
   });
