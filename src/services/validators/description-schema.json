@@ -103,11 +103,7 @@
             "items": {
               "title": "Room amenity",
               "description": "Room amenity - the possible values are example only. TODO - define real list of important amenity types.",
-              "type": "string",
-              "enum": [
-                "TV",
-                "minibar"
-              ]
+              "type": "string"
             }
           },
           "images": {
@@ -270,13 +266,7 @@
       "items": {
         "title": "Hotel amenity",
         "description": "Products and services offered to guests for free. The list is an example, TODO - define real values",
-        "type": "string",
-        "enum": [
-          "WiFi",
-          "Swimming pool",
-          "Parking",
-          "Fitness centre"
-        ]
+        "type": "string"
       }
     },
     "cancellationPolicies": {
