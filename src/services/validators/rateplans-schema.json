@@ -59,11 +59,11 @@
             "properties": {
               "from": {
                 "type": "string",
-                "format": "date-time"
+                "format": "date"
               },
               "to": {
                 "type": "string",
-                "format": "date-time"
+                "format": "date"
               }
             }
           },
@@ -77,11 +77,11 @@
             "properties": {
               "from": {
                 "type": "string",
-                "format": "date-time"
+                "format": "date"
               },
               "to": {
                 "type": "string",
-                "format": "date-time"
+                "format": "date"
               }
             }
           },

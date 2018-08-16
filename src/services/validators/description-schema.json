@@ -293,12 +293,12 @@
           "from": {
             "description": "After which date does this cancellation policy apply (including). If not present, this policy applies since the beginning of time.",
             "type": "string",
-            "format": "date-time"
+            "format": "date"
           },
           "to": {
             "description": "Before which date does this cancellation policy apply(including). If not present, this policy applies until the end of the universe.",
             "type": "string",
-            "format": "date-time"
+            "format": "date"
           },
           "deadline": {
             "type": "integer",
