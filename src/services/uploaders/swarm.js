@@ -22,7 +22,6 @@ class SwarmUploader extends OffChainUploader {
     try {
       return (await this._swarmAdapter.upload(data));
     } catch (err) {
-      console.log('vvv', err.message);
       if (err.message && err.message.match(/Error \d\d\d\.|ECONNREFUSED/)) {
         let msg = `Invalid response from upstream (Swarm): ${err.message}`;
         throw new HttpBadGatewayError('badGatewayError', msg);
