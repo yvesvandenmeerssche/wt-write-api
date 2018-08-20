@@ -102,7 +102,7 @@
             "uniqueItems": true,
             "items": {
               "title": "Room amenity",
-              "description": "Room amenity - the possible values are example only. TODO - define real list of important amenity types.",
+              "description": "Room amenity - the possible values are example only.",
               "type": "string"
             }
           },
@@ -265,7 +265,7 @@
       "type": "array",
       "items": {
         "title": "Hotel amenity",
-        "description": "Products and services offered to guests for free. The list is an example, TODO - define real values",
+        "description": "Products and services offered to guests for free.",
         "type": "string"
       }
     },
