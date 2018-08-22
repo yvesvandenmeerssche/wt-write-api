@@ -22,13 +22,11 @@ module.exports.getDescription = function () {
 /** Return a valid rate plans representation. */
 module.exports.getRatePlans = function () {
   return {
-    ratePlans: {
-      basic: {
-        name: 'Basic',
-        description: 'One bed, one pillow, no breakfast.',
-        price: 123,
-        updatedAt: (new Date()).toISOString(),
-      },
+    basic: {
+      name: 'Basic',
+      description: 'One bed, one pillow, no breakfast.',
+      price: 123,
+      updatedAt: (new Date()).toISOString(),
     },
   };
 };
