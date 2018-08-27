@@ -106,11 +106,12 @@ class WT {
    * @return {Promise<Object>}
    */
   async getDataIndex (hotelAddress) {
-    const rawIndex = await this._getRawIndex(hotelAddress);
-    let contents = {};
+    const rawIndex = await this._getRawIndex(hotelAddress),
+      contents = {},
+      indexContents = await rawIndex.contents;
     for (let field of DATA_INDEX_FIELDS) {
-      let uri = await rawIndex.contents[`${field.name}Uri`];
-      contents[`${field.name}Uri`] = uri && uri.ref;
+      const name = `${field.name}Uri`;
+      contents[name] = _.get(indexContents, [name, 'ref']);
     }
     return {
       ref: rawIndex.ref,
@@ -126,10 +127,11 @@ class WT {
    * @return {Promise<Object>}
    */
   async getDocuments (hotelAddress, fieldNames) {
-    const rawIndex = await this._getRawIndex(hotelAddress);
-    let data = {};
+    const rawIndex = await this._getRawIndex(hotelAddress),
+      data = {},
+      contents = await rawIndex.contents;
     for (let fieldName of fieldNames) {
-      let doc = await rawIndex.contents[`${fieldName}Uri`];
+      let doc = contents[`${fieldName}Uri`];
       if (doc) {
         data[`${fieldName}`] = (await doc.toPlainObject()).contents;
       }
