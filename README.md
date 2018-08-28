@@ -156,6 +156,7 @@ where you will find JSON schemas used to validate incoming data.
       "https://raw.githubusercontent.com/windingtree/media/master/logo-variants/full-logo/png/logo--black-on-green.png"
     ],
     "updatedAt": "2018-06-19T15:53:00+0200",
+    "defaultCancellationAmount": 30,
     "roomTypes": {
       "1234-abcd": {
         "name": "string",

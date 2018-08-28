@@ -16,6 +16,7 @@ module.exports.getDescription = function () {
     timezone: 'Europe/London',
     currency: 'GBP',
     updatedAt: (new Date()).toISOString(),
+    defaultCancellationAmount: 30,
   };
 };
 
