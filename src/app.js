@@ -51,9 +51,9 @@ app.get('/', (req, res) => {
 
 // Accounts
 // NOTE: For security reasons, accounts are write only.
-app.post('/account', createAccount);
-app.put('/account/:id', attachAccount, updateAccount);
-app.delete('/account/:id', attachAccount, deleteAccount);
+app.post('/accounts', createAccount);
+app.put('/accounts/:id', attachAccount, updateAccount);
+app.delete('/accounts/:id', attachAccount, deleteAccount);
 
 // Hotels
 app.post('/hotels', attachAccount, createHotel, handleOnChainErrors);
