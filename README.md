@@ -112,7 +112,7 @@ try to create hotel.
 ```
 
 ```sh
-$ curl -X POST localhost:8000/account -H 'Content-Type: application/json' --data @create-account.json
+$ curl -X POST localhost:8000/accounts -H 'Content-Type: application/json' --data @create-account.json
 
 # These values are generated and will be different
 {"accountId":"aa43edaf8266e8f8","accessKey":"usgq6tSBW+wDYA/MBF367HnNp4tGKaCTRPy3JHPEqJmFBuxq1sA7UhFOpuV80ngC"}
