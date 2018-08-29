@@ -21,7 +21,7 @@ describe('controllers - accounts', function () {
   describe('POST /account', () => {
     it('should save the account and return its id and secret key', (done) => {
       request(server)
-        .post('/account')
+        .post('/accounts')
         .send({
           wallet: getWallet(),
           uploaders: getUploaders(),
@@ -54,7 +54,7 @@ describe('controllers - accounts', function () {
 
     it('should return 422 if the data is invalid', (done) => {
       request(server)
-        .post('/account')
+        .post('/accounts')
         .send({
           wallet: { dummy: 'dummy' },
           uploaders: getUploaders(),
@@ -65,7 +65,7 @@ describe('controllers - accounts', function () {
 
     it('should return 422 if a required attribute is missing', (done) => {
       request(server)
-        .post('/account')
+        .post('/accounts')
         .send({
           uploaders: getUploaders(),
         })
@@ -75,7 +75,7 @@ describe('controllers - accounts', function () {
 
     it('should return 422 if an unknown attribute is present', (done) => {
       request(server)
-        .post('/account')
+        .post('/accounts')
         .send({
           wallet: getWallet(),
           uploaders: getUploaders(),
@@ -86,7 +86,7 @@ describe('controllers - accounts', function () {
     });
   });
 
-  describe('PUT /account/:id', () => {
+  describe('PUT /accounts/:id', () => {
     let accessKey, accountId, accountId2;
 
     before(async () => {
@@ -105,7 +105,7 @@ describe('controllers - accounts', function () {
     it('should overwrite account with the given data', (done) => {
       let uploaders = { root: { inMemory: {} } };
       request(server)
-        .put(`/account/${accountId}`)
+        .put(`/accounts/${accountId}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -130,7 +130,7 @@ describe('controllers - accounts', function () {
 
     it('should return 403 if the access key does not match account ID', (done) => {
       request(server)
-        .put(`/account/${accountId2}`)
+        .put(`/accounts/${accountId2}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -143,7 +143,7 @@ describe('controllers - accounts', function () {
 
     it('should return 422 if the data is invalid', (done) => {
       request(server)
-        .put(`/account/${accountId}`)
+        .put(`/accounts/${accountId}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -156,7 +156,7 @@ describe('controllers - accounts', function () {
 
     it('should return 422 if a required attribute is missing', (done) => {
       request(server)
-        .put(`/account/${accountId}`)
+        .put(`/accounts/${accountId}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -168,7 +168,7 @@ describe('controllers - accounts', function () {
 
     it('should return 422 if an unknown attribute is present', (done) => {
       request(server)
-        .put(`/account/${accountId}`)
+        .put(`/accounts/${accountId}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({
@@ -181,7 +181,7 @@ describe('controllers - accounts', function () {
     });
   });
 
-  describe('DELETE /account/:id', () => {
+  describe('DELETE /accounts/:id', () => {
     let accountId, accessKey, accountId2;
 
     beforeEach(async () => {
@@ -199,7 +199,7 @@ describe('controllers - accounts', function () {
 
     it('should delete the given account', (done) => {
       request(server)
-        .delete(`/account/${accountId}`)
+        .delete(`/accounts/${accountId}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .expect(204)
@@ -214,7 +214,7 @@ describe('controllers - accounts', function () {
 
     it('should return 403 if the access key does not match account ID', (done) => {
       request(server)
-        .delete(`/account/${accountId2}`)
+        .delete(`/accounts/${accountId2}`)
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .expect(403)

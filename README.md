@@ -112,7 +112,7 @@ try to create hotel.
 ```
 
 ```sh
-$ curl -X POST localhost:8000/account -H 'Content-Type: application/json' --data @create-account.json
+$ curl -X POST localhost:8000/accounts -H 'Content-Type: application/json' --data @create-account.json
 
 # These values are generated and will be different
 {"accountId":"aa43edaf8266e8f8","accessKey":"usgq6tSBW+wDYA/MBF367HnNp4tGKaCTRPy3JHPEqJmFBuxq1sA7UhFOpuV80ngC"}
@@ -156,6 +156,7 @@ where you will find JSON schemas used to validate incoming data.
       "https://raw.githubusercontent.com/windingtree/media/master/logo-variants/full-logo/png/logo--black-on-green.png"
     ],
     "updatedAt": "2018-06-19T15:53:00+0200",
+    "defaultCancellationAmount": 30,
     "roomTypes": {
       "1234-abcd": {
         "name": "string",

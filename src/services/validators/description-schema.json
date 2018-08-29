@@ -8,7 +8,8 @@
     "contacts",
     "address",
     "timezone",
-    "currency"
+    "currency",
+    "defaultCancellationAmount"
   ],
   "properties": {
     "updatedAt": {
@@ -102,12 +103,8 @@
             "uniqueItems": true,
             "items": {
               "title": "Room amenity",
-              "description": "Room amenity - the possible values are example only. TODO - define real list of important amenity types.",
-              "type": "string",
-              "enum": [
-                "TV",
-                "minibar"
-              ]
+              "description": "Room amenity - the possible values are example only.",
+              "type": "string"
             }
           },
           "images": {
@@ -269,14 +266,47 @@
       "type": "array",
       "items": {
         "title": "Hotel amenity",
-        "description": "Products and services offered to guests for free. The list is an example, TODO - define real values",
-        "type": "string",
-        "enum": [
-          "WiFi",
-          "Swimming pool",
-          "Parking",
-          "Fitness centre"
-        ]
+        "description": "Products and services offered to guests for free.",
+        "type": "string"
+      }
+    },
+    "defaultCancellationAmount": {
+      "type": "number",
+      "format": "float",
+      "description": "Cost of cancellation in percents of the final price, 100 means non refundable. This is a default amount of how much money will the hotel keep if no other cancallation policy is applicable.",
+      "example": 25
+    },
+    "cancellationPolicies": {
+      "description": "A list of policies under which it is possible to cancel a reservation.",
+      "type": "array",
+      "items": {
+        "title": "Cancellation policy",
+        "type": "object",
+        "description": "What is the penalty when a guest wants to cancel a reservation.",
+        "required": [
+          "amount"
+        ],
+        "properties": {
+          "from": {
+            "description": "After which date does this cancellation policy apply (including). If not present, this policy applies since the beginning of time.",
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "description": "Before which date does this cancellation policy apply(including). If not present, this policy applies until the end of the universe.",
+            "type": "string",
+            "format": "date"
+          },
+          "deadline": {
+            "type": "integer",
+            "description": "How many days before arrival does this first apply. If not present, this policy applies any time."
+          },
+          "amount": {
+            "type": "number",
+            "format": "float",
+            "description": "Cost of cancellation in percents of the final price, 100 means non refundable. This means how much money will the hotel keep."
+          }
+        }
       }
     }
   },

@@ -13,7 +13,7 @@ const WT = require('../services/wt');
  *
  * - description
  * - description.roomTypes.*
- * - ratePlans.*
+ * - ratePlans.ratePlans.*
  * - availability.latestSnapshot
  * - availability.updates.*
  */

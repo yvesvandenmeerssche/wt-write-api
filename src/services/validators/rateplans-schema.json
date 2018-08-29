@@ -6,7 +6,7 @@
     "type": "object",
     "required": [
       "name",
-      "description"
+      "price"
     ],
     "properties": {
       "updatedAt": {
@@ -50,17 +50,17 @@
         "type": "object",
         "description": "A time period during which this rate plan can be used to compute prices for a booking, i. e. a hotel can have different rate plans that are used for reservations for the same date that are placed in different months. If this restriction is not set, the rate plan can be used for booking with no time restriction.",
         "required": [
-          "start",
-          "end"
+          "from",
+          "to"
         ],
         "properties": {
-          "start": {
+          "from": {
             "type": "string",
-            "format": "date-time"
+            "format": "date"
           },
-          "end": {
+          "to": {
             "type": "string",
-            "format": "date-time"
+            "format": "date"
           }
         }
       },
@@ -68,85 +68,65 @@
         "type": "object",
         "description": "A time period of stay during which this rate plan should be used to compute prices, i. e. prices in this rate plan are applicable in August. If this restriction is not set, the rate plan can be used for booking for any time.",
         "required": [
-          "start",
-          "end"
+          "from",
+          "to"
         ],
         "properties": {
-          "start": {
+          "from": {
             "type": "string",
-            "format": "date-time"
+            "format": "date"
           },
-          "end": {
+          "to": {
             "type": "string",
-            "format": "date-time"
+            "format": "date"
           }
         }
       },
-      "pricing": {
-        "type": "object",
-        "properties": {
-          "base": {
-            "type": "object",
-            "properties": {
-              "maxOccupancyLimit": {
-                "type": "integer"
-              },
-              "rates": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "description": "Single price of rate plan. Amount is the price and the rest of attributes are restrictions.",
-                  "required": [
-                    "amount"
-                  ],
-                  "properties": {
-                    "amount": {
-                      "description": "The price per one day without currency",
-                      "type": "number",
-                      "format": "float"
-                    },
-                    "minLengthOfStay": {
-                      "description": "Minimal length of stay the price is applicable to. If there are multiple prices with lengthOfStay restriction matching the minimal length of stay, the price for the longest length of stay is used. The declared price is always per one day.",
-                      "type": "integer"
-                    },
-                    "maxAge": {
-                      "description": "The price is applicable to occupants of this age or younger at the time of arrival to the stay. If multiple prices are specified with different maxAge, the price with the highes limit is applied. If no price with maxAge restriction can be applied and there is a price without this restriction, it is applied. The declared price is always per one day.",
-                      "type": "integer"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "additional": {
-            "type": "object",
-            "properties": {
-              "maxOccupancyLimit": {
-                "type": "integer"
-              },
-              "rates": {
-                "type": "object",
-                "items": {
-                  "type": "object",
-                  "description": "Single price of rate plan. Amount is the price and the rest of attributes are restrictions.",
-                  "required": [
-                    "amount"
-                  ],
-                  "properties": {
-                    "amount": {
-                      "description": "The price per one day without currency",
-                      "type": "number",
-                      "format": "float"
-                    },
-                    "minLengthOfStay": {
-                      "description": "Minimal length of stay the price is applicable to. If there are multiple prices with lengthOfStay restriction matching the minimal length of stay, the price for the longest length of stay is used. The declared price is always per one day.",
-                      "type": "integer"
-                    },
-                    "maxAge": {
-                      "description": "The price is applicable to occupants of this age or younger at the time of arrival to the stay. If multiple prices are specified with different maxAge, the price with the highes limit is applied. If no price with maxAge restriction can be applied and there is a price without this restriction, it is applied. The declared price is always per one day.",
-                      "type": "integer"
-                    }
-                  }
+      "price": {
+        "type": "number",
+        "format": "float",
+        "description": "Base price for given room type for one night and one person."
+      },
+      "modifiers": {
+        "type": "array",
+        "description": "List of price modifiers, i. e. discounts based on length of stay",
+        "items": {
+          "type": "object",
+          "description": "A set of conditions that can affect the resulting price.",
+          "required": [
+            "adjustment",
+            "conditions"
+          ],
+          "properties": {
+            "adjustment": {
+              "description": "How will the resulting price be affected? In percents",
+              "type": "number",
+              "format": "float"
+            },
+            "conditions": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "description": "First day the modifier is applied to (including)",
+                  "type": "string",
+                  "format": "date"
+                },
+                "to": {
+                  "description": "Last day the modifier is applied to (including)",
+                  "type": "string",
+                  "format": "date"
+                },
+                "minLengthOfStay": {
+                  "description": "Minimal length of stay the modifier is applicable to. If there are multiple modifiers with lengthOfStay restriction matching the minimal length of stay, the price for the longest length of stay is used. The declared price is always per one day.",
+                  "type": "integer"
+                },
+                "maxAge": {
+                  "description": "The modifier is applicable to occupants of this age or younger at the time of arrival to the stay. If multiple modifiers are specified with different maxAge, the price with the highes limit is applied.  If no price with maxAge restriction can be applied and there is a price without this restriction, it is applied. The declared price is always per one day.",
+                  "type": "integer"
+                },
+                "minOccupants": {
+                  "description": "The modifier is applicable if there are at least this number of persons staying in a room. If multiple modifiers are specified with different minOccupants, the modifier with the highest fitting limit is applied.",
+                  "type": "integer"
                 }
               }
             }
