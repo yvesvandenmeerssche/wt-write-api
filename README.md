@@ -1,4 +1,7 @@
 # WT Write API
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/windingtree/wt-write-api.svg)](https://greenkeeper.io/)
+
 API written in nodejs to interact with the Winding Tree
 platform.
 
