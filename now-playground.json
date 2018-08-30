@@ -1,6 +1,11 @@
 {
   "name": "playground-wt-write-api",
   "alias": "playground-write-api.windingtree.com",
+  "build": {
+    "env": {
+      "WT_CONFIG": "playground"
+    }
+  },
   "env": {
     "WT_CONFIG": "playground",
     "WT_BAD_GATEWAY_CODE": "500"

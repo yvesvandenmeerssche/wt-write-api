@@ -1,6 +1,11 @@
 {
   "name": "demo-wt-write-api",
   "alias": "demo-write-api.windingtree.com",
+  "build": {
+    "env": {
+      "WT_CONFIG": "demo"
+    }
+  },
   "env": {
     "WT_CONFIG": "demo",
     "WT_BAD_GATEWAY_CODE": "500"
