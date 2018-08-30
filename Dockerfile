@@ -1,5 +1,7 @@
 FROM node:10
 
+ARG WT_CONFIG
+
 WORKDIR /usr/src/app
 
 COPY package*.json ./
