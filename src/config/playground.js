@@ -2,13 +2,13 @@ const knex = require('knex');
 
 module.exports = {
   port: 8000,
-  wtIndexAddress: '0x933198455e38925bccb4bfe9fb59bac31d00b4d3',
+  wtIndexAddress: '0x3b476ac17ffea8dcf2dbd5ef787a5baeeebe9984',
   ethereumProvider: 'https://ropsten.infura.io/WKNyJ0kClh8Ao5LdmO7z',
   swarmProvider: 'https://swarm-gateways.net/',
   db: knex({
     client: 'sqlite3',
     connection: {
-      filename: './.ropsten.sqlite',
+      filename: './.playground.sqlite',
     },
     useNullAsDefault: true,
   }),
