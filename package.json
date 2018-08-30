@@ -11,8 +11,10 @@
     "dev": "WT_CONFIG=dev node src/index.js",
     "createdb-dev": "WT_CONFIG=dev node management/createdb.js",
     "createdb": "node management/createdb.js",
-    "deploy": "now -e NODE_ENV=production -e WT_BAD_GATEWAY_CODE=500 --team windingtree --token $NOW_TOKEN --docker --public",
-    "alias": "now alias --team windingtree --token=$NOW_TOKEN",
+    "deploy-demo": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-demo.json",
+    "deploy-playground": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-playground.json",
+    "alias-demo": "now alias --team windingtree --token=$NOW_TOKEN --local-config=now-demo.json",
+    "alias-playground": "now alias --team windingtree --token=$NOW_TOKEN --local-config=now-playground.json",
     "dev-net": "./management/dev-net.sh"
   },
   "repository": {
@@ -73,10 +75,6 @@
   },
   "engines": {
     "node": ">=10.7.0"
-  },
-  "now": {
-    "name": "wt-write-api",
-    "alias": "demo-write-api.windingtree.com"
   },
   "nyc": {
     "exclude": [
