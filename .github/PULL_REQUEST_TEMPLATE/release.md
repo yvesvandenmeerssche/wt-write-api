@@ -1,4 +1,4 @@
 - Merge this PR with a merge commit.
 - Manually tag the resulting merge commit with @@tag@@ and push it to github.
-- Travis makes a release from a tagged commit.
+- If you want to release this, you'll need to merge to one of the release branches.
 - Don't delete the develop branch!
