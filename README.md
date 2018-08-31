@@ -197,3 +197,8 @@ You can verify that the hotel data was saved by calling
 ```sh
 $ curl localhost:8000/hotels/0xa8c4cbB500da540D9fEd05BE7Bef0f0f5df3e2cc
 ```
+
+## Publicly available instances
+
+For currently available public instances of wt-write-api, please see [this
+page](https://github.com/windingtree/wiki/blob/master/developer-resources.md#publicly-available-wt-deployments).
