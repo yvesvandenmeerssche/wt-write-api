@@ -170,9 +170,19 @@ module.exports.deleteHotel = async (req, res, next) => {
     if (!wt.isValidAddress(req.params.address)) {
       throw new Http404Error('notFound', 'Hotel not found.');
     }
-    const dataIndex = await wt.getDataIndex(req.params.address);
+    let dataIndex;
+    try {
+      dataIndex = await wt.getDataIndex(req.params.address);
+    } catch (err) {
+      // Ignore StoragePointerErrors as that simply means that
+      // off-chain data is not accessible (and thus doesn't have
+      // to be deleted).
+      if (!(err instanceof WTLibs.errors.StoragePointerError)) {
+        throw err;
+      }
+    }
     await wt.remove(account.withWallet, req.params.address);
-    if (req.query.offChain && parseBoolean(req.query.offChain)) {
+    if (dataIndex && req.query.offChain && parseBoolean(req.query.offChain)) {
       await account.uploaders.getUploader('root').remove(dataIndex.ref);
       let deleting = [];
       for (let field of WT.DATA_INDEX_FIELDS) {

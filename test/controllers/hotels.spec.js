@@ -2,6 +2,7 @@
 const { assert } = require('chai');
 const request = require('supertest');
 const sinon = require('sinon');
+const WTLibs = require('@windingtree/wt-js-libs');
 
 const { getDescription, getRatePlans,
   getAvailability, getWallet } = require('../utils/factories');
@@ -51,6 +52,9 @@ describe('controllers - hotels', function () {
         };
       },
       getDataIndex: (hotelAddress) => {
+        if (hotelAddress === '0xdeletedOffChain') {
+          throw new WTLibs.errors.StoragePointerError('');
+        }
         return {
           ref: (hotelAddress === '0xchanged') ? 'dummy://obsolete.json' : 'dummy://dataIndex.json',
           contents: {
@@ -425,6 +429,15 @@ describe('controllers - hotels', function () {
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .expect(404)
+        .end(done);
+    });
+
+    it('should delete the hotel even if off-chain data is not accessible', (done) => {
+      request(server)
+        .delete('/hotels/0xdeletedOffChain')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .expect(204)
         .end(done);
     });
   });
