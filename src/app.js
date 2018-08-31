@@ -41,7 +41,7 @@ app.use(morgan(':remote-addr :remote-user [:date[clf]] :method :url HTTP/:http-v
 // Root handler
 app.get('/', (req, res) => {
   res.status(200).json({
-    docs: 'https://demo-write-api.windingtree.com/docs',
+    docs: `${config.baseUrl}/docs`,
     info: 'https://github.com/windingtree/wt-write-api/blob/master/README.md',
     version,
     config: process.env.WT_CONFIG,

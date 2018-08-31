@@ -23,6 +23,7 @@ const config = Object.assign({
   // one as emitting this code is sometimes problematic (e.g.
   // behind cloudflare's servers).
   badGatewayStatus: process.env.WT_BAD_GATEWAY_CODE || 502,
+  baseUrl: process.env.WT_API_BASE_URL || 'https://playground-write-api.windingtree.com',
 }, require(`./${env}`));
 
 config.wtLibs = WTLibs.createInstance({
