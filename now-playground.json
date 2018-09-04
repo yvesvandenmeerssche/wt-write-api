@@ -10,5 +10,10 @@
     "WT_CONFIG": "playground",
     "WT_BAD_GATEWAY_CODE": "500",
     "WT_API_BASE_URL": "https://playground-write-api.windingtree.com"
+  },
+  "scale": {
+    "bru1": {
+      "max": 1
+    }
   }
 }
