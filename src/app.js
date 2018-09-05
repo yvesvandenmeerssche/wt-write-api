@@ -22,6 +22,7 @@ app.disable('x-powered-by');
 
 // Swagger docs.
 const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
+swaggerDocument.servers = [{ url: config.baseUrl }];
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(cors());
