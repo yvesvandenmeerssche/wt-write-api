@@ -6,6 +6,7 @@ module.exports = {
   ethereumProvider: 'http://localhost:8545',
   wtIndexAddress: '0xdummy',
   swarmProvider: 'http://localhost:8500',
+  baseUrl: 'http://localhost:8000',
   db: knex({
     client: 'sqlite3',
     connection: {

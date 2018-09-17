@@ -16,8 +16,13 @@ const { createAccount, updateAccount, deleteAccount } = require('./controllers/a
 
 const app = express();
 
+// No need to leak information and waste bandwith with this
+// header.
+app.disable('x-powered-by');
+
 // Swagger docs.
 const swaggerDocument = YAML.load(path.resolve('./docs/swagger.yaml'));
+swaggerDocument.servers = [{ url: config.baseUrl }];
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(cors());
