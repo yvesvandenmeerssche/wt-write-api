@@ -8,7 +8,7 @@ platform.
 ## Requirements
 - Nodejs 10.7.x
 
-## Getting stared
+## Getting started
 In order to install and run tests, we must:
 ```
 git clone git@github.com:windingtree/wt-write-api.git
