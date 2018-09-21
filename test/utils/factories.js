@@ -39,14 +39,13 @@ module.exports.getAvailability = function () {
       availability: {
         ourOnlyRoom: [
           {
-            day: '2044-04-04',
+            date: '2044-04-04',
             quantity: 1,
           },
         ],
       },
       updatedAt: (new Date()).toISOString(),
     },
-    updates: [],
   };
 };
 
