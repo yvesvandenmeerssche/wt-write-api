@@ -64,7 +64,7 @@ You can fiddle with the configuration in `src/config/`.
 to talk with one of our testing contracts deployed on Ropsten.
 - You can use it in your local environment by running the following commands:
 ```sh
-$ docker build -t windingtree/wt-write-api .
+$ docker build --build-arg WT_CONFIG=playground -t windingtree/wt-write-api .
 $ docker run -p 8080:8000 -e WT_CONFIG=playground windingtree/wt-write-api
 ```
 - After that you can access the wt-write-api on local port `8080`
