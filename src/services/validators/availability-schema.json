@@ -1,5 +1,5 @@
 {
-  "description": "Availability data. Some of the nested objects might be represented as standalone documents in the future (i. e. we would store only an URI pointer here, in the same manner as descriptionUri in HotelDataIndex).",
+  "description": "Availability data. We're keeping them nested to make the future extension easier.",
   "type": "object",
   "properties": {
     "latestSnapshot": {
@@ -21,12 +21,12 @@
             "items": {
               "type": "object",
               "required": [
-                "day",
+                "date",
                 "quantity"
               ],
               "properties": {
-                "day": {
-                  "description": "The day the availability is for",
+                "date": {
+                  "description": "The date the availability is for",
                   "type": "string",
                   "format": "date"
                 },
@@ -35,68 +35,19 @@
                   "type": "integer"
                 },
                 "restrictions": {
-                  "description": "Possible restriction (this is sample how to add restrictions to availability)",
+                  "description": "Possible restrictions (this is not exhaustive and we might add more options in the future)",
                   "type": "object",
                   "properties": {
                     "noArrival": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "It's not possible to arrive on this date"
+                    },
+                    "noDeparture": {
+                      "type": "boolean",
+                      "description": "It's not possible to depart on this date"
                     }
                   }
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "updates": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "description": "Update to availability. Either `total` or `change` can be present, not both.",
-        "required": [
-          "from",
-          "to"
-        ],
-        "properties": {
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "serialNo": {
-            "description": "Zero based ordinal number of the record from the last full snapshot. The first record should have number 0",
-            "type": "integer"
-          },
-          "from": {
-            "description": "First day the changed availability is applied to (including)",
-            "type": "string",
-            "format": "date"
-          },
-          "to": {
-            "description": "Last day the changed availability is applied to (including)",
-            "type": "string",
-            "format": "date"
-          },
-          "total": {
-            "description": "Absolute quantity during the period `from` ... `to`.",
-            "type": "integer"
-          },
-          "change": {
-            "description": "Relative change of quantity during the period",
-            "type": "integer"
-          },
-          "roomTypeId": {
-            "description": "ID of roomtype the update applies to",
-            "title": "ID",
-            "type": "string",
-            "maxLength": 100
-          },
-          "restrictions": {
-            "description": "Possible restriction (this is sample how to add restrictions to availability)",
-            "type": "object",
-            "properties": {
-              "noArrival": {
-                "type": "boolean"
               }
             }
           }
