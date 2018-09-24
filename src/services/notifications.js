@@ -4,6 +4,7 @@ const HOTEL_RESOURCE_TYPE = 'hotel';
 
 let _requestLib = request;
 
+/* Send a publication request to the notification service. */
 async function publish (notificationsUri, notification) {
   const separator = notificationsUri.endsWith('/') ? '' : '/';
   await _requestLib(`${notificationsUri}${separator}notifications`, {

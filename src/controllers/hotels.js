@@ -6,6 +6,8 @@ const { HttpValidationError, HttpBadRequestError,
 const { ValidationError } = require('../services/validators');
 const { parseBoolean, QueryParserError } = require('../services/query-parsers');
 const WT = require('../services/wt');
+const { publishHotelCreated, publishHotelDeleted,
+  publishHotelUpdated } = require('../services/notifications');
 
 /**
  * Add the `updatedAt` timestamp to the following components (if
@@ -95,6 +97,10 @@ module.exports.createHotel = async (req, res, next) => {
     const dataIndexUri = await account.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
     // 5. Upload the resulting data to ethereum.
     const address = await wt.upload(account.withWallet, dataIndexUri);
+    // 6. Publish create notification, if applicable.
+    if (dataIndex.notificationsUri) {
+      await publishHotelCreated(dataIndex.notificationsUri, wt.wtIndexAddress, address);
+    }
     res.status(201).json({
       address: address,
     });
@@ -205,6 +211,10 @@ module.exports.deleteHotel = async (req, res, next) => {
       }
       await Promise.all(deleting);
     }
+    const notificationsUri = dataIndex && dataIndex.contents.notificationsUri;
+    if (notificationsUri) {
+      await publishHotelDeleted(notificationsUri, wt.wtIndexAddress, req.params.address);
+    }
     res.sendStatus(204);
   } catch (err) {
     if (err instanceof QueryParserError) {
@@ -274,6 +284,11 @@ module.exports.transferHotel = async (req, res, next) => {
       throw new HttpValidationError('validationFailed', 'Invalid or missing new manager adress.');
     }
     await wt.transferHotel(account.withWallet, req.params.address, req.body.to);
+    const data = await wt.getDocuments(req.params.address, ['notifications']);
+    if (data.notifications) {
+      await publishHotelUpdated(data.notifications, wt.wtIndexAddress,
+        req.params.address, ['onChain']);
+    }
     res.sendStatus(204);
   } catch (err) {
     if (err instanceof WTLibs.errors.InputDataError) {
