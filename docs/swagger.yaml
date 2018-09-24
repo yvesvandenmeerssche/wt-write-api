@@ -425,6 +425,9 @@ components:
           $ref: https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/RatePlans
         availability:
           $ref: https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/Availability
+        notifications:
+          type: string
+          description: URL of a notification service.
     HotelPatch:
       type: object
       description: Patch object to update existing hotel data.
@@ -435,6 +438,9 @@ components:
           $ref: https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/RatePlans
         availability:
           $ref: https://raw.githubusercontent.com/windingtree/wiki/4c6a5bb3ec08784099a2b3e5ad10c07a35701ff7/hotel-data-swagger.yaml#/components/schemas/Availability
+        notifications:
+          type: string
+          description: URL of a notification service.
     Error:
       title: Error
       description: Default schema for errors returned by API.

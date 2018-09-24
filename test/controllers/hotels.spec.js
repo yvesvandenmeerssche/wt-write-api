@@ -61,6 +61,7 @@ describe('controllers - hotels', function () {
             descriptionUri: (hotelAddress === '0xchanged') ? 'dummy://changed-description.json' : 'dummy://description.json',
             ratePlansUri: 'dummy://ratePlans.json',
             availabilityUri: 'dummy://availability.json',
+            notificationsUri: 'http://notifications.example',
           },
         };
       },
@@ -74,6 +75,7 @@ describe('controllers - hotels', function () {
           description: desc,
           ratePlans: ratePlans,
           availability: availability,
+          notifications: 'http://notifications.example',
         };
         for (let key in ret) {
           if (fieldNames.indexOf(key) === -1) {
@@ -114,6 +116,7 @@ describe('controllers - hotels', function () {
           description: desc,
           ratePlans: ratePlans,
           availability: availability,
+          notifications: 'http://notifications.example',
         })
         .expect(201)
         .expect('content-type', /application\/json/)
@@ -127,6 +130,7 @@ describe('controllers - hotels', function () {
               descriptionUri: 'dummy://description.json',
               ratePlansUri: 'dummy://ratePlans.json',
               availabilityUri: 'dummy://availability.json',
+              notificationsUri: 'http://notifications.example',
             }));
             assert.ok(offChainUploader.upload.calledWithExactly(desc, 'description'));
             assert.ok(offChainUploader.upload.calledWithExactly(ratePlans, 'ratePlans'));
@@ -185,6 +189,16 @@ describe('controllers - hotels', function () {
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description: getDescription(), religion: 'pagan' })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 when notifications url is not valid', (done) => {
+      request(server)
+        .post('/hotels')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ description: getDescription(), notification: 'wat' })
         .expect(422)
         .end(done);
     });
@@ -250,12 +264,12 @@ describe('controllers - hotels', function () {
         });
     });
 
-    it('should update data index and on-chain record if requested and necessary', (done) => {
+    it('should update data index and on-chain record if necessary', (done) => {
       offChainUploader.upload.resetHistory();
       wtMock.upload.resetHistory();
 
       request(server)
-        .patch('/hotels/0xchanged?forceSync=1')
+        .patch('/hotels/0xchanged')
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description })
@@ -276,12 +290,12 @@ describe('controllers - hotels', function () {
         });
     });
 
-    it('should not update data index and on-chain record if not necessary even if requested', (done) => {
+    it('should not update data index and on-chain record if not necessary', (done) => {
       offChainUploader.upload.resetHistory();
       wtMock.upload.resetHistory();
 
       request(server)
-        .patch('/hotels/0xnotchanged?forceSync=1')
+        .patch('/hotels/0xnotchanged')
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description })
@@ -455,6 +469,7 @@ describe('controllers - hotels', function () {
               description: description,
               ratePlans: ratePlans,
               availability: availability,
+              notifications: 'http://notifications.example',
             });
             done();
           } catch (err) {
@@ -465,7 +480,7 @@ describe('controllers - hotels', function () {
 
     it('should respect the `fields` query parameter', (done) => {
       request(server)
-        .get('/hotels/0xdummy?fields=description,ratePlans')
+        .get('/hotels/0xdummy?fields=description,ratePlans,notifications')
         .expect(200)
         .expect('content-type', /application\/json/)
         .end((err, res) => {
@@ -474,6 +489,7 @@ describe('controllers - hotels', function () {
             assert.deepEqual(res.body, {
               description: description,
               ratePlans: ratePlans,
+              notifications: 'http://notifications.example',
             });
             done();
           } catch (err) {

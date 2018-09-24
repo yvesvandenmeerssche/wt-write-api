@@ -81,10 +81,14 @@ module.exports.createHotel = async (req, res, next) => {
       if (!data) {
         continue;
       }
-      let uploader = account.uploaders.getUploader(field.name);
-      uploading.push((async () => {
-        dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
-      })());
+      if (field.pointer) {
+        let uploader = account.uploaders.getUploader(field.name);
+        uploading.push((async () => {
+          dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
+        })());
+      } else {
+        dataIndex[`${field.name}Uri`] = data;
+      }
     }
     await Promise.all(uploading);
     // 4. Upload the data index.
@@ -128,12 +132,16 @@ module.exports.updateHotel = async (req, res, next) => {
       if (!data) {
         continue;
       }
-      let uploader = account.uploaders.getUploader(field.name);
-      uploading.push((async () => {
-        const docKey = `${field.name}Uri`;
-        let preferredUrl = origDataIndex.contents[docKey];
-        dataIndex[docKey] = await uploader.upload(data, field.name, preferredUrl);
-      })());
+      if (field.pointer) {
+        let uploader = account.uploaders.getUploader(field.name);
+        uploading.push((async () => {
+          const docKey = `${field.name}Uri`;
+          let preferredUrl = origDataIndex.contents[docKey];
+          dataIndex[docKey] = await uploader.upload(data, field.name, preferredUrl);
+        })());
+      } else {
+        dataIndex[`${field.name}Uri`] = data;
+      }
     }
     await Promise.all(uploading);
 
@@ -187,7 +195,7 @@ module.exports.deleteHotel = async (req, res, next) => {
       let deleting = [];
       for (let field of WT.DATA_INDEX_FIELDS) {
         const documentUri = dataIndex.contents[`${field.name}Uri`];
-        if (!documentUri) {
+        if (!documentUri || !field.pointer) {
           continue;
         }
         let uploader = account.uploaders.getUploader(field.name);

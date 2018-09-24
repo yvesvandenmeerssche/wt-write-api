@@ -44,6 +44,7 @@ const wtLibsMock = {
                     contents: availability,
                   }),
                 },
+                notificationsUri: 'http://notifications.example',
               });
             },
           };
@@ -65,6 +66,7 @@ describe('WT', () => {
           descriptionUri: 'dummy://description.json',
           ratePlansUri: 'dummy://ratePlans.json',
           availabilityUri: 'dummy://availability.json',
+          notificationsUri: 'http://notifications.example',
         },
       });
     });
@@ -72,11 +74,12 @@ describe('WT', () => {
 
   describe('getDocuments()', () => {
     it('should retrieve data subtrees via wtLibs', async () => {
-      const data = await wt.getDocuments('0xdummyhotel', ['description', 'ratePlans', 'availability']);
+      const data = await wt.getDocuments('0xdummyhotel', ['description', 'ratePlans', 'availability', 'notifications']);
       assert.deepEqual(data, {
         description,
         ratePlans,
         availability,
+        notifications: 'http://notifications.example',
       });
     });
 
