@@ -2,8 +2,15 @@
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/windingtree/wt-write-api.svg)](https://greenkeeper.io/)
 
-API written in nodejs to interact with the Winding Tree
-platform.
+API server written in node.js to interact with the Winding Tree
+platform. It is capable of:
+
+- Create new hotels in WT
+- Update existing hotel records
+- Delete hotels from WT
+
+It also automatically publishes notifications about changes via
+the WT Update API.
 
 ## Requirements
 - Nodejs 10.7.x
