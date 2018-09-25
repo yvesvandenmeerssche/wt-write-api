@@ -179,6 +179,25 @@ describe('controllers - hotels', function () {
         });
     });
 
+    it('should return 201 even if the notification cannot be published', (done) => {
+      notifications.setRequestLib(sinon.stub().callsFake(() =>
+        Promise.reject(new Error('ECONNREFUSED'))));
+      request(server)
+        .post('/hotels')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .expect(201)
+        .send({
+          description: getDescription(),
+          notifications: 'http://notifications.example',
+        })
+        .end((err, res) => {
+          notifications.setRequestLib(requestLibMock);
+          if (err) return done(err);
+          done();
+        });
+    });
+
     it('should return 201 when only non-required fields are missing', (done) => {
       request(server)
         .post('/hotels')

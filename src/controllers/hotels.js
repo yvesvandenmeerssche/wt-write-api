@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const WTLibs = require('@windingtree/wt-js-libs');
 
+const { logger } = require('../config');
 const { HttpValidationError, HttpBadRequestError,
   HttpBadGatewayError, Http404Error } = require('../errors');
 const { ValidationError } = require('../services/validators');
@@ -99,7 +100,11 @@ module.exports.createHotel = async (req, res, next) => {
     const address = await wt.upload(account.withWallet, dataIndexUri);
     // 6. Publish create notification, if applicable.
     if (dataIndex.notificationsUri) {
-      await publishHotelCreated(dataIndex.notificationsUri, wt.wtIndexAddress, address);
+      try {
+        await publishHotelCreated(dataIndex.notificationsUri, wt.wtIndexAddress, address);
+      } catch (err) {
+        logger.info(`Could not publish notification to ${dataIndex.notificationsUri}: ${err}`);
+      }
     }
     res.status(201).json({
       address: address,
@@ -169,9 +174,13 @@ module.exports.updateHotel = async (req, res, next) => {
       dataIndex.notificationsUri,
       origDataIndex.contents.notificationsUri,
     ].filter(Boolean));
-    for (let notificationUri of notificationsUris) {
-      await publishHotelUpdated(notificationUri, wt.wtIndexAddress,
-        req.params.address, notificationSubjects);
+    for (let notificationsUri of notificationsUris) {
+      try {
+        await publishHotelUpdated(notificationsUri, wt.wtIndexAddress,
+          req.params.address, notificationSubjects);
+      } catch (err) {
+        logger.info(`Could not publish notification to ${notificationsUri}: ${err}`);
+      }
     }
     res.sendStatus(204);
   } catch (err) {
@@ -226,7 +235,11 @@ module.exports.deleteHotel = async (req, res, next) => {
     }
     const notificationsUri = dataIndex && dataIndex.contents.notificationsUri;
     if (notificationsUri) {
-      await publishHotelDeleted(notificationsUri, wt.wtIndexAddress, req.params.address);
+      try {
+        await publishHotelDeleted(notificationsUri, wt.wtIndexAddress, req.params.address);
+      } catch (err) {
+        logger.info(`Could not publish notification to ${notificationsUri}: ${err}`);
+      }
     }
     res.sendStatus(204);
   } catch (err) {
@@ -299,8 +312,12 @@ module.exports.transferHotel = async (req, res, next) => {
     await wt.transferHotel(account.withWallet, req.params.address, req.body.to);
     const data = await wt.getDocuments(req.params.address, ['notifications']);
     if (data.notifications) {
-      await publishHotelUpdated(data.notifications, wt.wtIndexAddress,
-        req.params.address, ['onChain']);
+      try {
+        await publishHotelUpdated(data.notifications, wt.wtIndexAddress,
+          req.params.address, ['onChain']);
+      } catch (err) {
+        logger.info(`Could not publish notification to ${data.notifications}: ${err}`);
+      }
     }
     res.sendStatus(204);
   } catch (err) {
