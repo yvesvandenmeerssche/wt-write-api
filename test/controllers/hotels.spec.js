@@ -8,6 +8,7 @@ const { getDescription, getRatePlans,
   getAvailability, getWallet } = require('../utils/factories');
 const Account = require('../../src/models/account');
 const WT = require('../../src/services/wt');
+const notifications = require('../../src/services/notifications');
 const { UploaderConfig } = require('../../src/services/uploaders');
 const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../../src/constants');
 
@@ -24,11 +25,14 @@ describe('controllers - hotels', function () {
   const ratePlans = getRatePlans();
   const availability = getAvailability();
   let wtMock;
+  let requestLibMock;
   let originalWT;
   let accessKey;
 
   before(async () => {
     server = require('../../src/index');
+    requestLibMock = sinon.stub().returns(Promise.resolve());
+    notifications.setRequestLib(requestLibMock);
     originalWT = WT.get();
     sinon.stub(UploaderConfig, 'fromAccount').callsFake(() => {
       return new UploaderConfig({ root: offChainUploader });
@@ -45,6 +49,7 @@ describe('controllers - hotels', function () {
 
     // Mock WT.
     wtMock = {
+      wtIndexAddress: '0xwtIndex',
       createWallet: () => {
         return {
           lock: () => undefined,
@@ -61,6 +66,7 @@ describe('controllers - hotels', function () {
             descriptionUri: (hotelAddress === '0xchanged') ? 'dummy://changed-description.json' : 'dummy://description.json',
             ratePlansUri: 'dummy://ratePlans.json',
             availabilityUri: 'dummy://availability.json',
+            notificationsUri: 'http://notifications.example',
           },
         };
       },
@@ -74,6 +80,7 @@ describe('controllers - hotels', function () {
           description: desc,
           ratePlans: ratePlans,
           availability: availability,
+          notifications: 'http://notifications.example',
         };
         for (let key in ret) {
           if (fieldNames.indexOf(key) === -1) {
@@ -114,6 +121,7 @@ describe('controllers - hotels', function () {
           description: desc,
           ratePlans: ratePlans,
           availability: availability,
+          notifications: 'http://notifications.example',
         })
         .expect(201)
         .expect('content-type', /application\/json/)
@@ -127,6 +135,7 @@ describe('controllers - hotels', function () {
               descriptionUri: 'dummy://description.json',
               ratePlansUri: 'dummy://ratePlans.json',
               availabilityUri: 'dummy://availability.json',
+              notificationsUri: 'http://notifications.example',
             }));
             assert.ok(offChainUploader.upload.calledWithExactly(desc, 'description'));
             assert.ok(offChainUploader.upload.calledWithExactly(ratePlans, 'ratePlans'));
@@ -136,6 +145,56 @@ describe('controllers - hotels', function () {
           } catch (e) {
             done(e);
           }
+        });
+    });
+
+    it('should publish the create notification', (done) => {
+      requestLibMock.resetHistory();
+      request(server)
+        .post('/hotels')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({
+          description: getDescription(),
+          notifications: 'http://notifications.example',
+        })
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(requestLibMock.callCount, 1);
+            assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
+              method: 'POST',
+              json: true,
+              body: {
+                wtIndex: '0xwtIndex',
+                resourceType: 'hotel',
+                resourceAddress: 'dummyAddress',
+                scope: { action: 'create' },
+              },
+            }]);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
+    it('should return 201 even if the notification cannot be published', (done) => {
+      notifications.setRequestLib(sinon.stub().callsFake(() =>
+        Promise.reject(new Error('ECONNREFUSED'))));
+      request(server)
+        .post('/hotels')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .expect(201)
+        .send({
+          description: getDescription(),
+          notifications: 'http://notifications.example',
+        })
+        .end((err, res) => {
+          notifications.setRequestLib(requestLibMock);
+          if (err) return done(err);
+          done();
         });
     });
 
@@ -185,6 +244,16 @@ describe('controllers - hotels', function () {
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description: getDescription(), religion: 'pagan' })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 when notifications url is not valid', (done) => {
+      request(server)
+        .post('/hotels')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ description: getDescription(), notification: 'wat' })
         .expect(422)
         .end(done);
     });
@@ -250,12 +319,12 @@ describe('controllers - hotels', function () {
         });
     });
 
-    it('should update data index and on-chain record if requested and necessary', (done) => {
+    it('should update data index and on-chain record if necessary', (done) => {
       offChainUploader.upload.resetHistory();
       wtMock.upload.resetHistory();
 
       request(server)
-        .patch('/hotels/0xchanged?forceSync=1')
+        .patch('/hotels/0xchanged')
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description })
@@ -276,12 +345,12 @@ describe('controllers - hotels', function () {
         });
     });
 
-    it('should not update data index and on-chain record if not necessary even if requested', (done) => {
+    it('should not update data index and on-chain record if not necessary', (done) => {
       offChainUploader.upload.resetHistory();
       wtMock.upload.resetHistory();
 
       request(server)
-        .patch('/hotels/0xnotchanged?forceSync=1')
+        .patch('/hotels/0xnotchanged')
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description })
@@ -292,6 +361,37 @@ describe('controllers - hotels', function () {
             assert.equal(wtMock.upload.callCount, 0);
             assert.equal(offChainUploader.upload.callCount, 1);
             assert.equal(offChainUploader.upload.args[0][1], 'description');
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
+    it('should publish the update notification', (done) => {
+      requestLibMock.resetHistory();
+      request(server)
+        .patch('/hotels/0xchanged')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ description })
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(requestLibMock.callCount, 1);
+            assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
+              method: 'POST',
+              json: true,
+              body: {
+                wtIndex: '0xwtIndex',
+                resourceType: 'hotel',
+                resourceAddress: '0xchanged',
+                scope: {
+                  action: 'update',
+                  subjects: ['description', 'dataIndex', 'onChain'],
+                },
+              },
+            }]);
             done();
           } catch (e) {
             done(e);
@@ -407,6 +507,34 @@ describe('controllers - hotels', function () {
         });
     });
 
+    it('should publish the delete notification', (done) => {
+      requestLibMock.resetHistory();
+      request(server)
+        .delete('/hotels/0xdummy')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(requestLibMock.callCount, 1);
+            assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
+              method: 'POST',
+              json: true,
+              body: {
+                wtIndex: '0xwtIndex',
+                resourceType: 'hotel',
+                resourceAddress: '0xdummy',
+                scope: { action: 'delete' },
+              },
+            }]);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
     it('should return HTTP 400 if the offChain parameter is ambiguous', (done) => {
       request(server)
         .delete('/hotels/0xdummy?offChain=maybe')
@@ -455,6 +583,7 @@ describe('controllers - hotels', function () {
               description: description,
               ratePlans: ratePlans,
               availability: availability,
+              notifications: 'http://notifications.example',
             });
             done();
           } catch (err) {
@@ -465,7 +594,7 @@ describe('controllers - hotels', function () {
 
     it('should respect the `fields` query parameter', (done) => {
       request(server)
-        .get('/hotels/0xdummy?fields=description,ratePlans')
+        .get('/hotels/0xdummy?fields=description,ratePlans,notifications')
         .expect(200)
         .expect('content-type', /application\/json/)
         .end((err, res) => {
@@ -474,6 +603,7 @@ describe('controllers - hotels', function () {
             assert.deepEqual(res.body, {
               description: description,
               ratePlans: ratePlans,
+              notifications: 'http://notifications.example',
             });
             done();
           } catch (err) {
@@ -541,6 +671,34 @@ describe('controllers - hotels', function () {
             done();
           } catch (err) {
             done(err);
+          }
+        });
+    });
+
+    it('should publish the update notification', (done) => {
+      requestLibMock.resetHistory();
+      request(server)
+        .post(`/hotels/${address1}/transfer`)
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ to: address2 })
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(requestLibMock.callCount, 1);
+            assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
+              method: 'POST',
+              json: true,
+              body: {
+                wtIndex: '0xwtIndex',
+                resourceType: 'hotel',
+                resourceAddress: address1,
+                scope: { action: 'update', subjects: ['onChain'] },
+              },
+            }]);
+            done();
+          } catch (e) {
+            done(e);
           }
         });
     });

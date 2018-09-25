@@ -5,6 +5,7 @@ const request = require('supertest');
 
 const { db } = require('../src/config');
 const { resetDB } = require('../src/db');
+const { setRequestLib } = require('../src/services/notifications');
 
 // Global "before" hook - runs before all tests.
 before(async () => {
@@ -20,6 +21,8 @@ after(async () => {
 describe('API', function () {
   let server;
   before(() => {
+    // Make sure no notifications are sent out during tests.
+    setRequestLib(() => Promise.resolve());
     server = require('../src/index');
   });
   after(() => {
