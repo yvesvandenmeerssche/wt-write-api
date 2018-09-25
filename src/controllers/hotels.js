@@ -132,7 +132,8 @@ module.exports.updateHotel = async (req, res, next) => {
     // 3. Upload the changed data parts.
     let dataIndex = {},
       uploading = [];
-    const origDataIndex = await wt.getDataIndex(req.params.address);
+    const notificationSubjects = [],
+      origDataIndex = await wt.getDataIndex(req.params.address);
     for (let field of WT.DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
       if (!data) {
@@ -144,6 +145,7 @@ module.exports.updateHotel = async (req, res, next) => {
           const docKey = `${field.name}Uri`;
           let preferredUrl = origDataIndex.contents[docKey];
           dataIndex[docKey] = await uploader.upload(data, field.name, preferredUrl);
+          notificationSubjects.push(field.name);
         })());
       } else {
         dataIndex[`${field.name}Uri`] = data;
@@ -156,9 +158,20 @@ module.exports.updateHotel = async (req, res, next) => {
     if (!_.isEqual(origDataIndex.contents, newContents)) {
       let uploader = account.uploaders.getUploader('root');
       const dataIndexUri = await uploader.upload(newContents, 'dataIndex', origDataIndex.ref);
+      notificationSubjects.push('dataIndex');
       if (dataIndexUri !== origDataIndex.ref) {
         await wt.upload(account.withWallet, dataIndexUri, req.params.address);
+        notificationSubjects.push('onChain');
       }
+    }
+    // 5. Publish update notifications, if applicable.
+    const notificationsUris = new Set([
+      dataIndex.notificationsUri,
+      origDataIndex.contents.notificationsUri,
+    ].filter(Boolean));
+    for (let notificationUri of notificationsUris) {
+      await publishHotelUpdated(notificationUri, wt.wtIndexAddress,
+        req.params.address, notificationSubjects);
     }
     res.sendStatus(204);
   } catch (err) {

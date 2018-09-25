@@ -349,6 +349,37 @@ describe('controllers - hotels', function () {
         });
     });
 
+    it('should publish the update notification', (done) => {
+      requestLibMock.resetHistory();
+      request(server)
+        .patch('/hotels/0xchanged')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ description })
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(requestLibMock.callCount, 1);
+            assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
+              method: 'POST',
+              json: true,
+              body: {
+                wtIndex: '0xwtIndex',
+                resourceType: 'hotel',
+                resourceAddress: '0xchanged',
+                scope: {
+                  action: 'update',
+                  subjects: ['description', 'dataIndex', 'onChain'],
+                },
+              },
+            }]);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
     it('should return 401 when authorization headers are missing', (done) => {
       const desc = getDescription(),
         ratePlans = getRatePlans();
