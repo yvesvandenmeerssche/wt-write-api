@@ -10,6 +10,7 @@ async function publish (notificationsUri, notification) {
   await _requestLib(`${notificationsUri}${separator}notifications`, {
     method: 'POST',
     json: true,
+    responseType: 'text', // Without this, the library expects JSON in return.
     body: notification,
   });
 }
