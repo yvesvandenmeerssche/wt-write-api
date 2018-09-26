@@ -105,7 +105,8 @@ module.exports.validateAvailability = function (data) {
  * @throws {ValidationError} When data validation fails.
  */
 module.exports.validateNotifications = function (data) {
-  if (data && !validator.isURL(data, { 'require_protocol': true })) {
+  const opts = { 'require_protocol': true, 'require_tld': false };
+  if (data && !validator.isURL(data, opts)) {
     throw new ValidationError(`Not a valid URL: ${data}`);
   }
 };

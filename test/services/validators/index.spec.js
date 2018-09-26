@@ -102,6 +102,7 @@ describe('validators', function () {
     it('should pass when the data is correct', () => {
       validateNotifications('http://example.com/1234/');
       validateNotifications('https://example.com');
+      validateNotifications('http://localhost:8080');
     });
 
     it('should fail when the protocol is missing', () => {
