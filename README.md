@@ -2,13 +2,20 @@
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/windingtree/wt-write-api.svg)](https://greenkeeper.io/)
 
-API written in nodejs to interact with the Winding Tree
-platform.
+API server written in node.js to interact with the Winding Tree
+platform. It is capable of:
+
+- Create new hotels in WT
+- Update existing hotel records
+- Delete hotels from WT
+
+It also automatically publishes notifications about changes via
+the WT Update API.
 
 ## Requirements
 - Nodejs 10.7.x
 
-### Getting stared
+## Getting started
 In order to install and run tests, we must:
 ```
 git clone git@github.com:windingtree/wt-write-api.git
@@ -64,7 +71,7 @@ You can fiddle with the configuration in `src/config/`.
 to talk with one of our testing contracts deployed on Ropsten.
 - You can use it in your local environment by running the following commands:
 ```sh
-$ docker build -t windingtree/wt-write-api .
+$ docker build --build-arg WT_CONFIG=playground -t windingtree/wt-write-api .
 $ docker run -p 8080:8000 -e WT_CONFIG=playground windingtree/wt-write-api
 ```
 - After that you can access the wt-write-api on local port `8080`

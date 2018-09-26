@@ -4,6 +4,7 @@ const tv4Formats = require('tv4-formats');
 const countryCodes = require('iso-3166-1-alpha-2');
 const currencyCodes = require('currency-codes');
 const timezones = require('timezones.json');
+const validator = require('validator');
 const WTLibs = require('@windingtree/wt-js-libs');
 
 const descriptionSchema = require('./description-schema.json');
@@ -94,6 +95,20 @@ module.exports.validateRatePlans = function (data) {
  */
 module.exports.validateAvailability = function (data) {
   return _validate(data, availabilitySchema);
+};
+
+/**
+ * Validate the notifications url.
+ *
+ * @param {Object} data
+ * @return {undefined}
+ * @throws {ValidationError} When data validation fails.
+ */
+module.exports.validateNotifications = function (data) {
+  const opts = { 'require_protocol': true, 'require_tld': false };
+  if (data && !validator.isURL(data, opts)) {
+    throw new ValidationError(`Not a valid URL: ${data}`);
+  }
 };
 
 /**
