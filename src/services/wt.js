@@ -1,12 +1,34 @@
 const _ = require('lodash');
 
-const { validateDescription, validateRatePlans, validateAvailability } = require('./validators');
+const { validateDescription, validateRatePlans, validateAvailability,
+  validateNotifications } = require('./validators');
 
 /* A declarative description of hotel data. */
 const DATA_INDEX_FIELDS = [
-  { name: 'description', required: true, validator: validateDescription },
-  { name: 'ratePlans', required: false, validator: validateRatePlans },
-  { name: 'availability', required: false, validator: validateAvailability },
+  {
+    name: 'description',
+    required: true,
+    pointer: true, // Is this a pointer to another subdocument?
+    validator: validateDescription,
+  },
+  {
+    name: 'ratePlans',
+    required: false,
+    pointer: true,
+    validator: validateRatePlans,
+  },
+  {
+    name: 'availability',
+    required: false,
+    pointer: true,
+    validator: validateAvailability,
+  },
+  {
+    name: 'notifications',
+    required: false,
+    pointer: false,
+    validator: validateNotifications,
+  },
 ];
 const DATA_INDEX_FIELD_NAMES = _.map(DATA_INDEX_FIELDS, 'name');
 
@@ -111,7 +133,11 @@ class WT {
       indexContents = await rawIndex.contents;
     for (let field of DATA_INDEX_FIELDS) {
       const name = `${field.name}Uri`;
-      contents[name] = _.get(indexContents, [name, 'ref']);
+      if (field.pointer) {
+        contents[name] = _.get(indexContents, [name, 'ref']);
+      } else {
+        contents[name] = indexContents[name];
+      }
     }
     return {
       ref: rawIndex.ref,
@@ -133,7 +159,11 @@ class WT {
     for (let fieldName of fieldNames) {
       let doc = contents[`${fieldName}Uri`];
       if (doc) {
-        data[`${fieldName}`] = (await doc.toPlainObject()).contents;
+        if (doc.toPlainObject) {
+          data[`${fieldName}`] = (await doc.toPlainObject()).contents;
+        } else { // No pointer.
+          data[`${fieldName}`] = doc;
+        }
       }
     }
     return data;
