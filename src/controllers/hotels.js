@@ -1,11 +1,14 @@
 const _ = require('lodash');
 const WTLibs = require('@windingtree/wt-js-libs');
 
+const { logger } = require('../config');
 const { HttpValidationError, HttpBadRequestError,
   HttpBadGatewayError, Http404Error } = require('../errors');
 const { ValidationError } = require('../services/validators');
 const { parseBoolean, QueryParserError } = require('../services/query-parsers');
 const WT = require('../services/wt');
+const { publishHotelCreated, publishHotelDeleted,
+  publishHotelUpdated } = require('../services/notifications');
 
 /**
  * Add the `updatedAt` timestamp to the following components (if
@@ -81,16 +84,28 @@ module.exports.createHotel = async (req, res, next) => {
       if (!data) {
         continue;
       }
-      let uploader = account.uploaders.getUploader(field.name);
-      uploading.push((async () => {
-        dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
-      })());
+      if (field.pointer) {
+        let uploader = account.uploaders.getUploader(field.name);
+        uploading.push((async () => {
+          dataIndex[`${field.name}Uri`] = await uploader.upload(data, field.name);
+        })());
+      } else {
+        dataIndex[`${field.name}Uri`] = data;
+      }
     }
     await Promise.all(uploading);
     // 4. Upload the data index.
     const dataIndexUri = await account.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
     // 5. Upload the resulting data to ethereum.
     const address = await wt.upload(account.withWallet, dataIndexUri);
+    // 6. Publish create notification, if applicable.
+    if (dataIndex.notificationsUri) {
+      try {
+        await publishHotelCreated(dataIndex.notificationsUri, wt.wtIndexAddress, address);
+      } catch (err) {
+        logger.info(`Could not publish notification to ${dataIndex.notificationsUri}: ${err}`);
+      }
+    }
     res.status(201).json({
       address: address,
     });
@@ -122,18 +137,24 @@ module.exports.updateHotel = async (req, res, next) => {
     // 3. Upload the changed data parts.
     let dataIndex = {},
       uploading = [];
-    const origDataIndex = await wt.getDataIndex(req.params.address);
+    const notificationSubjects = [],
+      origDataIndex = await wt.getDataIndex(req.params.address);
     for (let field of WT.DATA_INDEX_FIELDS) {
       let data = req.body[field.name];
       if (!data) {
         continue;
       }
-      let uploader = account.uploaders.getUploader(field.name);
-      uploading.push((async () => {
-        const docKey = `${field.name}Uri`;
-        let preferredUrl = origDataIndex.contents[docKey];
-        dataIndex[docKey] = await uploader.upload(data, field.name, preferredUrl);
-      })());
+      if (field.pointer) {
+        let uploader = account.uploaders.getUploader(field.name);
+        uploading.push((async () => {
+          const docKey = `${field.name}Uri`;
+          let preferredUrl = origDataIndex.contents[docKey];
+          dataIndex[docKey] = await uploader.upload(data, field.name, preferredUrl);
+          notificationSubjects.push(field.name);
+        })());
+      } else {
+        dataIndex[`${field.name}Uri`] = data;
+      }
     }
     await Promise.all(uploading);
 
@@ -142,8 +163,23 @@ module.exports.updateHotel = async (req, res, next) => {
     if (!_.isEqual(origDataIndex.contents, newContents)) {
       let uploader = account.uploaders.getUploader('root');
       const dataIndexUri = await uploader.upload(newContents, 'dataIndex', origDataIndex.ref);
+      notificationSubjects.push('dataIndex');
       if (dataIndexUri !== origDataIndex.ref) {
         await wt.upload(account.withWallet, dataIndexUri, req.params.address);
+        notificationSubjects.push('onChain');
+      }
+    }
+    // 5. Publish update notifications, if applicable.
+    const notificationsUris = new Set([
+      dataIndex.notificationsUri,
+      origDataIndex.contents.notificationsUri,
+    ].filter(Boolean));
+    for (let notificationsUri of notificationsUris) {
+      try {
+        await publishHotelUpdated(notificationsUri, wt.wtIndexAddress,
+          req.params.address, notificationSubjects);
+      } catch (err) {
+        logger.info(`Could not publish notification to ${notificationsUri}: ${err}`);
       }
     }
     res.sendStatus(204);
@@ -187,7 +223,7 @@ module.exports.deleteHotel = async (req, res, next) => {
       let deleting = [];
       for (let field of WT.DATA_INDEX_FIELDS) {
         const documentUri = dataIndex.contents[`${field.name}Uri`];
-        if (!documentUri) {
+        if (!documentUri || !field.pointer) {
           continue;
         }
         let uploader = account.uploaders.getUploader(field.name);
@@ -196,6 +232,14 @@ module.exports.deleteHotel = async (req, res, next) => {
         })());
       }
       await Promise.all(deleting);
+    }
+    const notificationsUri = dataIndex && dataIndex.contents.notificationsUri;
+    if (notificationsUri) {
+      try {
+        await publishHotelDeleted(notificationsUri, wt.wtIndexAddress, req.params.address);
+      } catch (err) {
+        logger.info(`Could not publish notification to ${notificationsUri}: ${err}`);
+      }
     }
     res.sendStatus(204);
   } catch (err) {
@@ -266,6 +310,15 @@ module.exports.transferHotel = async (req, res, next) => {
       throw new HttpValidationError('validationFailed', 'Invalid or missing new manager adress.');
     }
     await wt.transferHotel(account.withWallet, req.params.address, req.body.to);
+    const data = await wt.getDocuments(req.params.address, ['notifications']);
+    if (data.notifications) {
+      try {
+        await publishHotelUpdated(data.notifications, wt.wtIndexAddress,
+          req.params.address, ['onChain']);
+      } catch (err) {
+        logger.info(`Could not publish notification to ${data.notifications}: ${err}`);
+      }
+    }
     res.sendStatus(204);
   } catch (err) {
     if (err instanceof WTLibs.errors.InputDataError) {

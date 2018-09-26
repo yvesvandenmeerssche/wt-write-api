@@ -4,7 +4,8 @@ const { getDescription, getRatePlans, getAvailability,
   getUploaders, getWallet } = require('../../utils/factories');
 
 const { validateDescription, validateRatePlans, validateAvailability,
-  validateUploaders, validateWallet, ValidationError } = require('../../../src/services/validators');
+  validateUploaders, validateWallet, ValidationError,
+  validateNotifications } = require('../../../src/services/validators');
 
 describe('validators', function () {
   describe('validateDescription', () => {
@@ -94,6 +95,24 @@ describe('validators', function () {
       availability.certainty = 'maybe';
       assert.throws(() => validateAvailability(availability), ValidationError,
         /Unknown property/);
+    });
+  });
+
+  describe('validateNotifications', () => {
+    it('should pass when the data is correct', () => {
+      validateNotifications('http://example.com/1234/');
+      validateNotifications('https://example.com');
+      validateNotifications('http://localhost:8080');
+    });
+
+    it('should fail when the protocol is missing', () => {
+      assert.throws(() => validateNotifications('example.com/1234/'), ValidationError,
+        /Not a valid URL/);
+    });
+
+    it('should fail when the URL is invalid', () => {
+      assert.throws(() => validateNotifications('http://1230,,,.23&'), ValidationError,
+        /Not a valid URL/);
     });
   });
 
