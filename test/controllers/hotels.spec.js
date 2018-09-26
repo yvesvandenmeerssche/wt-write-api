@@ -165,6 +165,7 @@ describe('controllers - hotels', function () {
             assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
               method: 'POST',
               json: true,
+              responseType: 'text',
               body: {
                 wtIndex: '0xwtIndex',
                 resourceType: 'hotel',
@@ -382,6 +383,7 @@ describe('controllers - hotels', function () {
             assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
               method: 'POST',
               json: true,
+              responseType: 'text',
               body: {
                 wtIndex: '0xwtIndex',
                 resourceType: 'hotel',
@@ -521,6 +523,7 @@ describe('controllers - hotels', function () {
             assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
               method: 'POST',
               json: true,
+              responseType: 'text',
               body: {
                 wtIndex: '0xwtIndex',
                 resourceType: 'hotel',
@@ -689,6 +692,7 @@ describe('controllers - hotels', function () {
             assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
               method: 'POST',
               json: true,
+              responseType: 'text',
               body: {
                 wtIndex: '0xwtIndex',
                 resourceType: 'hotel',
