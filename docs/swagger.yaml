@@ -199,8 +199,9 @@ paths:
         '502':
           $ref: '#/components/responses/BadGatewayError'
     put:
-      summary: Update hotel even if original off-chain data is inaccessible.
-      Replaces all of the data.
+      summary: >-
+        Update hotel even if original off-chain data is inaccessible.
+        Replaces all of the data.
       security:
         - AccessKey: []
           WalletPassword: []
