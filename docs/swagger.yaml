@@ -198,8 +198,35 @@ paths:
           $ref: '#/components/responses/UnprocessableEntityError'
         '502':
           $ref: '#/components/responses/BadGatewayError'
+    put:
+      summary: Update hotel even if original off-chain data is inaccessible.
+      Replaces all of the data.
+      security:
+        - AccessKey: []
+          WalletPassword: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotelPatch'
+      responses:
+        '204':
+          description: Hotel was successfully updated.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
     patch:
-      summary: Update hotel.
+      summary: Update hotel only when original off-chain data can be accessed.
       security:
         - AccessKey: []
           WalletPassword: []
