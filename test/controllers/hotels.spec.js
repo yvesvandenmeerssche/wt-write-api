@@ -479,7 +479,7 @@ describe('controllers - hotels', function () {
   });
 
   describe('PUT /hotels/:address', () => {
-    it('should reupload the given subtrees', (done) => {
+    it('should upload the given subtrees', (done) => {
       const desc = getDescription(),
         ratePlans = getRatePlans();
       offChainUploader.upload.resetHistory();
@@ -497,36 +497,16 @@ describe('controllers - hotels', function () {
         .end((err, res) => {
           if (err) return done(err);
           try {
-            assert.equal(wtMock.upload.callCount, 0);
-            assert.equal(offChainUploader.upload.callCount, 2);
-            assert.ok(offChainUploader.upload.calledWithExactly(desc, 'description', 'dummy://description.json'));
-            assert.ok(offChainUploader.upload.calledWithExactly(ratePlans, 'ratePlans', 'dummy://ratePlans.json'));
-            done();
-          } catch (e) {
-            done(e);
-          }
-        });
-    });
-
-    it('should update data index and on-chain record if necessary', (done) => {
-      offChainUploader.upload.resetHistory();
-      wtMock.upload.resetHistory();
-
-      request(server)
-        .put('/hotels/0xchanged')
-        .set(ACCESS_KEY_HEADER, accessKey)
-        .set(WALLET_PASSWORD_HEADER, 'windingtree')
-        .send({ description })
-        .expect(204)
-        .end((err, res) => {
-          if (err) return done(err);
-          try {
             assert.equal(wtMock.upload.callCount, 1);
             assert.equal(wtMock.upload.getCall(0).args[1], 'dummy://dataIndex.json');
-            assert.equal(wtMock.upload.getCall(0).args[2], '0xchanged');
-            assert.equal(offChainUploader.upload.callCount, 2);
-            assert.equal(offChainUploader.upload.args[0][1], 'description');
-            assert.equal(offChainUploader.upload.args[1][1], 'dataIndex');
+            assert.equal(wtMock.upload.getCall(0).args[2], 'dummy');
+            assert.equal(offChainUploader.upload.callCount, 3);
+            assert.ok(offChainUploader.upload.calledWithExactly(desc, 'description', undefined));
+            assert.ok(offChainUploader.upload.calledWithExactly(ratePlans, 'ratePlans', undefined));
+            assert.ok(offChainUploader.upload.calledWithExactly({
+              descriptionUri: 'dummy://description.json',
+              ratePlansUri: 'dummy://ratePlans.json',
+            }, 'dataIndex', undefined));
             done();
           } catch (e) {
             done(e);
@@ -534,7 +514,7 @@ describe('controllers - hotels', function () {
         });
     });
 
-    it('should not update data index and on-chain record if not necessary', (done) => {
+    it('should always update data index and on-chain record', (done) => {
       offChainUploader.upload.resetHistory();
       wtMock.upload.resetHistory();
 
@@ -547,9 +527,15 @@ describe('controllers - hotels', function () {
         .end((err, res) => {
           if (err) return done(err);
           try {
-            assert.equal(wtMock.upload.callCount, 0);
-            assert.equal(offChainUploader.upload.callCount, 1);
+            assert.equal(wtMock.upload.callCount, 1);
+            assert.equal(wtMock.upload.getCall(0).args[1], 'dummy://dataIndex.json');
+            assert.equal(wtMock.upload.getCall(0).args[2], '0xnotchanged');
+            assert.equal(offChainUploader.upload.callCount, 2);
             assert.equal(offChainUploader.upload.args[0][1], 'description');
+            assert.equal(offChainUploader.upload.args[1][1], 'dataIndex');
+            assert.ok(offChainUploader.upload.calledWithExactly({
+              descriptionUri: 'dummy://description.json',
+            }, 'dataIndex', undefined));
             done();
           } catch (e) {
             done(e);
@@ -586,13 +572,16 @@ describe('controllers - hotels', function () {
         });
     });
 
-    it('should publish the update notification', (done) => {
+    it('should publish the update notification if new data contains notifications field', (done) => {
       requestLibMock.resetHistory();
       request(server)
         .put('/hotels/0xchanged')
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
-        .send({ description })
+        .send({
+          description,
+          notifications: 'http://notifications.example',
+        })
         .end((err, res) => {
           if (err) return done(err);
           try {

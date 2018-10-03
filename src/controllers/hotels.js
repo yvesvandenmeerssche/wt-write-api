@@ -117,7 +117,7 @@ module.exports.createHotel = async (req, res, next) => {
   }
 };
 
-const updateHotelFactory = (ignoreGetOriginalDataError) => {
+const updateHotelFactory = (ignoreOriginalData) => {
   return async (req, res, next) => {
     try {
       const account = req.account,
@@ -137,14 +137,9 @@ const updateHotelFactory = (ignoreGetOriginalDataError) => {
       let dataIndex = {},
         uploading = [],
         notificationSubjects = [],
-        origDataIndex;
-      try {
-        origDataIndex = await wt.getDataIndex(req.params.address);
-      } catch (e) {
-        if (!ignoreGetOriginalDataError) {
-          throw e;
-        }
         origDataIndex = { contents: {} };
+      if (!ignoreOriginalData) {
+        origDataIndex = await wt.getDataIndex(req.params.address);
       }
       for (let field of WT.DATA_INDEX_FIELDS) {
         let data = req.body[field.name];
