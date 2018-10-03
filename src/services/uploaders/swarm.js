@@ -14,6 +14,9 @@ class SwarmUploader extends OffChainUploader {
     super();
     this._swarmAdapter = new SwarmAdapter({
       swarmProviderUrl: options.providerUrl,
+      timeout: options.timeout,
+      timeoutRead: options.timeoutRead,
+      timeoutWrite: options.timeoutWrite,
     });
   }
 

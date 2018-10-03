@@ -35,7 +35,10 @@ config.wtLibs = WTLibs.createInstance({
       },
       'bzz-raw': {
         options: {
-          swarmProviderUrl: config.swarmProvider,
+          swarmProviderUrl: config.swarm.provider,
+          timeout: config.swarm.timeout,
+          timeoutRead: config.swarm.timeoutRead,
+          timeoutWrite: config.swarm.timeoutWrite,
         },
         create: (options) => {
           return new SwarmAdapter(options);

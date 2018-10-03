@@ -1,7 +1,7 @@
 const { SwarmUploader } = require('./swarm');
 const { InMemoryUploader } = require('./in-memory');
 const { S3Uploader } = require('./s3');
-const { swarmProvider } = require('../../config');
+const { swarm } = require('../../config');
 
 const _UPLOADERS_BY_CODE = { // Used in account configurations.
   s3: S3Uploader,
@@ -11,7 +11,10 @@ const _UPLOADERS_BY_CODE = { // Used in account configurations.
 
 const _COMMON_OPTIONS = {
   swarm: {
-    providerUrl: swarmProvider,
+    providerUrl: swarm.provider,
+    timeout: swarm.timeout,
+    timeoutRead: swarm.timeoutRead,
+    timeoutWrite: swarm.timeoutWrite,
   },
 };
 
