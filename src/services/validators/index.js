@@ -112,6 +112,20 @@ module.exports.validateNotifications = function (data) {
 };
 
 /**
+ * Validate the booking url.
+ *
+ * @param {Object} data
+ * @return {undefined}
+ * @throws {ValidationError} When data validation fails.
+ */
+module.exports.validateBooking = function (data) {
+  const opts = { 'protocols': ['https'], 'require_protocol': true, 'require_tld': false };
+  if (data && !validator.isURL(data, opts)) {
+    throw new ValidationError(`Not a valid secure URL: ${data}`);
+  }
+};
+
+/**
  * Validate data using the web3 library.
  *
  * @param {Object} data

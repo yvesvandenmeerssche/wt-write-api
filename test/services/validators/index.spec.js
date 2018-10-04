@@ -5,7 +5,7 @@ const { getDescription, getRatePlans, getAvailability,
 
 const { validateDescription, validateRatePlans, validateAvailability,
   validateUploaders, validateWallet, ValidationError,
-  validateNotifications } = require('../../../src/services/validators');
+  validateNotifications, validateBooking } = require('../../../src/services/validators');
 
 describe('validators', function () {
   describe('validateDescription', () => {
@@ -113,6 +113,29 @@ describe('validators', function () {
     it('should fail when the URL is invalid', () => {
       assert.throws(() => validateNotifications('http://1230,,,.23&'), ValidationError,
         /Not a valid URL/);
+    });
+  });
+
+  describe('validateBooking', () => {
+    it('should pass when the data is correct', () => {
+      validateBooking('https://example.com/1234/');
+      validateBooking('https://example.com');
+      validateBooking('https://localhost:8080');
+    });
+
+    it('should fail when the protocol is missing', () => {
+      assert.throws(() => validateBooking('example.com/1234/'), ValidationError,
+        /Not a valid secure URL/);
+    });
+
+    it('should fail when the protocol is not secure', () => {
+      assert.throws(() => validateBooking('http://example.com/1234/'), ValidationError,
+        /Not a valid secure URL/);
+    });
+
+    it('should fail when the URL is invalid', () => {
+      assert.throws(() => validateBooking('http://1230,,,.23&'), ValidationError,
+        /Not a valid secure URL/);
     });
   });
 
