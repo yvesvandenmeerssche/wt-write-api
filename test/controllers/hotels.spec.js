@@ -647,6 +647,18 @@ describe('controllers - hotels', function () {
         .end(done);
     });
 
+    it('should return 422 when required properties are missing', (done) => {
+      request(server)
+        .put('/hotels/dummy')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({
+          ratePlans: getRatePlans(),
+        })
+        .expect(422)
+        .end(done);
+    });
+
     it('should return 400 when no data is sent', (done) => {
       request(server)
         .put('/hotels/dummy')

@@ -126,10 +126,10 @@ const updateHotelFactory = (ignoreOriginalData) => {
         throw new Http404Error('notFound', 'Hotel not found.');
       }
       // 1. Validate request.
-      _validateRequest(req.body, false);
       if (Object.keys(req.body).length === 0) {
         throw new HttpBadRequestError('badRequest', 'No data provided');
       }
+      _validateRequest(req.body, ignoreOriginalData);
       // 2. Add `updatedAt` timestamps.
       _addTimestamps(req.body);
 
