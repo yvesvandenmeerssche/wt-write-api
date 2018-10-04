@@ -165,6 +165,7 @@ describe('controllers - hotels', function () {
             assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
               method: 'POST',
               json: true,
+              responseType: 'text',
               body: {
                 wtIndex: '0xwtIndex',
                 resourceType: 'hotel',
@@ -368,6 +369,22 @@ describe('controllers - hotels', function () {
         });
     });
 
+    it('should return 502 if original data is inaccessible', (done) => {
+      offChainUploader.upload.resetHistory();
+      wtMock.upload.resetHistory();
+      const origGetDataIndex = wtMock.getDataIndex;
+      wtMock.getDataIndex = sinon.stub().callsFake(() => Promise.reject(new WTLibs.errors.StoragePointerError('for example timeout')));
+      request(server)
+        .patch('/hotels/0xchanged')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ description })
+        .expect(502, () => {
+          wtMock.getDataIndex = origGetDataIndex;
+          done();
+        });
+    });
+
     it('should publish the update notification', (done) => {
       requestLibMock.resetHistory();
       request(server)
@@ -382,6 +399,7 @@ describe('controllers - hotels', function () {
             assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
               method: 'POST',
               json: true,
+              responseType: 'text',
               body: {
                 wtIndex: '0xwtIndex',
                 resourceType: 'hotel',
@@ -460,6 +478,208 @@ describe('controllers - hotels', function () {
     });
   });
 
+  describe('PUT /hotels/:address', () => {
+    it('should upload the given subtrees', (done) => {
+      const desc = getDescription(),
+        ratePlans = getRatePlans();
+      offChainUploader.upload.resetHistory();
+      wtMock.upload.resetHistory();
+
+      request(server)
+        .put('/hotels/dummy')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({
+          description: desc,
+          ratePlans: ratePlans,
+        })
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(wtMock.upload.callCount, 1);
+            assert.equal(wtMock.upload.getCall(0).args[1], 'dummy://dataIndex.json');
+            assert.equal(wtMock.upload.getCall(0).args[2], 'dummy');
+            assert.equal(offChainUploader.upload.callCount, 3);
+            assert.ok(offChainUploader.upload.calledWithExactly(desc, 'description', undefined));
+            assert.ok(offChainUploader.upload.calledWithExactly(ratePlans, 'ratePlans', undefined));
+            assert.ok(offChainUploader.upload.calledWithExactly({
+              descriptionUri: 'dummy://description.json',
+              ratePlansUri: 'dummy://ratePlans.json',
+            }, 'dataIndex', undefined));
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
+    it('should always update data index and on-chain record', (done) => {
+      offChainUploader.upload.resetHistory();
+      wtMock.upload.resetHistory();
+
+      request(server)
+        .put('/hotels/0xnotchanged')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ description })
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(wtMock.upload.callCount, 1);
+            assert.equal(wtMock.upload.getCall(0).args[1], 'dummy://dataIndex.json');
+            assert.equal(wtMock.upload.getCall(0).args[2], '0xnotchanged');
+            assert.equal(offChainUploader.upload.callCount, 2);
+            assert.equal(offChainUploader.upload.args[0][1], 'description');
+            assert.equal(offChainUploader.upload.args[1][1], 'dataIndex');
+            assert.ok(offChainUploader.upload.calledWithExactly({
+              descriptionUri: 'dummy://description.json',
+            }, 'dataIndex', undefined));
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
+    it('should update data index and all other data if original data is inaccessible', (done) => {
+      offChainUploader.upload.resetHistory();
+      wtMock.upload.resetHistory();
+      const origGetDataIndex = wtMock.getDataIndex;
+      wtMock.getDataIndex = sinon.stub().callsFake(() => Promise.reject(new WTLibs.errors.StoragePointerError('for example timeout')));
+
+      request(server)
+        .put('/hotels/0xchanged')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ description })
+        .expect(204)
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(wtMock.upload.callCount, 1);
+            assert.equal(wtMock.upload.getCall(0).args[1], 'dummy://dataIndex.json');
+            assert.equal(wtMock.upload.getCall(0).args[2], '0xchanged');
+            assert.equal(offChainUploader.upload.callCount, 2);
+            assert.equal(offChainUploader.upload.args[0][1], 'description');
+            assert.equal(offChainUploader.upload.args[1][1], 'dataIndex');
+            wtMock.getDataIndex = origGetDataIndex;
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
+    it('should publish the update notification if new data contains notifications field', (done) => {
+      requestLibMock.resetHistory();
+      request(server)
+        .put('/hotels/0xchanged')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({
+          description,
+          notifications: 'http://notifications.example',
+        })
+        .end((err, res) => {
+          if (err) return done(err);
+          try {
+            assert.equal(requestLibMock.callCount, 1);
+            assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
+              method: 'POST',
+              json: true,
+              responseType: 'text',
+              body: {
+                wtIndex: '0xwtIndex',
+                resourceType: 'hotel',
+                resourceAddress: '0xchanged',
+                scope: {
+                  action: 'update',
+                  subjects: ['description', 'dataIndex', 'onChain'],
+                },
+              },
+            }]);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
+    it('should return 401 when authorization headers are missing', (done) => {
+      const desc = getDescription(),
+        ratePlans = getRatePlans();
+      request(server)
+        .put('/hotels/dummy')
+        .send({ description: desc, ratePlans: ratePlans })
+        .expect(401)
+        .end(done);
+    });
+
+    it('should return 422 when data format is wrong', (done) => {
+      const desc = getDescription(),
+        ratePlans = getRatePlans();
+      delete desc.name;
+      request(server)
+        .put('/hotels/dummy')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({
+          description: desc,
+          ratePlans: ratePlans,
+        })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 when unexpected top-level properties are present', (done) => {
+      request(server)
+        .put('/hotels/dummy')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({
+          description: getDescription(),
+          ratePlans: getRatePlans(),
+          religion: 'pagan',
+        })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 422 when required properties are missing', (done) => {
+      request(server)
+        .put('/hotels/dummy')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({
+          ratePlans: getRatePlans(),
+        })
+        .expect(422)
+        .end(done);
+    });
+
+    it('should return 400 when no data is sent', (done) => {
+      request(server)
+        .put('/hotels/dummy')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({})
+        .expect(400)
+        .end(done);
+    });
+
+    it('should return 404 when hotel address is unknown or invalid', (done) => {
+      request(server)
+        .put('/hotels/0xinvalidaddr')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ description })
+        .expect(404)
+        .end(done);
+    });
+  });
+
   describe('DELETE /hotels/:address', () => {
     it('should delete the hotel from the on-chain storage', (done) => {
       wtMock.remove.resetHistory();
@@ -521,6 +741,7 @@ describe('controllers - hotels', function () {
             assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
               method: 'POST',
               json: true,
+              responseType: 'text',
               body: {
                 wtIndex: '0xwtIndex',
                 resourceType: 'hotel',
@@ -689,6 +910,7 @@ describe('controllers - hotels', function () {
             assert.deepEqual(requestLibMock.args[0], ['http://notifications.example/notifications', {
               method: 'POST',
               json: true,
+              responseType: 'text',
               body: {
                 wtIndex: '0xwtIndex',
                 resourceType: 'hotel',

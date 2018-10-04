@@ -9,8 +9,8 @@ const YAML = require('yamljs');
 const config = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error, HttpBadRequestError } = require('./errors');
-const { attachAccount, handleOnChainErrors } = require('./middleware');
-const { createHotel, updateHotel, deleteHotel, getHotel,
+const { attachAccount, handleOnChainErrors, handleDataFetchingErrors } = require('./middleware');
+const { createHotel, updateHotel, forceUpdateHotel, deleteHotel, getHotel,
   transferHotel } = require('./controllers/hotels');
 const { createAccount, updateAccount, deleteAccount } = require('./controllers/accounts');
 
@@ -66,7 +66,8 @@ app.delete('/accounts/:id', attachAccount, deleteAccount);
 app.post('/hotels', attachAccount, createHotel, handleOnChainErrors);
 app.get('/hotels/:address', getHotel, handleOnChainErrors);
 app.delete('/hotels/:address', attachAccount, deleteHotel, handleOnChainErrors);
-app.patch('/hotels/:address', attachAccount, updateHotel, handleOnChainErrors);
+app.patch('/hotels/:address', attachAccount, updateHotel, handleOnChainErrors, handleDataFetchingErrors);
+app.put('/hotels/:address', attachAccount, forceUpdateHotel, handleOnChainErrors, handleDataFetchingErrors);
 app.post('/hotels/:address/transfer', attachAccount, transferHotel, handleOnChainErrors);
 
 // 404 handler

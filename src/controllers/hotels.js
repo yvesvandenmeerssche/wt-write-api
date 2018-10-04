@@ -117,79 +117,94 @@ module.exports.createHotel = async (req, res, next) => {
   }
 };
 
+const updateHotelFactory = (ignoreOriginalData) => {
+  return async (req, res, next) => {
+    try {
+      const account = req.account,
+        wt = WT.get();
+      if (!wt.isValidAddress(req.params.address)) {
+        throw new Http404Error('notFound', 'Hotel not found.');
+      }
+      // 1. Validate request.
+      if (Object.keys(req.body).length === 0) {
+        throw new HttpBadRequestError('badRequest', 'No data provided');
+      }
+      _validateRequest(req.body, ignoreOriginalData);
+      // 2. Add `updatedAt` timestamps.
+      _addTimestamps(req.body);
+
+      // 3. Upload the changed data parts.
+      let dataIndex = {},
+        uploading = [],
+        notificationSubjects = [],
+        origDataIndex = { contents: {} };
+      if (!ignoreOriginalData) {
+        origDataIndex = await wt.getDataIndex(req.params.address);
+      }
+      for (let field of WT.DATA_INDEX_FIELDS) {
+        let data = req.body[field.name];
+        if (!data) {
+          continue;
+        }
+        if (field.pointer) {
+          let uploader = account.uploaders.getUploader(field.name);
+          uploading.push((async () => {
+            const docKey = `${field.name}Uri`;
+            let preferredUrl = origDataIndex.contents[docKey];
+            dataIndex[docKey] = await uploader.upload(data, field.name, preferredUrl);
+            notificationSubjects.push(field.name);
+          })());
+        } else {
+          dataIndex[`${field.name}Uri`] = data;
+        }
+      }
+      await Promise.all(uploading);
+
+      // 4. Find out if the data index and wt index need to be reuploaded.
+      const newContents = Object.assign({}, origDataIndex.contents, dataIndex);
+      if (!_.isEqual(origDataIndex.contents, newContents)) {
+        let uploader = account.uploaders.getUploader('root');
+        const dataIndexUri = await uploader.upload(newContents, 'dataIndex', origDataIndex.ref);
+        notificationSubjects.push('dataIndex');
+        if (dataIndexUri !== origDataIndex.ref) {
+          await wt.upload(account.withWallet, dataIndexUri, req.params.address);
+          notificationSubjects.push('onChain');
+        }
+      }
+
+      // 5. Publish update notifications, if applicable.
+      const notificationsUris = new Set([
+        dataIndex.notificationsUri,
+        origDataIndex.contents.notificationsUri,
+      ].filter(Boolean));
+      for (let notificationsUri of notificationsUris) {
+        try {
+          await publishHotelUpdated(notificationsUri, wt.wtIndexAddress,
+            req.params.address, notificationSubjects);
+        } catch (err) {
+          logger.info(`Could not publish notification to ${notificationsUri}: ${err}`);
+        }
+      }
+      res.sendStatus(204);
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        return next(new HttpValidationError('validationFailed', err.message));
+      }
+      next(err);
+    }
+  };
+};
+
 /**
  * Update hotel information.
  */
-module.exports.updateHotel = async (req, res, next) => {
-  try {
-    const account = req.account,
-      wt = WT.get();
-    if (!wt.isValidAddress(req.params.address)) {
-      throw new Http404Error('notFound', 'Hotel not found.');
-    }
-    // 1. Validate request.
-    _validateRequest(req.body, false);
-    if (Object.keys(req.body).length === 0) {
-      throw new HttpBadRequestError('badRequest', 'No data provided');
-    }
-    // 2. Add `updatedAt` timestamps.
-    _addTimestamps(req.body);
-    // 3. Upload the changed data parts.
-    let dataIndex = {},
-      uploading = [];
-    const notificationSubjects = [],
-      origDataIndex = await wt.getDataIndex(req.params.address);
-    for (let field of WT.DATA_INDEX_FIELDS) {
-      let data = req.body[field.name];
-      if (!data) {
-        continue;
-      }
-      if (field.pointer) {
-        let uploader = account.uploaders.getUploader(field.name);
-        uploading.push((async () => {
-          const docKey = `${field.name}Uri`;
-          let preferredUrl = origDataIndex.contents[docKey];
-          dataIndex[docKey] = await uploader.upload(data, field.name, preferredUrl);
-          notificationSubjects.push(field.name);
-        })());
-      } else {
-        dataIndex[`${field.name}Uri`] = data;
-      }
-    }
-    await Promise.all(uploading);
+module.exports.updateHotel = updateHotelFactory(false);
 
-    // 4. Find out if the data index and wt index need to be reuploaded.
-    const newContents = Object.assign({}, origDataIndex.contents, dataIndex);
-    if (!_.isEqual(origDataIndex.contents, newContents)) {
-      let uploader = account.uploaders.getUploader('root');
-      const dataIndexUri = await uploader.upload(newContents, 'dataIndex', origDataIndex.ref);
-      notificationSubjects.push('dataIndex');
-      if (dataIndexUri !== origDataIndex.ref) {
-        await wt.upload(account.withWallet, dataIndexUri, req.params.address);
-        notificationSubjects.push('onChain');
-      }
-    }
-    // 5. Publish update notifications, if applicable.
-    const notificationsUris = new Set([
-      dataIndex.notificationsUri,
-      origDataIndex.contents.notificationsUri,
-    ].filter(Boolean));
-    for (let notificationsUri of notificationsUris) {
-      try {
-        await publishHotelUpdated(notificationsUri, wt.wtIndexAddress,
-          req.params.address, notificationSubjects);
-      } catch (err) {
-        logger.info(`Could not publish notification to ${notificationsUri}: ${err}`);
-      }
-    }
-    res.sendStatus(204);
-  } catch (err) {
-    if (err instanceof ValidationError) {
-      return next(new HttpValidationError('validationFailed', err.message));
-    }
-    next(err);
-  }
-};
+/**
+ * Update hotel information even if the original off-chain
+ * data is inaccessible.
+ */
+module.exports.forceUpdateHotel = updateHotelFactory(true);
 
 /**
  * Delete the hotel from WT index.
