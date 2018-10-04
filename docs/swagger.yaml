@@ -456,6 +456,9 @@ components:
         notifications:
           description: URL of a notification service.
           $ref: https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/UriType
+        booking:
+          description: URL of a booking service.
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/UriType
     HotelPatch:
       type: object
       description: Patch object to update existing hotel data.
@@ -468,6 +471,9 @@ components:
           $ref: https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/Availability
         notifications:
           description: URL of a notification service.
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/UriType
+        booking:
+          description: URL of a booking service.
           $ref: https://raw.githubusercontent.com/windingtree/wiki/d0d0b570e5c449e347ed99eb1650b73cec120789/hotel-data-swagger.yaml#/components/schemas/UriType
     Error:
       title: Error
