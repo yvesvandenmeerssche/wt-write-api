@@ -19,10 +19,6 @@ const config = Object.assign({
   // Limit allowed uploaders to prevent dummy uploaders
   // from being used in production.
   allowedUploaders: ['s3', 'swarm'],
-  // Allow the 502 status code to be overridden with a custom
-  // one as emitting this code is sometimes problematic (e.g.
-  // behind cloudflare's servers).
-  badGatewayStatus: process.env.WT_BAD_GATEWAY_CODE || 502,
   baseUrl: process.env.WT_API_BASE_URL || 'https://playground-write-api.windingtree.com',
 }, require(`./${env}`));
 
@@ -39,7 +35,10 @@ config.wtLibs = WTLibs.createInstance({
       },
       'bzz-raw': {
         options: {
-          swarmProviderUrl: config.swarmProvider,
+          swarmProviderUrl: config.swarm.provider,
+          timeout: config.swarm.timeout,
+          timeoutRead: config.swarm.timeoutRead,
+          timeoutWrite: config.swarm.timeoutWrite,
         },
         create: (options) => {
           return new SwarmAdapter(options);
