@@ -5,7 +5,11 @@ module.exports = {
   port: 8000,
   ethereumProvider: 'http://localhost:8545',
   wtIndexAddress: '0xdummy',
-  swarmProvider: 'http://localhost:8500',
+  swarm: {
+    provider: 'http://localhost:8500',
+    timeoutRead: 500,
+    timeoutWrite: 1000,
+  },
   baseUrl: 'http://localhost:8000',
   db: knex({
     client: 'sqlite3',

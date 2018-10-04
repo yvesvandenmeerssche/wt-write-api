@@ -8,7 +8,6 @@
   },
   "env": {
     "WT_CONFIG": "demo",
-    "WT_BAD_GATEWAY_CODE": "500",
     "WT_API_BASE_URL": "https://demo-write-api.windingtree.com"
   }
 }

@@ -81,20 +81,6 @@ be careful where your API is running and who can access it.
 - **Warning** - Once your docker container (and its associated volumes, if any) is deleted,
 all accounts (wallets and configuration) will disappear.
 
-### Replacing the 502 status code with a custom one
-
-As this API serves mostly as an enhanced proxy further upstream
-(be it Ethereum blockchain or the various off-chain storages),
-there is a number of situations where the HTTP Bad Gateway
-Status (502) is returned (signalling an upstream problem,
-not a problem with the API itself).
-
-However, depending on your setup, it might be sometimes
-problematic to return HTTP 502 as part of legitimate
-traffic. Therefore, you can use the `WT_BAD_GATEWAY_CODE`
-environment variable to change the status code that is used
-in these situations to something different.
-
 ## Examples
 
 ### Account setup

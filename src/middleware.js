@@ -70,3 +70,18 @@ module.exports.handleOnChainErrors = (err, req, res, next) => {
   }
   next(err);
 };
+
+/**
+ * Replace well-defined off-chain errors with the corresponding
+ * HTTP errors.
+ */
+module.exports.handleDataFetchingErrors = (err, req, res, next) => {
+  if (!err) {
+    return next();
+  }
+  if (err instanceof WTLibs.errors.StoragePointerError) {
+    return next(new HttpBadGatewayError('hotelNotAccessible', err.message, 'Cannot access off-chain data'));
+  }
+  
+  next(err);
+};
