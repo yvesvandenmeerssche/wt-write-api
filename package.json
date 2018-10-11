@@ -1,6 +1,6 @@
 {
   "name": "wt-write-api",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "API to write data to the Winding Tree platform",
   "main": "src/index.js",
   "scripts": {
@@ -11,8 +11,8 @@
     "dev": "WT_CONFIG=dev node src/index.js",
     "createdb-dev": "WT_CONFIG=dev node management/createdb.js",
     "createdb": "node management/createdb.js",
-    "deploy-demo": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-demo.json",
-    "deploy-playground": "now -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-playground.json",
+    "deploy-demo": "now --regions bru -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-demo.json",
+    "deploy-playground": "now --regions bru -e NODE_ENV=production --team windingtree --token $NOW_TOKEN --docker --public --local-config=now-playground.json",
     "alias-demo": "now alias --team windingtree --token=$NOW_TOKEN --local-config=now-demo.json",
     "alias-playground": "now alias --team windingtree --token=$NOW_TOKEN --local-config=now-playground.json",
     "dev-net": "./management/dev-net.sh"
