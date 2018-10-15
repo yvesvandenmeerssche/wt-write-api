@@ -13,7 +13,7 @@ It also automatically publishes notifications about changes via
 the WT Update API.
 
 ## Requirements
-- Nodejs 10.7.x
+- Nodejs >=10
 
 ## Getting started
 In order to install and run tests, we must:
