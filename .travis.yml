@@ -12,20 +12,40 @@ jobs:
     - npm run lint
     - npm test
     - npm run coverage
-  - stage: deploy
+  - stage: Build docker image and upload to AWS
+    sudo: true
+    services:
+    - docker
     install: true
-    if: branch = release/demo
+    if: tag IS present
     script:
-    - echo 'Deploying to NOW'
-    - npm install -g now
-    - npm run deploy-demo && npm run alias-demo
-  - stage: deploy
+    - pip install --user awscli
+    - export PATH=$PATH:$HOME/.local/bin
+    - eval $(aws ecr get-login --no-include-email --region eu-west-1)
+    - echo "Building for playground"
+    - docker build --build-arg WT_CONFIG=playground -t wt-write-api:$TRAVIS_BRANCH-playground .
+    - docker tag wt-write-api:$TRAVIS_BRANCH-playground 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-playground
+    - docker push 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-playground
+    - echo "Building for demo"
+    - docker build --build-arg WT_CONFIG=demo -t wt-write-api:$TRAVIS_BRANCH-demo .
+    - docker tag wt-write-api:$TRAVIS_BRANCH-demo 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-demo
+    - docker push 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-demo
+  - stage: Start service from docker with latest merged tag
     install: true
+    sudo: true
     if: branch = release/playground
     script:
-    - echo 'Deploying to NOW'
-    - npm install -g now
-    - npm run deploy-playground && npm run alias-playground
+    - pip install --user awscli
+    - export PATH=$PATH:$HOME/.local/bin
+    - npm run deploy-aws-playground
+  - stage: Start service from docker with latest merged tag
+    install: true
+    sudo: true
+    if: branch = release/demo
+    script:
+    - pip install --user awscli
+    - export PATH=$PATH:$HOME/.local/bin
+    - npm run deploy-aws-demo
 env:
   global:
   - secure: eDqM+qO8M/VrtvRBTh9O3IG7Ab5dhHfSQaMgC/imaiy0MUxK6wCE7WPQ12Fd3ULw2l+EFM0l9gcPeSINzZz+hVxZ2CUlGw6FUVqvawbuR0wx/xWXsIKGyq/43w6mojbZ8rhy4DNiD9J/gSrYDQ+pdL72GUfQ+QtGQt/wTov2Qmac8tlVCVSoSAiBj632hLkwsYPJM1Jj6WM+6SuYKk8C/5nIC9gPkx+8EZDC5hQtcdyrzxn/gM76SQ3SLT4vpyhebcbQlGPL+F/gei3IgHAAjZcAMEg5LOVr23ByOclZBB1po1dwu2/aNVI113aaXvIx+68H1aTksL261vxODq2bObF0joeOAERPWRFBHofDWugUzwudhl0BXTXgzDtxvdONKzFQlZUrBV17i3dOk5gkIUraCqMNrsTnPbZTWoa23CaI1MeBZxOuaFnMJXtNU+XiMo8cG20h554Yq3P4mLdkQLMhZyCsZjNKNVvmCeYYGEBvbYpos83WX0RxSmw3qEnB+u76TjGPmUgrIxIfudwDfP6QQdISZtODhCVDeCzS8FJczuQLrhTsNXWGsu9gIVzXq2TnfHUJMYV1QQXmiYDcsdjKELl5OK1+YrlCiGCi9bifrxaMkQq4TODA+dZKBS7LC7mZ172T0zg/E+42WRae+Pbc4gEd7LwxpjNUVRUu2pM=

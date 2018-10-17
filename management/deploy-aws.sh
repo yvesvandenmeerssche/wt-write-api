@@ -29,7 +29,7 @@ TASK_DEF="[{\"portMappings\": [{\"hostPort\": 0,\"protocol\": \"tcp\",\"containe
         \"value\": \"$WT_CONFIG\"
       }
     ],
-    \"image\": \"029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$LATEST_TAG\",
+    \"image\": \"029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$LATEST_TAG-$ENVIRONMENT\",
     \"name\": \"wt-write-api\"
   }]"
 
