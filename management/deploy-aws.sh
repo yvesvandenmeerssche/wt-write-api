@@ -30,10 +30,12 @@ TASK_DEF="[{\"portMappings\": [{\"hostPort\": 0,\"protocol\": \"tcp\",\"containe
       }
     ],
     \"image\": \"029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$LATEST_TAG-$ENVIRONMENT\",
-    \"name\": \"wt-write-api\"
+    \"name\": \"wt-write-api\",
+    \"memoryReservation\": 256,
+    \"cpu\": 128
   }]"
 
 echo "Updating task definition"
-aws ecs register-task-definition --region $AWS_REGION --family $TASK_FAMILY --container-definitions "$TASK_DEF" --memory 512 --cpu 1024 > /dev/null
+aws ecs register-task-definition --region $AWS_REGION --family $TASK_FAMILY --container-definitions "$TASK_DEF" > /dev/null
 echo "Updating service"
-aws ecs update-service --region $AWS_REGION --cluster shared-docker-cluster  --service "$SERVICE_NAME" --task-definition "$TASK_FAMILY" > /dev/null
+aws ecs update-service --region $AWS_REGION --cluster shared-docker-cluster-t3 --service "$SERVICE_NAME" --task-definition "$TASK_FAMILY" > /dev/null
