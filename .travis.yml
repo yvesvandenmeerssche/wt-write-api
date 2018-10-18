@@ -12,21 +12,44 @@ jobs:
     - npm run lint
     - npm test
     - npm run coverage
-  - stage: deploy
+  - stage: Build docker image and upload to AWS
+    sudo: true
+    services:
+    - docker
     install: true
-    if: branch = release/demo
+    if: tag IS present
     script:
-    - echo 'Deploying to NOW'
-    - npm install -g now
-    - npm run deploy-demo && npm run alias-demo
-  - stage: deploy
+    - pip install --user awscli
+    - export PATH=$PATH:$HOME/.local/bin
+    - eval $(aws ecr get-login --no-include-email --region eu-west-1)
+    - echo "Building for playground"
+    - docker build --build-arg WT_CONFIG=playground -t wt-write-api:$TRAVIS_BRANCH-playground
+      .
+    - docker tag wt-write-api:$TRAVIS_BRANCH-playground 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-playground
+    - docker push 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-playground
+    - echo "Building for demo"
+    - docker build --build-arg WT_CONFIG=demo -t wt-write-api:$TRAVIS_BRANCH-demo
+      .
+    - docker tag wt-write-api:$TRAVIS_BRANCH-demo 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-demo
+    - docker push 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-demo
+  - stage: Start service from docker with latest merged tag
     install: true
+    sudo: true
     if: branch = release/playground
     script:
-    - echo 'Deploying to NOW'
-    - npm install -g now
-    - npm run deploy-playground && npm run alias-playground
+    - pip install --user awscli
+    - export PATH=$PATH:$HOME/.local/bin
+    - npm run deploy-aws-playground
+  - stage: Start service from docker with latest merged tag
+    install: true
+    sudo: true
+    if: branch = release/demo
+    script:
+    - pip install --user awscli
+    - export PATH=$PATH:$HOME/.local/bin
+    - npm run deploy-aws-demo
 env:
   global:
-  - secure: eDqM+qO8M/VrtvRBTh9O3IG7Ab5dhHfSQaMgC/imaiy0MUxK6wCE7WPQ12Fd3ULw2l+EFM0l9gcPeSINzZz+hVxZ2CUlGw6FUVqvawbuR0wx/xWXsIKGyq/43w6mojbZ8rhy4DNiD9J/gSrYDQ+pdL72GUfQ+QtGQt/wTov2Qmac8tlVCVSoSAiBj632hLkwsYPJM1Jj6WM+6SuYKk8C/5nIC9gPkx+8EZDC5hQtcdyrzxn/gM76SQ3SLT4vpyhebcbQlGPL+F/gei3IgHAAjZcAMEg5LOVr23ByOclZBB1po1dwu2/aNVI113aaXvIx+68H1aTksL261vxODq2bObF0joeOAERPWRFBHofDWugUzwudhl0BXTXgzDtxvdONKzFQlZUrBV17i3dOk5gkIUraCqMNrsTnPbZTWoa23CaI1MeBZxOuaFnMJXtNU+XiMo8cG20h554Yq3P4mLdkQLMhZyCsZjNKNVvmCeYYGEBvbYpos83WX0RxSmw3qEnB+u76TjGPmUgrIxIfudwDfP6QQdISZtODhCVDeCzS8FJczuQLrhTsNXWGsu9gIVzXq2TnfHUJMYV1QQXmiYDcsdjKELl5OK1+YrlCiGCi9bifrxaMkQq4TODA+dZKBS7LC7mZ172T0zg/E+42WRae+Pbc4gEd7LwxpjNUVRUu2pM=
   - secure: eOzivhWbHZPzAiwyPt7yBv+Pvcmw0RJXhvmlXRrifjVnIHbxaoAVH5jNHXNRfJ4rXk901db7b0oLe1pm6mBMLZ1H8fsDY/X50XAcJ2fzR8CQiME4uqTpHiE4CfEqmjKx3e5rHSwwqGkhiH3iSlVhxsKICdXP+SGUGMdbvOv++epMEQ+35n9KDe0HpfXfkTxN2NyAyqzXihYAwyKdfH+lSxyaxSNovsBIRryV63dz2ocTkjzJry+kZSdtBDEO0rffmhAfokHXV5uUxGnrwpS6JbhcZDGcMvUKV7YHcRlDKUUr6sL55CBOzC0XH+UGqwe3MxPBa9N9wH4Qc9W8zbCriLjTsXxyHU15/Z2riV5KJuU/zwmG2pxShxXFBjuurs3Z2QAT2mYj4Z7qSPM+b9VuTHc+Aj9Ynizzr3R5dL4A5JXSu24qheTBdXfpbngOU2OnLLD1gyzcYWLBeH6X15bX03GdhjJrqubVCGNODWeWvZCAeEs6FfTZQVkt9w8QKcX2+3oY2OAgrXF3x8nX/rqFZKTZqEHXizXpXv4o3wt6L1bORZ26S8UWJuVFm8YzjPeEi93OSEjZ4Sr0RnuMeGGhLBjKeVURJsmiX21dbxgNxGfoHiJYr86bTTWKhxLA1CDvzynlxW/AypPByOcKV5T/WQEBGbXszfhy2/49NCRDL/I=
+  - secure: Jw2ASxxhyqDKkVsctuHcjFUoo2JSeNTSRE/vJW/vES8wOUpQRqh5gFx2xqqJ7AnhJ+4y2CZquE6R+CENXed4C83an89aznVP37S9F693KQn0U/TzHO46d79FaUXGwFOYJ1XPoaKdY+/msH9ISpmoPcyGQi14w4EEQidZ3YHLSv4as05CPq4wdYrxvy/DShAp3xauu4EPgnAK+QuAd7Ujqz537zfa5dhF4SqP8KVvtGvPUHlpI3wej2WSIvOp9GBoJOYmJGJgMU86eSIExSgfqErQy2/vhrkCtTdnl0zg2WhdEchIfuqCSBzc6Ak0pXPgWs9vmroaA3MWWoYEryNhjD1AlGgKhuRKJG3USDxVF1Nntg3enrAGk5WL9rtggCi+F8IOaLB8pHZ669oVbZ0DRERKzdEk3+mdNYkoeJIY2s/Zn6WgIRCMRxvXiIWZsRIXwMfv0GMZq3rRSoe2TmFhZLzhC1zkDwljwPjD8Ln0dhwkeitsqvlOHyt/3iI9hAGy5ejww0WrC7tzsgigGmRabyy3e4EiB+4z5VVtRsy+ibdVd1canjA1pXEWRPJGTG9jGPut9eq/+wcTU9IK4+bQT5Fhma9DrOzPP/Zq1sCSZAz66a84wK3ssiaP3rQcUnIVVWGTH27mq3YGvalNurGeqb1a4NP9Y4fp9zh9dntABac=
+  - secure: OPGqs6MKv7eOlPAWF4LTlVzM49YwteIKdtxyqf/yVbcR9aEaR6aYcDqfRElWQJaArDJ55GAsHCrDwo6LxBDI3EeVQJHK7CaekPcM2/sacyGjbuqbjDIgGr76GXZfAoxglYaCorCSjymA0z6wRB0KwjeoS7FGCibzaT0QYluJ0aT8OOMDtitTOLMsEKSQhcbZu7y7LO6HGRUAV7RqRcDii28TJQpDDWiCc3xWVwm1LBOW8oe89ZQ1Ev2v/3TBVDhCYy5OdgA7VYv672lyvYT79c3ym2E8cbtCt/Uh9enH1IO/iDUbCX9lljzwNe8U0TKNtt+ro5AcpFheNLn+/Z6tTYswEi6ymhe3nXtDPkjsEmTCwqaJ73K/jLB3FX5iNbbvzfADG+F5BbVwkUQBH7ONAK0rNDTc+TyUl0gtOFO/o2lcJDFh2tqOgKxfqcTv4kTe2a+kDJkQ++EwgFZpWBtga6E1JB6FVmsiFJlNKQELQQ/a0iWgQRoedH9qGbZBeEs+RsSlHVFhkjN5wLXBJZUCNLa5TzUE7XdmasoIfBSZ4r6gv/LCHgPudn3ArmSyvH92PsJcMjZ1JUxZzci1waMIWqxMiFiSyW1HIVHYwKvAfhe77ccVSI3YCXa6amCtnNft3YrwEQ+XxuFNeSyMjuXZB8Su6JudVbxgFhaJg5DziHQ=
