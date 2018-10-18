@@ -6,7 +6,8 @@
     "type": "object",
     "required": [
       "name",
-      "price"
+      "price",
+      "roomTypeIds"
     ],
     "properties": {
       "updatedAt": {
@@ -36,7 +37,7 @@
       "roomTypeIds": {
         "type": "array",
         "description": "List of all room types that this rate plan applies to",
-        "minItems": 0,
+        "minItems": 1,
         "maxItems": 30,
         "uniqueItems": true,
         "items": {
