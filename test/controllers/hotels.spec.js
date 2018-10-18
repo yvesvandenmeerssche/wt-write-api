@@ -67,6 +67,7 @@ describe('controllers - hotels', function () {
             ratePlansUri: 'dummy://ratePlans.json',
             availabilityUri: 'dummy://availability.json',
             notificationsUri: 'http://notifications.example',
+            bookingUri: 'http://booking.example',
           },
         };
       },
@@ -122,6 +123,7 @@ describe('controllers - hotels', function () {
           ratePlans: ratePlans,
           availability: availability,
           notifications: 'http://notifications.example',
+          booking: 'https://booking.example',
         })
         .expect(201)
         .expect('content-type', /application\/json/)
@@ -136,6 +138,7 @@ describe('controllers - hotels', function () {
               ratePlansUri: 'dummy://ratePlans.json',
               availabilityUri: 'dummy://availability.json',
               notificationsUri: 'http://notifications.example',
+              bookingUri: 'https://booking.example',
             }));
             assert.ok(offChainUploader.upload.calledWithExactly(desc, 'description'));
             assert.ok(offChainUploader.upload.calledWithExactly(ratePlans, 'ratePlans'));

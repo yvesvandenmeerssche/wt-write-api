@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 const { validateDescription, validateRatePlans, validateAvailability,
-  validateNotifications } = require('./validators');
+  validateNotifications, validateBooking } = require('./validators');
 
 /* A declarative description of hotel data. */
 const DATA_INDEX_FIELDS = [
@@ -28,6 +28,12 @@ const DATA_INDEX_FIELDS = [
     required: false,
     pointer: false,
     validator: validateNotifications,
+  },
+  {
+    name: 'booking',
+    required: false,
+    pointer: false,
+    validator: validateBooking,
   },
 ];
 const DATA_INDEX_FIELD_NAMES = _.map(DATA_INDEX_FIELDS, 'name');

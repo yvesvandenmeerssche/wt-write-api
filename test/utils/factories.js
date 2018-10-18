@@ -28,6 +28,7 @@ module.exports.getRatePlans = function () {
       description: 'One bed, one pillow, no breakfast.',
       price: 123,
       updatedAt: (new Date()).toISOString(),
+      roomTypeIds: ['dummy'],
     },
   };
 };
