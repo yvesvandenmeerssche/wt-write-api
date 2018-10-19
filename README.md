@@ -90,6 +90,8 @@ The account consists of Ethereum wallet in JSON format and a configuration of up
 The uploaders are telling the API where to put data about hotels managed by that
 Ethereum wallet. *The API does not store Wallet passwords.*
 
+The JSON-format wallet can easily be created locally with [mycrypto](https://download.mycrypto.com/).
+
 In this case, we are setting up swarm as our preferred storage, make sure it is 
 actually accessible (via the `swarmProvider` gateway url from config) before you
 try to create hotel.
