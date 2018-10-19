@@ -112,6 +112,82 @@ $ curl -X POST localhost:8000/accounts -H 'Content-Type: application/json' --dat
 {"accountId":"aa43edaf8266e8f8","accessKey":"usgq6tSBW+wDYA/MBF367HnNp4tGKaCTRPy3JHPEqJmFBuxq1sA7UhFOpuV80ngC"}
 ```
 
+#### Uploaders
+
+We currently support two types of uploaders, and each uploader can contain a
+configuration. *These configuration values are not encrypted in any way.*
+
+- **Swarm** - No configuration needed, we will use the Swarm gateway configured
+for the whole wt-write-api instance.
+- **AWS S3** - We recommend to use a separate IAM account for this with a limited
+set of permissions. All of the following options are required unless stated
+otherwise.
+    - `accessKeyId` - AWS credentials
+    - `secretAccessKey` - AWS credentials
+    - `region` - AWS region
+    - `bucket` - S3 bucket to upload to. This is the name that is used in URL.
+    - `keyPrefix` - a prefix ("directory") to upload hotel data to. Serves to
+    differentiate between different hotels stored in the same s3 bucket. Optional.
+
+You can use any combination of these uploaders for the following list of objects:
+
+- `root` - `Hotel data index` object. This object is required.
+- `description` - `Hotel description` object
+- `ratePlans` - `RatePlans` object
+- `availability` - `Availability` object
+...
+
+If you, for example, would like to store your description on Swarm, but everything else in your S3,
+you would use the following account object for your initial `POST` request. For any object type not
+explicitely stated in the configuration, the `root` configuration will be used.
+
+```json 
+{
+  "wallet": {"....": "...."},
+  "uploaders": {
+    "root": {
+      "s3": {
+        "accessKeyId": "AX...",
+        "secretAccessKey": "1234...",
+        "region": "eu-west-1",
+        "bucket": "hotel-data"
+      }
+    },
+    "description": {
+      "swarm": {}
+    }
+  }
+}
+```
+
+In another example, you want everything on swarm except `availability` and ratePlans:
+
+```json 
+{
+  "wallet": {"....": "...."},
+  "uploaders": {
+    "root": {
+      "swarm": {}
+    },
+    "availability": {
+      "s3": {
+        "accessKeyId": "AX...",
+        "secretAccessKey": "1234...",
+        "region": "eu-west-1",
+        "bucket": "hotel-data"
+      }
+    },
+    "ratePlans": {
+      "s3": {
+        "accessKeyId": "AX...",
+        "secretAccessKey": "1234...",
+        "region": "eu-west-1",
+        "bucket": "hotel-data"
+      }
+    }
+  }
+}
+```
 ### Create hotel
 
 This is just an example data that we know will pass all the validations. For a better
