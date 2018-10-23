@@ -3,7 +3,7 @@
 const { expect } = require('chai');
 const request = require('supertest');
 
-const { db } = require('../src/config');
+const { db, wtIndexAddress, ethNetwork } = require('../src/config');
 const { resetDB } = require('../src/db');
 const { setRequestLib } = require('../src/services/notifications');
 
@@ -40,7 +40,8 @@ describe('API', function () {
           expect(res.body).to.have.property('info');
           expect(res.body).to.have.property('version');
           expect(res.body).to.have.property('config');
-          expect(res.body).to.have.property('wtIndexAddress');
+          expect(res.body).to.have.property('wtIndexAddress', wtIndexAddress);
+          expect(res.body).to.have.property('ethNetwork', ethNetwork);
         });
     });
 

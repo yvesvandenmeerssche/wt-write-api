@@ -35,6 +35,9 @@ paths:
                   wtIndexAddress:
                     type: string
                     description: Ethereum address of used Winding Tree index.
+                  ethNetwork:
+                    type: string
+                    description: Name of the ethereum network against which this instance runs.
   /accounts:
     post:
       summary: Create account
