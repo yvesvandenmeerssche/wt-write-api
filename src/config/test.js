@@ -4,6 +4,7 @@ const knex = require('knex');
 module.exports = {
   port: 8100,
   wtIndexAddress: '0xdummy',
+  ethNetwork: 'test',
   swarm: {
     provider: 'http://localhost:8500',
   },
