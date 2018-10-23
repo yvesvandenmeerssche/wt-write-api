@@ -5,6 +5,7 @@ module.exports = {
   port: 8000,
   ethereumProvider: 'http://localhost:8545',
   wtIndexAddress: '0xdummy',
+  ethNetwork: 'local',
   swarm: {
     provider: 'http://localhost:8500',
     timeoutRead: 500,
