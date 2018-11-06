@@ -85,7 +85,7 @@ describe('validators', function () {
 
     it('should fail when a required attribute is missing', () => {
       let availability = getAvailability();
-      delete availability.latestSnapshot.availability.ourOnlyRoom[0].date;
+      delete availability.roomTypes.ourOnlyRoom[0].date;
       assert.throws(() => validateAvailability(availability), ValidationError,
         /Missing required property: date/);
     });

@@ -1,52 +1,46 @@
 {
-  "description": "Availability data. We're keeping them nested to make the future extension easier.",
+  "description": "Full snapshot of availability in time of `updatedAt`",
   "type": "object",
+  "required": [
+    "roomTypes"
+  ],
   "properties": {
-    "latestSnapshot": {
-      "description": "Full snapshot of availability in time of `updatedAt`",
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "roomTypes": {
+      "description": "Object where property names are roomTypeId",
       "type": "object",
-      "required": [
-        "availability"
-      ],
-      "properties": {
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "availability": {
-          "description": "Object where property names are roomTypeId",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
           "type": "object",
-          "additionalProperties": {
-            "type": "array",
-            "items": {
+          "required": [
+            "date",
+            "quantity"
+          ],
+          "properties": {
+            "date": {
+              "description": "The date the availability is for",
+              "type": "string",
+              "format": "date"
+            },
+            "quantity": {
+              "description": "Number of free resources to book for the day",
+              "type": "integer"
+            },
+            "restrictions": {
+              "description": "Possible restrictions (this is not exhaustive and we might add more options in the future)",
               "type": "object",
-              "required": [
-                "date",
-                "quantity"
-              ],
               "properties": {
-                "date": {
-                  "description": "The date the availability is for",
-                  "type": "string",
-                  "format": "date"
+                "noArrival": {
+                  "type": "boolean",
+                  "description": "It's not possible to arrive on this date"
                 },
-                "quantity": {
-                  "description": "Number of free resources to book for the day",
-                  "type": "integer"
-                },
-                "restrictions": {
-                  "description": "Possible restrictions (this is not exhaustive and we might add more options in the future)",
-                  "type": "object",
-                  "properties": {
-                    "noArrival": {
-                      "type": "boolean",
-                      "description": "It's not possible to arrive on this date"
-                    },
-                    "noDeparture": {
-                      "type": "boolean",
-                      "description": "It's not possible to depart on this date"
-                    }
-                  }
+                "noDeparture": {
+                  "type": "boolean",
+                  "description": "It's not possible to depart on this date"
                 }
               }
             }

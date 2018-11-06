@@ -17,16 +17,14 @@ const { publishHotelCreated, publishHotelDeleted,
  * - description
  * - description.roomTypes.*
  * - ratePlans.ratePlans.*
- * - availability.latestSnapshot
- * - availability.updates.*
+ * - availability
  */
 function _addTimestamps (body) {
   const timestampedObjects = _([
     [_.get(body, 'description')],
     _.values(_.get(body, ['description', 'roomTypes'])),
     _.values(_.get(body, ['ratePlans'])),
-    [_.get(body, 'availability.latestSnapshot')],
-    _.values(_.get(body, 'availability.updates')),
+    [_.get(body, 'availability')],
   ])
     .flatten()
     .filter()

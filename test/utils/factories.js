@@ -36,17 +36,15 @@ module.exports.getRatePlans = function () {
 /** Return a valid availability representation. */
 module.exports.getAvailability = function () {
   return {
-    latestSnapshot: {
-      availability: {
-        ourOnlyRoom: [
-          {
-            date: '2044-04-04',
-            quantity: 1,
-          },
-        ],
-      },
-      updatedAt: (new Date()).toISOString(),
+    roomTypes: {
+      ourOnlyRoom: [
+        {
+          date: '2044-04-04',
+          quantity: 1,
+        },
+      ],
     },
+    updatedAt: (new Date()).toISOString(),
   };
 };
 
