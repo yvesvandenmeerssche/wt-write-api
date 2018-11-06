@@ -145,6 +145,7 @@ class WT {
         contents[name] = indexContents[name];
       }
     }
+    contents.dataFormatVersion = indexContents.dataFormatVersion;
     return {
       ref: rawIndex.ref,
       contents: contents,

@@ -19,6 +19,14 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - docs
+                  - info
+                  - version
+                  - config
+                  - wtIndexAddress
+                  - ethNetwork
+                  - dataFormatVersion
                 properties:
                   docs:
                     type: string
@@ -38,6 +46,9 @@ paths:
                   ethNetwork:
                     type: string
                     description: Name of the ethereum network against which this instance runs.
+                  dataFormatVersion:
+                    type: string
+                    description: Version number indicating the data format specification version.
   /accounts:
     post:
       summary: Create account

@@ -269,6 +269,80 @@ You can verify that the hotel data was saved by calling
 $ curl localhost:8000/hotels/0xa8c4cbB500da540D9fEd05BE7Bef0f0f5df3e2cc
 ```
 
+### Update hotel
+
+You can also update previously created hotels. The top-level
+properties (e.g. `description`) are always replaced as a whole.
+
+```json
+{
+  "description": {
+    "name": "Changed hotel name",
+    "description": "**Beautiful** hotel located in the center of _Prague, Czech Republic_.",
+    "location": {
+      "latitude": 50.075388,
+      "longitude": 14.414170
+    },
+    "contacts": {
+      "general": {
+        "email": "chadima.jiri@gmail.com",
+        "phone": "00420224371111",
+        "url": "https://jirkachadima.cz",
+        "ethereum": "windingtree.eth"
+      }
+    },
+    "address": {
+      "line1": "Rašínovo nábřeží 1981/80",
+      "line2": "Nové Město",
+      "postalCode": "12000",
+      "city": "Prague",
+      "country": "CZ"
+    },
+    "timezone": "Europe/Prague",
+    "currency": "CZK",
+    "amenities": [],
+    "images": [
+      "https://raw.githubusercontent.com/windingtree/media/master/logo-variants/tree/png/tree--gradient-on-white.png",
+      "https://raw.githubusercontent.com/windingtree/media/master/logo-variants/full-logo/png/logo--black-on-green.png"
+    ],
+    "updatedAt": "2018-06-19T15:53:00+0200",
+    "defaultCancellationAmount": 30,
+    "roomTypes": {
+      "1234-abcd": {
+        "name": "string",
+        "description": "string",
+        "totalQuantity": 0,
+        "occupancy": {
+          "min": 1,
+          "max": 3
+        },
+        "amenities": [
+          "TV"
+        ],
+        "images": [
+          "https://raw.githubusercontent.com/windingtree/media/web-assets/logo-variants/full-logo/png/logo--white.png"
+        ],
+        "updatedAt": "2018-06-27T14:59:05.830Z",
+        "properties": {
+          "nonSmoking": "some"
+        }
+      }
+    }
+  }
+}
+```
+
+```sh
+$ curl -X PATCH localhost:8000/hotels -H 'Content-Type: application/json' \
+  -H 'X-Access-Key: usgq6tSBW+wDYA/MBF367HnNp4tGKaCTRPy3JHPEqJmFBuxq1sA7UhFOpuV80ngC' \
+  -H 'X-Wallet-Password: windingtree' \
+  --data @hotel-description.json
+```
+
+The data format version indicator in hotel data index is
+always updated to the write api's declared data format version,
+no matter how many parts of a hotel you update.
+
 ## Publicly available instances
 
 For currently available public instances of wt-write-api, please see [this

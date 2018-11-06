@@ -2,6 +2,7 @@ const _ = require('lodash');
 const WTLibs = require('@windingtree/wt-js-libs');
 
 const { logger } = require('../config');
+const { DATA_FORMAT_VERSION } = require('../constants');
 const { HttpValidationError, HttpBadRequestError,
   HttpBadGatewayError, Http404Error } = require('../errors');
 const { ValidationError } = require('../services/validators');
@@ -92,6 +93,7 @@ module.exports.createHotel = async (req, res, next) => {
       }
     }
     await Promise.all(uploading);
+    dataIndex.dataFormatVersion = DATA_FORMAT_VERSION;
     // 4. Upload the data index.
     const dataIndexUri = await account.uploaders.getUploader('root').upload(dataIndex, 'dataIndex');
     // 5. Upload the resulting data to ethereum.
@@ -157,6 +159,7 @@ const updateHotelFactory = (ignoreOriginalData) => {
         }
       }
       await Promise.all(uploading);
+      dataIndex.dataFormatVersion = DATA_FORMAT_VERSION;
 
       // 4. Find out if the data index and wt index need to be reuploaded.
       const newContents = Object.assign({}, origDataIndex.contents, dataIndex);

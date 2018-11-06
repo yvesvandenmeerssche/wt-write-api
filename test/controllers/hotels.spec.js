@@ -10,7 +10,7 @@ const Account = require('../../src/models/account');
 const WT = require('../../src/services/wt');
 const notifications = require('../../src/services/notifications');
 const { UploaderConfig } = require('../../src/services/uploaders');
-const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../../src/constants');
+const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER, DATA_FORMAT_VERSION } = require('../../src/constants');
 
 const offChainUploader = {
   upload: sinon.stub().callsFake(async (data, label) => {
@@ -68,6 +68,7 @@ describe('controllers - hotels', function () {
             availabilityUri: 'dummy://availability.json',
             notificationsUri: 'http://notifications.example',
             bookingUri: 'http://booking.example',
+            dataFormatVersion: DATA_FORMAT_VERSION,
           },
         };
       },
@@ -139,6 +140,7 @@ describe('controllers - hotels', function () {
               availabilityUri: 'dummy://availability.json',
               notificationsUri: 'http://notifications.example',
               bookingUri: 'https://booking.example',
+              dataFormatVersion: DATA_FORMAT_VERSION,
             }));
             assert.ok(offChainUploader.upload.calledWithExactly(desc, 'description'));
             assert.ok(offChainUploader.upload.calledWithExactly(ratePlans, 'ratePlans'));
@@ -509,6 +511,7 @@ describe('controllers - hotels', function () {
             assert.ok(offChainUploader.upload.calledWithExactly({
               descriptionUri: 'dummy://description.json',
               ratePlansUri: 'dummy://ratePlans.json',
+              dataFormatVersion: DATA_FORMAT_VERSION,
             }, 'dataIndex', undefined));
             done();
           } catch (e) {
@@ -538,6 +541,7 @@ describe('controllers - hotels', function () {
             assert.equal(offChainUploader.upload.args[1][1], 'dataIndex');
             assert.ok(offChainUploader.upload.calledWithExactly({
               descriptionUri: 'dummy://description.json',
+              dataFormatVersion: DATA_FORMAT_VERSION,
             }, 'dataIndex', undefined));
             done();
           } catch (e) {
