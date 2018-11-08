@@ -1,6 +1,6 @@
 {
   "name": "wt-write-api",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "API to write data to the Winding Tree platform",
   "main": "src/index.js",
   "scripts": {
