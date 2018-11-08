@@ -55,7 +55,7 @@ app.get('/', (req, res) => {
     config: process.env.WT_CONFIG,
     ethNetwork: config.ethNetwork,
     wtIndexAddress: config.wtIndexAddress,
-    dataFormat: DATA_FORMAT_VERSION,
+    dataFormatVersion: DATA_FORMAT_VERSION,
   });
 });
 
