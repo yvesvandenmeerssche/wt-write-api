@@ -157,6 +157,12 @@ describe('validators', function () {
       assert.throws(() => validateUploaders(uploaders), ValidationError,
         /Invalid uploader configuration/);
     });
+
+    it('should accept empty swarm uploader configuration', () => {
+      let uploaders = getUploaders();
+      uploaders.ratePlans.swarm = {};
+      validateUploaders(uploaders);
+    });
   });
 
   describe('validateWallet', () => {

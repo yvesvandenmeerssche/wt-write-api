@@ -61,7 +61,14 @@ module.exports.getUploaders = function () {
         keyPrefix: 'prefix',
       },
     },
-    ratePlans: { swarm: {} },
+    ratePlans: {
+      swarm: {
+        providerUrl: 'https://swarm-gateways.net',
+        timeout: 3000,
+        timeoutRead: 5000,
+        timeoutWrite: 7000,
+      },
+    },
   };
 };
 
