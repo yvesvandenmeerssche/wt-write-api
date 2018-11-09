@@ -11,6 +11,7 @@ const descriptionSchema = require('./description-schema.json');
 const ratePlansSchema = require('./rateplans-schema.json');
 const availabilitySchema = require('./availability-schema.json');
 const uploadersSchema = require('./uploaders-schema.json');
+const walletSchema = require('./wallet-schema.json');
 const { wtLibs, allowedUploaders } = require('../../config');
 
 class ValidationError extends Error {};
@@ -136,12 +137,9 @@ module.exports.validateWallet = function (data) {
   if (!(data instanceof Object)) { // This case is not handled by the "unlock" method.
     throw new ValidationError('Not a valid V3 wallet');
   }
-  if (!data.address) {
-    // wt-js-libs depend on this being present.
-    throw new ValidationError('Not a valid V3 wallet - missing address');
-  }
-  const wallet = wtLibs.createWallet(data);
+  _validate(data, walletSchema);
   try {
+    const wallet = wtLibs.createWallet(data);
     wallet.unlock('dummy');
   } catch (err) {
     if (err instanceof WTLibs.errors.MalformedWalletError) {
