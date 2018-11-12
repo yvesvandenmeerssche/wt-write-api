@@ -6,7 +6,7 @@ const sinon = require('sinon');
 const WTLibs = require('@windingtree/wt-js-libs');
 
 const { HttpUnauthorizedError } = require('../src/errors');
-const { attachAccount } = require('../src/middleware');
+const { attachAccount, handleOnChainErrors } = require('../src/middleware');
 const Account = require('../src/models/account');
 const WT = require('../src/services/wt');
 const { getWallet } = require('./utils/factories');
@@ -184,6 +184,75 @@ describe('middleware', () => {
           done(e);
         }
       });
+    });
+  });
+
+  describe('handleOnchainErrors', () => {
+    it('should transform WalletSigningError into 403 HTTP', (done) => {
+      handleOnChainErrors(new WTLibs.errors.WalletSigningError(), {}, undefined, (err) => {
+        if (!err) return done('should have thrown');
+        try {
+          assert.equal(err.status, 403);
+          assert.equal(err.code, 'forbidden');
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
+
+    it('should transform InsufficientFundsError into 402 HTTP', (done) => {
+      handleOnChainErrors(new WTLibs.errors.InsufficientFundsError(), {}, undefined, (err) => {
+        if (!err) return done('should have thrown');
+        try {
+          assert.equal(err.status, 402);
+          assert.equal(err.code, 'paymentRequired');
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
+
+    it('should transform InaccessibleEthereumNodeError into 502 HTTP', (done) => {
+      handleOnChainErrors(new WTLibs.errors.InaccessibleEthereumNodeError(), {}, undefined, (err) => {
+        if (!err) return done('should have thrown');
+        try {
+          assert.equal(err.status, 502);
+          assert.equal(err.code, 'badGatewayError');
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
+
+    it('should transform HotelNotFoundError into 404 HTTP', (done) => {
+      handleOnChainErrors(new WTLibs.errors.HotelNotFoundError(), {}, undefined, (err) => {
+        if (!err) return done('should have thrown');
+        try {
+          assert.equal(err.status, 404);
+          assert.equal(err.code, 'notFound');
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
+
+    it('should pass TransactionMiningError to a generic 500 handler', (done) => {
+      handleOnChainErrors(
+        new WTLibs.errors.TransactionRevertedError('Transaction reverted', 'Transaction has been reverted by the EVM'), {}, undefined, (err) => {
+          if (!err) return done('should have thrown');
+          try {
+            assert.instanceOf(err, WTLibs.errors.TransactionRevertedError);
+            assert.equal(err.message, 'Transaction reverted');
+            assert.equal(err.originalError, 'Transaction has been reverted by the EVM');
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
     });
   });
 });
