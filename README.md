@@ -120,7 +120,12 @@ We currently support two types of uploaders, and each uploader can contain a
 configuration. *These configuration values are not encrypted in any way.*
 
 - **Swarm** - No configuration needed, we will use the Swarm gateway configured
-for the whole wt-write-api instance.
+for the whole wt-write-api instance and reasonable defaults for timeout. Timeouts
+are in milliseconds. You can override these settings with:
+  - `providerUrl` - address of a Swarm gateway. Mandatory.
+  - `timeout` - General timeout. Will be used for both read and write.
+  - `timeoutRead` - Read timeout, overwrites the general timeout.
+  - `timeoutWrite` - Write timeout, overwrites the general timeout.
 - **AWS S3** - We recommend to use a separate IAM account for this with a limited
 set of permissions. All of the following options are required unless stated
 otherwise.
@@ -156,7 +161,12 @@ explicitely stated in the configuration, the `root` configuration will be used.
       }
     },
     "description": {
-      "swarm": {}
+      "swarm": {
+        "providerUrl": "https://swarm-gateways.net",
+        "timeout": 3000,
+        "timeoutRead": 5000,
+        "timeoutWrite": 7000
+      }
     }
   }
 }

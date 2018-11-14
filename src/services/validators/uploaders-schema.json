@@ -56,7 +56,21 @@
       "properties": {
         "swarm": {
           "type": "object",
-          "properties": {}
+          "properties": {
+            "providerUrl": {
+              "type": "string",
+              "format": "url"
+            },
+            "timeout": {
+              "type": "number"
+            },
+            "timeoutRead": {
+              "type": "number"
+            },
+            "timeoutWrite": {
+              "type": "number"
+            }
+          }
         }
       }
     },

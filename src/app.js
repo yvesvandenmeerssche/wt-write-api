@@ -82,7 +82,7 @@ app.use('*', (req, res, next) => {
 app.use((err, req, res, next) => {
   if (!(err instanceof HttpError)) {
     config.logger.error(err.stack);
-    err = new HttpInternalError();
+    err = new HttpInternalError(null, err.originalError, err.message);
   }
 
   res.status(err.status).json(err.toPlainObject());

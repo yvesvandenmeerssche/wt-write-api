@@ -1,0 +1,124 @@
+{
+  "description": "https://github.com/ethereum/wiki/wiki/Web3-Secret-Storage-Definition",
+  "type": "object",
+  "definitions": {
+    "PBKDF2-SHA-256-kdfparams": {
+      "type": "object",
+      "required": [
+        "c",
+        "dklen",
+        "prf",
+        "salt"
+      ],
+      "properties": {
+        "c": {
+          "type": "integer"
+        },
+        "dklen": {
+          "type": "integer",
+          "minimum": 32
+        },
+        "prf": {
+          "type": "string",
+          "enum": [
+            "hmac-sha256"
+          ]
+        },
+        "salt": {
+          "type": "string"
+        }
+      }
+    },
+    "SCRYPT-kdfparams": {
+      "type": "object",
+      "required": [
+        "dklen",
+        "salt",
+        "n",
+        "r",
+        "p"
+      ],
+      "properties": {
+        "dklen": {
+          "type": "integer"
+        },
+        "salt": {
+          "type": "string"
+        },
+        "n": {
+          "type": "integer"
+        },
+        "r": {
+          "type": "integer"
+        },
+        "p": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "required": [
+    "version",
+    "id",
+    "crypto"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "enum": [
+        3
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "crypto": {
+      "type": "object",
+      "required": [
+        "ciphertext",
+        "cipherparams",
+        "cipher",
+        "kdf",
+        "mac",
+        "kdfparams"
+      ],
+      "properties": {
+        "ciphertext": {
+          "type": "string"
+        },
+        "cipherparams": {
+          "type": "object",
+          "properties": {
+            "iv": {
+              "type": "string"
+            }
+          }
+        },
+        "cipher": {
+          "type": "string"
+        },
+        "kdf": {
+          "type": "string",
+          "enum": [
+            "pbkdf2",
+            "scrypt"
+          ]
+        },
+        "mac": {
+          "type": "string"
+        },
+        "kdfparams": {
+          "type": "object",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/PBKDF2-SHA-256-kdfparams"
+            },
+            {
+              "$ref": "#/definitions/SCRYPT-kdfparams"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

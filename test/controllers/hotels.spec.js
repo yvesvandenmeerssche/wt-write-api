@@ -772,6 +772,26 @@ describe('controllers - hotels', function () {
         .end(done);
     });
 
+    it('should propagate unknown error message into 500 response', (done) => {
+      const origRemove = wtMock.remove;
+      wtMock.remove = sinon.stub().callsFake(() => Promise.reject(new WTLibs.errors.TransactionRevertedError('Transaction reverted', 'Transaction has been reverted by the EVM')));
+      request(server)
+        .delete('/hotels/0xdummy?offChain=maybe')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .expect((res) => {
+          assert.equal(res.status, 500);
+          assert.equal(res.body.status, 500);
+          assert.equal(res.body.code, '#genericError');
+          assert.equal(res.body.short, 'Transaction reverted');
+          assert.equal(res.body.long, 'Transaction has been reverted by the EVM');
+        })
+        .end(() => {
+          wtMock.remove = origRemove;
+          done();
+        });
+    });
+
     it('should return HTTP 401 if authorization headers are missing', (done) => {
       request(server)
         .delete('/hotels/0xdummy?offChain=maybe')

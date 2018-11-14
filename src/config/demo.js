@@ -2,7 +2,7 @@ const knex = require('knex');
 
 module.exports = {
   port: 8000,
-  wtIndexAddress: '0x933198455e38925bccb4bfe9fb59bac31d00b4d3',
+  wtIndexAddress: '0x2964288481089b2abe91e727b2829babb01f5fa2',
   ethNetwork: 'ropsten',
   ethereumProvider: 'https://ropsten.infura.io/' + process.env.INFURA_API_KEY,
   swarm: {
