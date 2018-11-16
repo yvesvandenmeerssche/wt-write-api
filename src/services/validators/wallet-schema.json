@@ -63,6 +63,9 @@
     "crypto"
   ],
   "properties": {
+    "address": {
+      "type": "string"
+    },
     "version": {
       "type": "integer",
       "enum": [
