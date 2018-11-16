@@ -9,6 +9,7 @@ const YAML = require('yamljs');
 const config = require('./config');
 const { version } = require('../package.json');
 const { HttpError, HttpInternalError, Http404Error, HttpBadRequestError } = require('./errors');
+const { DATA_FORMAT_VERSION } = require('./constants');
 const { attachAccount, handleOnChainErrors, handleDataFetchingErrors } = require('./middleware');
 const { createHotel, updateHotel, forceUpdateHotel, deleteHotel, getHotel,
   transferHotel } = require('./controllers/hotels');
@@ -54,6 +55,7 @@ app.get('/', (req, res) => {
     config: process.env.WT_CONFIG,
     ethNetwork: config.ethNetwork,
     wtIndexAddress: config.wtIndexAddress,
+    dataFormatVersion: DATA_FORMAT_VERSION,
   });
 });
 
@@ -80,7 +82,7 @@ app.use('*', (req, res, next) => {
 app.use((err, req, res, next) => {
   if (!(err instanceof HttpError)) {
     config.logger.error(err.stack);
-    err = new HttpInternalError();
+    err = new HttpInternalError(null, err.originalError, err.message);
   }
 
   res.status(err.status).json(err.toPlainObject());

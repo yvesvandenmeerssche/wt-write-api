@@ -15,6 +15,14 @@ WT_CONFIG=$ENVIRONMENT
 INFURA_API_KEY=$INFURA_API_KEY
 
 TASK_DEF="[{\"portMappings\": [{\"hostPort\": 0,\"protocol\": \"tcp\",\"containerPort\": 8000}],
+   \"logConfiguration\": {
+      \"logDriver\": \"awslogs\",
+      \"options\": {
+        \"awslogs-group\": \"shared-docker-cluster-t3\",
+        \"awslogs-region\": \"$AWS_REGION\",
+        \"awslogs-stream-prefix\": \"$ENVIRONMENT-wt-write-api\"
+      }
+    },
     \"environment\": [
       {
         \"name\": \"INFURA_API_KEY\",

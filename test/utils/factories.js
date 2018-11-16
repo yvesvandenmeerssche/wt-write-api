@@ -36,17 +36,15 @@ module.exports.getRatePlans = function () {
 /** Return a valid availability representation. */
 module.exports.getAvailability = function () {
   return {
-    latestSnapshot: {
-      availability: {
-        ourOnlyRoom: [
-          {
-            date: '2044-04-04',
-            quantity: 1,
-          },
-        ],
-      },
-      updatedAt: (new Date()).toISOString(),
+    roomTypes: {
+      ourOnlyRoom: [
+        {
+          date: '2044-04-04',
+          quantity: 1,
+        },
+      ],
     },
+    updatedAt: (new Date()).toISOString(),
   };
 };
 
@@ -63,14 +61,22 @@ module.exports.getUploaders = function () {
         keyPrefix: 'prefix',
       },
     },
-    ratePlans: { swarm: {} },
+    ratePlans: {
+      swarm: {
+        providerUrl: 'https://swarm-gateways.net',
+        timeout: 3000,
+        timeoutRead: 5000,
+        timeoutWrite: 7000,
+      },
+    },
   };
 };
 
 // Password for this wallet is 'windingtree'.
 module.exports.getWallet = function () {
   return {
-    'address': 'd037ab9025d43f60a31b32a82e10936f07484246',
+    // Address is actually forbidden in wallet v3
+    // 'address': 'd037ab9025d43f60a31b32a82e10936f07484246',
     'crypto': {
       'cipher': 'aes-128-ctr',
       'cipherparams': {

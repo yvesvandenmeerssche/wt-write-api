@@ -10,7 +10,7 @@ const Account = require('../../src/models/account');
 const WT = require('../../src/services/wt');
 const notifications = require('../../src/services/notifications');
 const { UploaderConfig } = require('../../src/services/uploaders');
-const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('../../src/constants');
+const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER, DATA_FORMAT_VERSION } = require('../../src/constants');
 
 const offChainUploader = {
   upload: sinon.stub().callsFake(async (data, label) => {
@@ -68,6 +68,7 @@ describe('controllers - hotels', function () {
             availabilityUri: 'dummy://availability.json',
             notificationsUri: 'http://notifications.example',
             bookingUri: 'http://booking.example',
+            dataFormatVersion: DATA_FORMAT_VERSION,
           },
         };
       },
@@ -139,6 +140,7 @@ describe('controllers - hotels', function () {
               availabilityUri: 'dummy://availability.json',
               notificationsUri: 'http://notifications.example',
               bookingUri: 'https://booking.example',
+              dataFormatVersion: DATA_FORMAT_VERSION,
             }));
             assert.ok(offChainUploader.upload.calledWithExactly(desc, 'description'));
             assert.ok(offChainUploader.upload.calledWithExactly(ratePlans, 'ratePlans'));
@@ -269,7 +271,7 @@ describe('controllers - hotels', function () {
       offChainUploader.upload.resetHistory();
       delete description.updatedAt;
       delete ratePlans.basic.updatedAt;
-      delete availability.latestSnapshot.updatedAt;
+      delete availability.updatedAt;
       request(server)
         .post('/hotels')
         .send({ description, ratePlans, availability })
@@ -284,7 +286,7 @@ describe('controllers - hotels', function () {
             let uploadedAvailability = offChainUploader.upload.args[2][0];
             assert.ok('updatedAt' in uploadedDesc);
             assert.ok('updatedAt' in uploadedRatePlans.basic);
-            assert.ok('updatedAt' in uploadedAvailability.latestSnapshot);
+            assert.ok('updatedAt' in uploadedAvailability);
             done();
           } catch (e) {
             done(e);
@@ -509,6 +511,7 @@ describe('controllers - hotels', function () {
             assert.ok(offChainUploader.upload.calledWithExactly({
               descriptionUri: 'dummy://description.json',
               ratePlansUri: 'dummy://ratePlans.json',
+              dataFormatVersion: DATA_FORMAT_VERSION,
             }, 'dataIndex', undefined));
             done();
           } catch (e) {
@@ -538,6 +541,7 @@ describe('controllers - hotels', function () {
             assert.equal(offChainUploader.upload.args[1][1], 'dataIndex');
             assert.ok(offChainUploader.upload.calledWithExactly({
               descriptionUri: 'dummy://description.json',
+              dataFormatVersion: DATA_FORMAT_VERSION,
             }, 'dataIndex', undefined));
             done();
           } catch (e) {
@@ -766,6 +770,26 @@ describe('controllers - hotels', function () {
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .expect(400)
         .end(done);
+    });
+
+    it('should propagate unknown error message into 500 response', (done) => {
+      const origRemove = wtMock.remove;
+      wtMock.remove = sinon.stub().callsFake(() => Promise.reject(new WTLibs.errors.TransactionRevertedError('Transaction reverted', 'Transaction has been reverted by the EVM')));
+      request(server)
+        .delete('/hotels/0xdummy?offChain=maybe')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .expect((res) => {
+          assert.equal(res.status, 500);
+          assert.equal(res.body.status, 500);
+          assert.equal(res.body.code, '#genericError');
+          assert.equal(res.body.short, 'Transaction reverted');
+          assert.equal(res.body.long, 'Transaction has been reverted by the EVM');
+        })
+        .end(() => {
+          wtMock.remove = origRemove;
+          done();
+        });
     });
 
     it('should return HTTP 401 if authorization headers are missing', (done) => {

@@ -85,7 +85,7 @@ describe('validators', function () {
 
     it('should fail when a required attribute is missing', () => {
       let availability = getAvailability();
-      delete availability.latestSnapshot.availability.ourOnlyRoom[0].date;
+      delete availability.roomTypes.ourOnlyRoom[0].date;
       assert.throws(() => validateAvailability(availability), ValidationError,
         /Missing required property: date/);
     });
@@ -157,6 +157,12 @@ describe('validators', function () {
       assert.throws(() => validateUploaders(uploaders), ValidationError,
         /Invalid uploader configuration/);
     });
+
+    it('should accept empty swarm uploader configuration', () => {
+      let uploaders = getUploaders();
+      uploaders.ratePlans.swarm = {};
+      validateUploaders(uploaders);
+    });
   });
 
   describe('validateWallet', () => {
@@ -164,8 +170,20 @@ describe('validators', function () {
       validateWallet(getWallet());
     });
 
+    it('should pass when the data contains address (backwards compatibility)', () => {
+      const wallet = getWallet();
+      wallet.address = 'd037ab9025d43f60a31b32a82e10936f07484246';
+      validateWallet(wallet);
+    });
+
     it('should fail when the data is an invalid object', () => {
       let wallet = { dummy: 'dummy' };
+      assert.throws(() => validateWallet(wallet), ValidationError);
+    });
+
+    it('should fail when the data is an invalid object', () => {
+      let wallet = getWallet();
+      delete wallet.crypto;
       assert.throws(() => validateWallet(wallet), ValidationError);
     });
 
