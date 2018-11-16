@@ -3,6 +3,7 @@ const { assert } = require('chai');
 const { getDescription, getRatePlans,
   getAvailability } = require('../utils/factories');
 const { WT } = require('../../src/services/wt');
+const { DATA_FORMAT_VERSION } = require('../../src/constants');
 
 const description = getDescription();
 const ratePlans = getRatePlans();
@@ -46,6 +47,7 @@ const wtLibsMock = {
                 },
                 notificationsUri: 'http://notifications.example',
                 bookingUri: 'http://booking.example',
+                dataFormatVersion: DATA_FORMAT_VERSION,
               });
             },
           };
@@ -69,6 +71,7 @@ describe('WT', () => {
           availabilityUri: 'dummy://availability.json',
           notificationsUri: 'http://notifications.example',
           bookingUri: 'http://booking.example',
+          dataFormatVersion: DATA_FORMAT_VERSION,
         },
       });
     });

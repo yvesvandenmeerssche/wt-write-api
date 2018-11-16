@@ -7,6 +7,13 @@ const { OffChainUploader } = require('./base');
  * Uploader for Ethereum Swarm.
  */
 class SwarmUploader extends OffChainUploader {
+  /**
+   * The following configuration can be provided:
+   * - providerUrl: address of a Swarm gateway. Mandatory.
+   * - timeout: General timeout. Will be used for both read and write.
+   * - timeoutRead: Read timeout, overwrites the general timeout.
+   * - timeoutWrite: Write timeout, overwrites the general timeout.
+   */
   constructor (options) {
     if (!options.providerUrl) {
       throw new Error('Missing required option: providerUrl');
