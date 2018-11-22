@@ -66,7 +66,7 @@ module.exports.handleOnChainErrors = (err, req, res, next) => {
     return next(new HttpBadGatewayError('badGatewayError', msg));
   }
   if (err instanceof WTLibs.errors.TransactionDidNotComeThroughError) {
-    return next(new HttpServiceUnavailable(null, null, null, {
+    return next(new HttpServiceUnavailable(null, null, err.message, {
       'Retry-After': 20, // Should be safe for another ETH block to get mined
     }));
   }
