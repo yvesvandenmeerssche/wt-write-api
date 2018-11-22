@@ -492,10 +492,13 @@ describe('controllers - hotels', function () {
         .set(ACCESS_KEY_HEADER, accessKey)
         .set(WALLET_PASSWORD_HEADER, 'windingtree')
         .send({ description })
-        .expect(503, (res, err) => {
-          assert.equal(err.header['retry-after'], 20);
+        .expect(503)
+        .expect((res) => {
+          assert.equal(res.header['retry-after'], 20);
+        })
+        .end((err) => {
           wtMock.upload = origUpload;
-          done();
+          done(err);
         });
     });
   });
