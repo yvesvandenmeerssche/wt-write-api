@@ -35,7 +35,7 @@
     "@windingtree/off-chain-adapter-http": "^2.0.1",
     "@windingtree/off-chain-adapter-in-memory": "^4.0.0",
     "@windingtree/off-chain-adapter-swarm": "^3.3.0",
-    "@windingtree/wt-js-libs": "^0.5.1",
+    "@windingtree/wt-js-libs": "^0.6.0",
     "aws-sdk": "^2.282.1",
     "cors": "^2.8.4",
     "currency-codes": "^1.3.0",

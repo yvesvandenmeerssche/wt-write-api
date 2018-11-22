@@ -4,7 +4,7 @@ const WT = require('./services/wt');
 const Account = require('./models/account');
 const { UploaderConfig } = require('./services/uploaders');
 const { HttpBadGatewayError, HttpPaymentRequiredError, Http404Error,
-  HttpForbiddenError, HttpUnauthorizedError } = require('./errors');
+  HttpForbiddenError, HttpUnauthorizedError, HttpServiceUnavailable } = require('./errors');
 const { ACCESS_KEY_HEADER, WALLET_PASSWORD_HEADER } = require('./constants');
 
 /**
@@ -64,6 +64,11 @@ module.exports.handleOnChainErrors = (err, req, res, next) => {
   if (err instanceof WTLibs.errors.InaccessibleEthereumNodeError) {
     let msg = 'Ethereum node not reachable. Please try again later.';
     return next(new HttpBadGatewayError('badGatewayError', msg));
+  }
+  if (err instanceof WTLibs.errors.TransactionDidNotComeThroughError) {
+    return next(new HttpServiceUnavailable(null, null, err.message, {
+      'Retry-After': 20, // Should be safe for another ETH block to get mined
+    }));
   }
   if (err instanceof WTLibs.errors.HotelNotFoundError) {
     return next(new Http404Error('notFound', 'Hotel not found.'));

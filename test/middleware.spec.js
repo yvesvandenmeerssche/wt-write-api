@@ -227,6 +227,20 @@ describe('middleware', () => {
       });
     });
 
+    it('should transform TransactionDidNotComeThroughError into 503 HTTP', (done) => {
+      handleOnChainErrors(new WTLibs.errors.TransactionDidNotComeThroughError(), {}, undefined, (err) => {
+        if (!err) return done('should have thrown');
+        try {
+          assert.equal(err.status, 503);
+          assert.equal(err.code, 'serviceUnavailable');
+          assert.equal(err.headers['Retry-After'], 20);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
+
     it('should transform HotelNotFoundError into 404 HTTP', (done) => {
       handleOnChainErrors(new WTLibs.errors.HotelNotFoundError(), {}, undefined, (err) => {
         if (!err) return done('should have thrown');
