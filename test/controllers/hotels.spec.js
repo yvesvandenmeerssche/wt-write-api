@@ -481,6 +481,23 @@ describe('controllers - hotels', function () {
         .expect(404)
         .end(done);
     });
+
+    it('should return 503 if transaction cannot be put through', (done) => {
+      offChainUploader.upload.resetHistory();
+      wtMock.upload.resetHistory();
+      const origUpload = wtMock.upload;
+      wtMock.upload = sinon.stub().callsFake(() => Promise.reject(new WTLibs.errors.TransactionDidNotComeThroughError('nonce too low')));
+      request(server)
+        .patch('/hotels/0xchanged')
+        .set(ACCESS_KEY_HEADER, accessKey)
+        .set(WALLET_PASSWORD_HEADER, 'windingtree')
+        .send({ description })
+        .expect(503, (res, err) => {
+          assert.equal(err.header['retry-after'], 20);
+          wtMock.upload = origUpload;
+          done();
+        });
+    });
   });
 
   describe('PUT /hotels/:address', () => {
