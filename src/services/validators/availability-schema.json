@@ -19,7 +19,6 @@
           "date",
           "quantity"
         ],
-        "unique": ["roomTypeId", "date"],
         "properties": {
           "roomTypeId": {
             "description": "The id of the room type the availability is for",

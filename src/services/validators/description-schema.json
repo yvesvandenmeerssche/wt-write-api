@@ -59,14 +59,13 @@
           "occupancy",
           "totalQuantity"
         ],
-        "unique": ["id"],
         "properties": {
           "updatedAt": {
             "type": "string",
             "format": "date-time"
           },
           "id": {
-            "description": "Id of the room type to show to users",
+            "description": "Id of the rate plan to show to users",
             "title": "Entity id",
             "type": "string",
             "maxLength": 150
