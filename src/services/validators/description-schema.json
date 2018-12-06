@@ -49,10 +49,11 @@
     },
     "roomTypes": {
       "description": "Room types in the hotel",
-      "type": "object",
-      "additionalProperties": {
+      "type": "array",
+      "items": {
         "type": "object",
         "required": [
+          "id",
           "name",
           "description",
           "occupancy",
@@ -62,6 +63,12 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "id": {
+            "description": "Id of the rate plan to show to users",
+            "title": "Entity id",
+            "type": "string",
+            "maxLength": 150
           },
           "name": {
             "description": "Name of the room type to show to users",
