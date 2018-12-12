@@ -72,7 +72,7 @@ function _validate (data, schema) {
  * @param uniqueFields Fields that are supposed to make the object key (be unique together).
  * @params dataType Human readable data specification.
  */
-function _checkDuplicities(data, uniqueFields, dataType) {
+function _checkDuplicities (data, uniqueFields, dataType) {
   if (data) {
     let keys = [];
     for (let item of data) {
@@ -80,8 +80,8 @@ function _checkDuplicities(data, uniqueFields, dataType) {
       for (let field of uniqueFields) {
         key.push(item[field]);
       }
-      if (keys.find((k) => { return k[0] === key[0]})) {
-        throw new ValidationError(`Duplicit value for ${dataType}: ${key}`)
+      if (keys.find((k) => { return k[0] === key[0]; })) {
+        throw new ValidationError(`Duplicit value for ${dataType}: ${key}`);
       }
       keys.push(key);
     }
