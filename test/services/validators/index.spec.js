@@ -65,7 +65,7 @@ describe('validators', function () {
 
     it('should fail when a required attribute is missing', () => {
       let plans = getRatePlans();
-        delete plans[0].name;
+      delete plans[0].name;
       assert.throws(() => validateRatePlans(plans), ValidationError,
         /Missing required property: name/);
     });
