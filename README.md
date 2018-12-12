@@ -83,6 +83,25 @@ be careful where your API is running and who can access it.
 - **Warning** - Once your docker container (and its associated volumes, if any) is deleted,
 all accounts (wallets and configuration) will disappear.
 
+You can run a node with a configuration entirely based on environment variables. Allowed options are:
+
+- `ADAPTER_SWARM_GATEWAY` - Address of a Swarm HTTP Gateway, for example `https://swarm.windingtree.com` or `https://swarm-gateways.net`
+- `ADAPTER_SWARM_READ_TIMEOUT` - Read timeout in milliseconds for Swarm, defaults to 1000
+- `ADAPTER_SWARM_WRITE_TIMEOUT` - Write timeout in milliseconds for Swarm, defaults to 2500
+- `WT_INDEX_ADDRESS` - On chain address of [Winding Tree index](https://github.com/windingtree/wt-contracts/blob/master/contracts/WTIndex.sol)
+- `PORT` - HTTP Port where the API will lsiten, 3000 by default.
+- `BASE_URL` - Base URL of this API instance, for example `https://playground-api.windingtree.com`
+- `ETH_NETWORK_NAME` - Name of Ethereum network for informational purposes, for example `ropsten` or `mainnet`
+- `ETH_NETWORK_PROVIDER` - Address of Ethereum node, for example `https://ropsten.infura.io/`
+- `DB_CLIENT` - [Knex](https://knexjs.org/) database client name, for example `sqlite3`.
+- `DB_CLIENT_OPTIONS` - [Knex](https://knexjs.org/) database client options as JSON string, for example `{"filename": "./envvar.sqlite"}`.
+
+For example the playground configuration can be emulated with the following command:
+
+```sh
+docker run -e WT_CONFIG=envvar -e ADAPTER_SWARM_GATEWAY=https://swarm.windingtree.com -e WT_INDEX_ADDRESS=0x082fa119ffc7427652741456669ce1b306d207e3 -e ETH_NETOWRK_NAME=ropsten -e ETH_NETWORK_PROVIDER=https://ropsten.infura.io/ -e DB_CLIENT_OPTIONS='{"filename": "./envvar.sqlite"}' -e DB_CLIENT=sqlite3 -e BASE_URL=https://playground-write-api.windingtree.com windingtree/wt-write-api
+```
+
 ## Examples
 
 ### Account setup

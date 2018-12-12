@@ -19,7 +19,7 @@ const config = Object.assign({
   // Limit allowed uploaders to prevent dummy uploaders
   // from being used in production.
   allowedUploaders: ['s3', 'swarm'],
-  baseUrl: process.env.WT_API_BASE_URL || 'https://playground-write-api.windingtree.com',
+  baseUrl: process.env.BASE_URL || 'https://playground-write-api.windingtree.com',
 }, require(`./${env}`));
 
 config.wtLibs = WTLibs.createInstance({
