@@ -59,6 +59,7 @@
           "occupancy",
           "totalQuantity"
         ],
+        "unique": ["id"],
         "properties": {
           "updatedAt": {
             "type": "string",
