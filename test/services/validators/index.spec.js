@@ -50,6 +50,12 @@ describe('validators', function () {
       desc.currency = 'OMG';
       assert.throws(() => validateDescription(desc), ValidationError, /ISO 4217/);
     });
+
+    it('should fail with duplicit room types', () => {
+      let desc = getDescription();
+      desc.roomTypes = [desc.roomTypes[0], desc.roomTypes[0]];
+      assert.throws(() => validateDescription(desc), ValidationError, /Duplicit/);
+    });
   });
 
   describe('validateRatePlans', () => {
@@ -76,6 +82,12 @@ describe('validators', function () {
       plans[0].currency = 'OMG';
       assert.throws(() => validateRatePlans(plans), ValidationError, /ISO 4217/);
     });
+
+    it('should fail with duplicit rate plans', () => {
+      let plans = getRatePlans();
+      plans = [plans[0], plans[0]];
+      assert.throws(() => validateRatePlans(plans), ValidationError, /Duplicit/);
+    });
   });
 
   describe('validateAvailability', () => {
@@ -95,6 +107,12 @@ describe('validators', function () {
       availability.certainty = 'maybe';
       assert.throws(() => validateAvailability(availability), ValidationError,
         /Unknown property/);
+    });
+
+    it('should fail with duplicit availability', () => {
+      let availability = getAvailability();
+      availability.roomTypes = [availability.roomTypes[0], availability.roomTypes[0]];
+      assert.throws(() => validateAvailability(availability), ValidationError, /Duplicit/);
     });
   });
 
