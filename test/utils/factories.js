@@ -13,6 +13,9 @@ module.exports.getDescription = function () {
       city: 'Backwoods',
       country: 'GB',
     },
+    roomTypes: [
+        { id: 'rt-1', name: 'Single', description: 'Small bed', occupancy: { max: 1 }, totalQuantity: 2, updatedAt: '2018-12-12T12:00:00Z' },
+    ],
     timezone: 'Europe/London',
     currency: 'GBP',
     updatedAt: (new Date()).toISOString(),
