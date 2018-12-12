@@ -10,6 +10,7 @@
       "price",
       "roomTypeIds"
     ],
+    "unique": ["id"],
     "properties": {
       "updatedAt": {
         "type": "string",
