@@ -69,7 +69,8 @@ You can fiddle with the configuration in `src/config/`.
 
 - To make trying out the node even simpler, we prepared a Docker image pre-configured
 to talk with one of our testing contracts deployed on Ropsten. This is currently pinned
-to SQLite database.
+to SQLite database. You can skip database setup during the container startup with `SKIP_DB_SETUP`
+environment variable.
 - You can use it in your local environment by running the following commands:
 ```sh
 $ docker build -t windingtree/wt-write-api .
