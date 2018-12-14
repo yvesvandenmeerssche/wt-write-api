@@ -29,7 +29,7 @@ TASK_DEF="[{\"portMappings\": [{\"hostPort\": 0,\"protocol\": \"tcp\",\"containe
         \"value\": \"$INFURA_API_KEY\"
       },
       {
-        \"name\": \"WT_API_BASE_URL\",
+        \"name\": \"BASE_URL\",
         \"value\": \"https://$ENVIRONMENT-write-api.windingtree.com\"
       },
       {
