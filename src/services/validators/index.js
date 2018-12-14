@@ -80,7 +80,7 @@ function _checkDuplicities (data, uniqueFields, dataType) {
       for (let field of uniqueFields) {
         key.push(item[field]);
       }
-      if (keys.find((k) => { return k[0] === key[0]; })) {
+      if (keys.find((k) => { return k.join(':') === key.join(':'); })) {
         throw new ValidationError(`Duplicit value for ${dataType}: ${key}`);
       }
       keys.push(key);
