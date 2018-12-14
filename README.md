@@ -68,10 +68,12 @@ You can fiddle with the configuration in `src/config/`.
 ### Running node against Ropsten testnet contract
 
 - To make trying out the node even simpler, we prepared a Docker image pre-configured
-to talk with one of our testing contracts deployed on Ropsten.
+to talk with one of our testing contracts deployed on Ropsten. This is currently pinned
+to SQLite database. You can skip database setup during the container startup with `SKIP_DB_SETUP`
+environment variable.
 - You can use it in your local environment by running the following commands:
 ```sh
-$ docker build --build-arg WT_CONFIG=playground -t windingtree/wt-write-api .
+$ docker build -t windingtree/wt-write-api .
 $ docker run -p 8080:8000 -e WT_CONFIG=playground windingtree/wt-write-api
 ```
 - After that you can access the wt-write-api on local port `8080`

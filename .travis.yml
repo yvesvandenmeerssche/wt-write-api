@@ -22,16 +22,10 @@ jobs:
     - pip install --user awscli
     - export PATH=$PATH:$HOME/.local/bin
     - eval $(aws ecr get-login --no-include-email --region eu-west-1)
-    - echo "Building for playground"
-    - docker build --build-arg WT_CONFIG=playground -t wt-write-api:$TRAVIS_BRANCH-playground
-      .
-    - docker tag wt-write-api:$TRAVIS_BRANCH-playground 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-playground
-    - docker push 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-playground
-    - echo "Building for demo"
-    - docker build --build-arg WT_CONFIG=demo -t wt-write-api:$TRAVIS_BRANCH-demo
-      .
-    - docker tag wt-write-api:$TRAVIS_BRANCH-demo 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-demo
-    - docker push 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH-demo
+    - echo "Building docker image"
+    - docker build -t wt-write-api:$TRAVIS_BRANCH .
+    - docker tag wt-write-api:$TRAVIS_BRANCH 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH
+    - docker push 029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$TRAVIS_BRANCH
   - stage: Start service from docker with latest merged tag
     install: true
     sudo: true

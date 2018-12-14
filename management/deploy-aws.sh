@@ -37,7 +37,7 @@ TASK_DEF="[{\"portMappings\": [{\"hostPort\": 0,\"protocol\": \"tcp\",\"containe
         \"value\": \"$WT_CONFIG\"
       }
     ],
-    \"image\": \"029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$LATEST_TAG-$ENVIRONMENT\",
+    \"image\": \"029479441096.dkr.ecr.eu-west-1.amazonaws.com/wt-write-api:$LATEST_TAG\",
     \"name\": \"wt-write-api\",
     \"memoryReservation\": 128,
     \"cpu\": 128
