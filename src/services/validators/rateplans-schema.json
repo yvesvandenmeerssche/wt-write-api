@@ -1,18 +1,26 @@
 {
-  "type": "object",
+  "type": "array",
   "description": "Property names are ID of rate plan and the values is the rate plan description",
-  "additionalProperties": {
+  "items": {
     "description": "Rate plan for specified room types.\n\nAlgorithm to calculate price\n- pick the right ratePlan(s) based on availableForTravel field and provided booking dates\n- check restrictions and drop rate plans that the booking doesn't meet\n- for every rate plan as rp_i\n  - for every person as p_j\n      j < under baseOccupancyLimit, use base rates, use additional rates otherwise\n      pick a most fitting rate based on declared guest's age and declared length of stay\n        it is possible that nothing is matched\n      multiply the rate by length of stay\n  - store the final price for rp_i\n- compare all final prices and pick the cheapest\n",
     "type": "object",
     "required": [
+      "id",
       "name",
       "price",
       "roomTypeIds"
     ],
+    "unique": ["id"],
     "properties": {
       "updatedAt": {
         "type": "string",
         "format": "date-time"
+      },
+      "id": {
+        "description": "Id of the rate plan to show to users",
+        "title": "Entity id",
+        "type": "string",
+        "maxLength": 150
       },
       "name": {
         "description": "Name of the rate plan to show to users",

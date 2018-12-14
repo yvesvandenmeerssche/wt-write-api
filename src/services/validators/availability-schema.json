@@ -11,37 +11,42 @@
     },
     "roomTypes": {
       "description": "Object where property names are roomTypeId",
-      "type": "object",
-      "additionalProperties": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "required": [
-            "date",
-            "quantity"
-          ],
-          "properties": {
-            "date": {
-              "description": "The date the availability is for",
-              "type": "string",
-              "format": "date"
-            },
-            "quantity": {
-              "description": "Number of free resources to book for the day",
-              "type": "integer"
-            },
-            "restrictions": {
-              "description": "Possible restrictions (this is not exhaustive and we might add more options in the future)",
-              "type": "object",
-              "properties": {
-                "noArrival": {
-                  "type": "boolean",
-                  "description": "It's not possible to arrive on this date"
-                },
-                "noDeparture": {
-                  "type": "boolean",
-                  "description": "It's not possible to depart on this date"
-                }
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "roomTypeId",
+          "date",
+          "quantity"
+        ],
+        "unique": ["roomTypeId", "date"],
+        "properties": {
+          "roomTypeId": {
+            "description": "The id of the room type the availability is for",
+            "title": "Entity id",
+            "type": "string",
+            "maxLength": 150
+          },
+          "date": {
+            "description": "The date the availability is for",
+            "type": "string",
+            "format": "date"
+          },
+          "quantity": {
+            "description": "Number of free resources to book for the day",
+            "type": "integer"
+          },
+          "restrictions": {
+            "description": "Possible restrictions (this is not exhaustive and we might add more options in the future)",
+            "type": "object",
+            "properties": {
+              "noArrival": {
+                "type": "boolean",
+                "description": "It's not possible to arrive on this date"
+              },
+              "noDeparture": {
+                "type": "boolean",
+                "description": "It's not possible to depart on this date"
               }
             }
           }

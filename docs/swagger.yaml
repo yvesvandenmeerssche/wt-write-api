@@ -462,33 +462,33 @@ components:
         - description
       properties:
         description:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/6aef0a3b1b5fc3976e7255fad4099b15a4d6c638/hotel-data-swagger.yaml#/components/schemas/HotelDescription
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/1b7bd3e03f88fdfce6d2f0cf27059caf889eb036/hotel-data-swagger.yaml#/components/schemas/HotelDescription
         ratePlans:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/6aef0a3b1b5fc3976e7255fad4099b15a4d6c638/hotel-data-swagger.yaml#/components/schemas/RatePlans
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/1b7bd3e03f88fdfce6d2f0cf27059caf889eb036/hotel-data-swagger.yaml#/components/schemas/RatePlans
         availability:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/6aef0a3b1b5fc3976e7255fad4099b15a4d6c638/hotel-data-swagger.yaml#/components/schemas/Availability
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/1b7bd3e03f88fdfce6d2f0cf27059caf889eb036/hotel-data-swagger.yaml#/components/schemas/Availability
         notifications:
           description: URL of a notification service.
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/6aef0a3b1b5fc3976e7255fad4099b15a4d6c638/hotel-data-swagger.yaml#/components/schemas/UriType
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/1b7bd3e03f88fdfce6d2f0cf27059caf889eb036/hotel-data-swagger.yaml#/components/schemas/UriType
         booking:
           description: URL of a booking service.
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/6aef0a3b1b5fc3976e7255fad4099b15a4d6c638/hotel-data-swagger.yaml#/components/schemas/UriType
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/1b7bd3e03f88fdfce6d2f0cf27059caf889eb036/hotel-data-swagger.yaml#/components/schemas/UriType
     HotelPatch:
       type: object
       description: Patch object to update existing hotel data.
       properties:
         description:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/6aef0a3b1b5fc3976e7255fad4099b15a4d6c638/hotel-data-swagger.yaml#/components/schemas/HotelDescription
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/1b7bd3e03f88fdfce6d2f0cf27059caf889eb036/hotel-data-swagger.yaml#/components/schemas/HotelDescription
         ratePlans:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/6aef0a3b1b5fc3976e7255fad4099b15a4d6c638/hotel-data-swagger.yaml#/components/schemas/RatePlans
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/1b7bd3e03f88fdfce6d2f0cf27059caf889eb036/hotel-data-swagger.yaml#/components/schemas/RatePlans
         availability:
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/6aef0a3b1b5fc3976e7255fad4099b15a4d6c638/hotel-data-swagger.yaml#/components/schemas/Availability
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/1b7bd3e03f88fdfce6d2f0cf27059caf889eb036/hotel-data-swagger.yaml#/components/schemas/Availability
         notifications:
           description: URL of a notification service.
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/6aef0a3b1b5fc3976e7255fad4099b15a4d6c638/hotel-data-swagger.yaml#/components/schemas/UriType
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/1b7bd3e03f88fdfce6d2f0cf27059caf889eb036/hotel-data-swagger.yaml#/components/schemas/UriType
         booking:
           description: URL of a booking service.
-          $ref: https://raw.githubusercontent.com/windingtree/wiki/6aef0a3b1b5fc3976e7255fad4099b15a4d6c638/hotel-data-swagger.yaml#/components/schemas/UriType
+          $ref: https://raw.githubusercontent.com/windingtree/wiki/1b7bd3e03f88fdfce6d2f0cf27059caf889eb036/hotel-data-swagger.yaml#/components/schemas/UriType
     Error:
       title: Error
       description: Default schema for errors returned by API.

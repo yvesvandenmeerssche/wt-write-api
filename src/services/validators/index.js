@@ -66,6 +66,29 @@ function _validate (data, schema) {
 }
 
 /**
+ * JSON schema can't validate uniqueness based on selected fields, we need to do custom validation.
+ *
+ * @param data
+ * @param uniqueFields Fields that are supposed to make the object key (be unique together).
+ * @params dataType Human readable data specification.
+ */
+function _checkDuplicities (data, uniqueFields, dataType) {
+  if (data) {
+    let keys = [];
+    for (let item of data) {
+      let key = [];
+      for (let field of uniqueFields) {
+        key.push(item[field]);
+      }
+      if (keys.find((k) => { return k[0] === key[0]; })) {
+        throw new ValidationError(`Duplicit value for ${dataType}: ${key}`);
+      }
+      keys.push(key);
+    }
+  }
+}
+
+/**
  * Validate data against description json schema definition.
  *
  * @param {Object} data
@@ -73,7 +96,8 @@ function _validate (data, schema) {
  * @throws {ValidationError} When data validation fails.
  */
 module.exports.validateDescription = function (data) {
-  return _validate(data, descriptionSchema);
+  _validate(data, descriptionSchema);
+  _checkDuplicities(data.roomTypes, ['id'], 'room type');
 };
 
 /**
@@ -84,7 +108,8 @@ module.exports.validateDescription = function (data) {
  * @throws {ValidationError} When data validation fails.
  */
 module.exports.validateRatePlans = function (data) {
-  return _validate(data, ratePlansSchema);
+  _validate(data, ratePlansSchema);
+  _checkDuplicities(data, ['id'], 'rate plan');
 };
 
 /**
@@ -95,7 +120,8 @@ module.exports.validateRatePlans = function (data) {
  * @throws {ValidationError} When data validation fails.
  */
 module.exports.validateAvailability = function (data) {
-  return _validate(data, availabilitySchema);
+  _validate(data, availabilitySchema);
+  _checkDuplicities(data.roomTypes, ['roomTypeId', 'date'], 'availability');
 };
 
 /**

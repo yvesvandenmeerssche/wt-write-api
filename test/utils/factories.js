@@ -13,6 +13,9 @@ module.exports.getDescription = function () {
       city: 'Backwoods',
       country: 'GB',
     },
+    roomTypes: [
+      { id: 'rt-1', name: 'Single', description: 'Small bed', occupancy: { max: 1 }, totalQuantity: 2, updatedAt: '2018-12-12T12:00:00Z' },
+    ],
     timezone: 'Europe/London',
     currency: 'GBP',
     updatedAt: (new Date()).toISOString(),
@@ -22,28 +25,28 @@ module.exports.getDescription = function () {
 
 /** Return a valid rate plans representation. */
 module.exports.getRatePlans = function () {
-  return {
-    basic: {
+  return [
+    {
+      id: 'basic',
       name: 'Basic',
       description: 'One bed, one pillow, no breakfast.',
       price: 123,
       updatedAt: (new Date()).toISOString(),
       roomTypeIds: ['dummy'],
     },
-  };
+  ];
 };
 
 /** Return a valid availability representation. */
 module.exports.getAvailability = function () {
   return {
-    roomTypes: {
-      ourOnlyRoom: [
-        {
-          date: '2044-04-04',
-          quantity: 1,
-        },
-      ],
-    },
+    roomTypes: [
+      {
+        roomTypeId: 'ourOnlyRoom',
+        date: '2044-04-04',
+        quantity: 1,
+      },
+    ],
     updatedAt: (new Date()).toISOString(),
   };
 };

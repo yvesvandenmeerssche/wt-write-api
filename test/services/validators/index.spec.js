@@ -50,6 +50,12 @@ describe('validators', function () {
       desc.currency = 'OMG';
       assert.throws(() => validateDescription(desc), ValidationError, /ISO 4217/);
     });
+
+    it('should fail with duplicit room types', () => {
+      let desc = getDescription();
+      desc.roomTypes = [desc.roomTypes[0], desc.roomTypes[0]];
+      assert.throws(() => validateDescription(desc), ValidationError, /Duplicit/);
+    });
   });
 
   describe('validateRatePlans', () => {
@@ -59,22 +65,28 @@ describe('validators', function () {
 
     it('should fail when a required attribute is missing', () => {
       let plans = getRatePlans();
-      delete plans.basic.name;
+      delete plans[0].name;
       assert.throws(() => validateRatePlans(plans), ValidationError,
         /Missing required property: name/);
     });
 
     it('should fail when an unknown attribute is provided', () => {
       let plans = getRatePlans();
-      plans.basic.colour = 'green';
+      plans[0].colour = 'green';
       assert.throws(() => validateRatePlans(plans), ValidationError,
         /Unknown property/);
     });
 
     it('should fail when the currency code is invalid', () => {
       let plans = getRatePlans();
-      plans.basic.currency = 'OMG';
+      plans[0].currency = 'OMG';
       assert.throws(() => validateRatePlans(plans), ValidationError, /ISO 4217/);
+    });
+
+    it('should fail with duplicit rate plans', () => {
+      let plans = getRatePlans();
+      plans = [plans[0], plans[0]];
+      assert.throws(() => validateRatePlans(plans), ValidationError, /Duplicit/);
     });
   });
 
@@ -85,7 +97,7 @@ describe('validators', function () {
 
     it('should fail when a required attribute is missing', () => {
       let availability = getAvailability();
-      delete availability.roomTypes.ourOnlyRoom[0].date;
+      delete availability.roomTypes[0].date;
       assert.throws(() => validateAvailability(availability), ValidationError,
         /Missing required property: date/);
     });
@@ -95,6 +107,12 @@ describe('validators', function () {
       availability.certainty = 'maybe';
       assert.throws(() => validateAvailability(availability), ValidationError,
         /Unknown property/);
+    });
+
+    it('should fail with duplicit availability', () => {
+      let availability = getAvailability();
+      availability.roomTypes = [availability.roomTypes[0], availability.roomTypes[0]];
+      assert.throws(() => validateAvailability(availability), ValidationError, /Duplicit/);
     });
   });
 
